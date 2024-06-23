@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import ThemeToggle from "../themetoggle/ThemeToggle";
 import AuthLinks from "../authLinks/AuthLinks";
+import { IoMdArrowDropdown } from "react-icons/io";
+
 
 const Navbar = () => {
   return (
@@ -14,12 +16,13 @@ const Navbar = () => {
         <Image src="/instagram.png" alt="facebook" width={24} height={24} />
         <Image src="/youtube.png" alt="facebook" width={24} height={24} />
       </div>
-      <div className={styles.logo}>azblog</div>
+      <div className={styles.logo}><Image src="/AZBYTEGEMS.png" alt="logo" width={108} height={48}/></div>
       <div className={styles.links}>
         <ThemeToggle />
-        <Link href="/" className={styles.link}>Home</Link>
-        <Link href="/" className={styles.link}>Contact</Link>
-        <Link href="/" className={styles.link}>About</Link>
+        <Link href="/" className={styles.link}>Blog<span className={styles.arrow}><IoMdArrowDropdown/></span></Link>
+        <Link href="/" className={styles.link}>Topics<span className={styles.arrow}><IoMdArrowDropdown/></span></Link>
+        <Link href="/" className={styles.link}>Datasets</Link>
+        <Link href="/" className={styles.link}>Resources<span className={styles.arrow}><IoMdArrowDropdown/></span></Link>
         <AuthLinks />
       </div>
     </div>
