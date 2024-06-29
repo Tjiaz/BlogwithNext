@@ -5,16 +5,24 @@ import Link from "next/link";
 import ThemeToggle from "../themetoggle/ThemeToggle";
 import AuthLinks from "../authLinks/AuthLinks";
 import { IoMdArrowDropdown } from "react-icons/io";
+import { BsTwitterX } from "react-icons/bs";
+import { BsLinkedin } from "react-icons/bs";
+import { BsFacebook } from "react-icons/bs";
+
 
 
 const Navbar = () => {
   return (
     <div className={styles.container}>
       <div className={styles.social}>
-        <Image src="/facebook.png" alt="facebook" width={24} height={24} />
-        <Image src="/tiktok.png" alt="facebook" width={24} height={24} />
-        <Image src="/instagram.png" alt="facebook" width={24} height={24} />
-        <Image src="/youtube.png" alt="facebook" width={24} height={24} />
+       
+       
+      <Link href="/" className={styles.social_icons}><BsFacebook/></Link>
+        
+        <Link href="/" className={styles.social_icons}><BsLinkedin/></Link>
+        <Link href="/" className={styles.social_icons}><BsTwitterX /></Link>
+        <button href="/" className={styles.join_newsletter_button}>join newsletter</button>
+        
       </div>
       <div className={styles.logo}><Image src="/AZBYTEGEMS.png" alt="logo" width={108} height={48}/></div>
       <div className={styles.links}>

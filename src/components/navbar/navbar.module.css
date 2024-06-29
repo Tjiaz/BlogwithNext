@@ -9,7 +9,29 @@
 .social {
   display: flex;
   flex: 1;
-  gap: 10px;
+  gap: 12px;
+  align-items: center;
+ 
+}
+
+.social_icons{ 
+  color:#0B73B1;
+  
+}
+
+.join_newsletter_button{
+  background-color: #0B73B1;
+  color:#fff;
+  padding:10px 20px;
+  border:none;
+  
+  text-transform: uppercase;
+  font-weight: bold;
+  cursor: pointer;
+}
+.join_newsletter_button:hover { 
+  background-color: #2991ce;
+  color:#fff;
 }
 
 .links {
