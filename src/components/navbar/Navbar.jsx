@@ -1,4 +1,5 @@
-import React from "react";
+"use client"
+import React,{useState} from "react";
 import styles from "./navbar.module.css";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,6 +13,7 @@ import { BsFacebook } from "react-icons/bs";
 
 
 const Navbar = () => {
+  const[showMenu,setShowMenu]=useState(false)
   return (
     <div className={styles.container}>
       <div className={styles.social}>
@@ -28,7 +30,29 @@ const Navbar = () => {
       <div className={styles.links}>
         <ThemeToggle />
         <Link href="/" className={styles.link}>Blog<span className={styles.arrow}><IoMdArrowDropdown/></span></Link>
-        <Link href="/" className={styles.link}>Topics<span className={styles.arrow}><IoMdArrowDropdown/></span></Link>
+        <div className={styles.dropdown} onMouseEnter={() => setShowMenu(true)} onMouseLeave={() => setShowMenu(false)}>
+        <Link href="/" className={styles.link} >Topics<span className={styles.arrow}><IoMdArrowDropdown/></span></Link>
+        {showMenu && (
+          <div className={styles.dropdownMenu}>
+            <div className={styles.dropdownColumn}>
+              <Link href="/" className={styles.dropdownItem}>AI</Link>
+              <Link href="/" className={styles.dropdownItem}>Career Advice</Link>
+              <Link href="/" className={styles.dropdownItem}>Computer Vision</Link>
+              <Link href="/" className={styles.dropdownItem}>Data Engineering</Link>
+              <Link href="/" className={styles.dropdownItem}>Data Science</Link>
+              <Link href="/" className={styles.dropdownItem}>Language Models</Link>
+            </div>
+            <div className={styles.dropdownColumn}>
+              <Link href="/" className={styles.dropdownItem}>Machine Learning</Link>
+              <Link href="/" className={styles.dropdownItem}>MLOps</Link>
+              <Link href="/" className={styles.dropdownItem}>NLP</Link>
+              <Link href="/" className={styles.dropdownItem}>Programming</Link>
+              <Link href="/" className={styles.dropdownItem}>Python</Link>
+              <Link href="/" className={styles.dropdownItem}>SQL</Link>
+            </div>
+          </div>
+        )}
+        </div>
         <Link href="/" className={styles.link}>Datasets</Link>
         <Link href="/" className={styles.link}>Resources<span className={styles.arrow}><IoMdArrowDropdown/></span></Link>
         <AuthLinks />

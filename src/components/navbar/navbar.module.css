@@ -60,6 +60,41 @@
   font-size: 32px;
   font-weight: bold;
 }
+.dropdown {
+  position: relative;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: flex;
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  z-index: 1000;
+}
+
+.dropdownColumn {
+  display: flex;
+  flex-direction: column;
+  padding: 0 15px;
+}
+
+.dropdownItem {
+  padding: 5px 0;
+  text-decoration: none;
+  color: #333;
+  white-space: nowrap;
+}
+
+.dropdownItem:hover {
+  color: #2991ce;
+}
+
+
+
 
 @media screen and (max-width: 1280px) {
   .logo {
