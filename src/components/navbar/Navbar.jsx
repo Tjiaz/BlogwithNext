@@ -14,6 +14,8 @@ import { BsFacebook } from "react-icons/bs";
 
 const Navbar = () => {
   const[showMenu,setShowMenu]=useState(false)
+  const[showBlogMenu,setShowBlogMenu]=useState(false)
+  const[showResMenu,setShowResMenu]=useState(false)
   return (
     <div className={styles.container}>
       <div className={styles.social}>
@@ -29,7 +31,18 @@ const Navbar = () => {
       <div className={styles.logo}><Image src="/AZBYTEGEMS.png" alt="logo" width={108} height={48}/></div>
       <div className={styles.links}>
         <ThemeToggle />
+        <div className={styles.dropdown} onMouseEnter={() => setShowBlogMenu(true)} onMouseLeave={() => setShowBlogMenu(false)}>
         <Link href="/" className={styles.link}>Blog<span className={styles.arrow}><IoMdArrowDropdown/></span></Link>
+       {showBlogMenu && (
+        <div className={styles.dropdownMenu}>
+        <div className={styles.dropdownColumn}>
+        <Link href="/" className={styles.dropdownItem}>Top Post</Link>
+        <Link href="/" className={styles.dropdownItem}>About</Link>
+        </div>
+        </div>
+       )}
+       
+        </div>
         <div className={styles.dropdown} onMouseEnter={() => setShowMenu(true)} onMouseLeave={() => setShowMenu(false)}>
         <Link href="/" className={styles.link} >Topics<span className={styles.arrow}><IoMdArrowDropdown/></span></Link>
         {showMenu && (
@@ -54,7 +67,19 @@ const Navbar = () => {
         )}
         </div>
         <Link href="/" className={styles.link}>Datasets</Link>
+        <div className={styles.dropdown} onMouseEnter={() => setShowResMenu(true)} onMouseLeave={() => setShowResMenu(false)}>
         <Link href="/" className={styles.link}>Resources<span className={styles.arrow}><IoMdArrowDropdown/></span></Link>
+        {showResMenu && ( 
+          <div className={styles.dropdownMenu}>
+          <div className={styles.dropdownColumn}>
+          <Link href="/" className={styles.dropdownItem}>Cheat Sheets</Link>
+          <Link href="/" className={styles.dropdownItem}>Recommendations</Link>
+          <Link href="/" className={styles.dropdownItem}>Tech Briefs</Link>
+          </div>
+          </div>
+
+        )}
+        </div>
         <AuthLinks />
       </div>
     </div>

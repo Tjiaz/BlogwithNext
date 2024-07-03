@@ -1,14 +1,17 @@
 import React from "react";
 import styles from "./featured.module.css";
 import Image from "next/image";
+import Link from "next/link";
 
 const Featured = () => {
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>
-        <b>Hello! Welcome to Azcodezone blog!</b> Discover articles and trending
-        headlines from the different categories
-      </h1>
+     <div className={styles.advertContainer}>
+    <div className={styles.imageadvert}>
+    <Image src="/p1.jpeg" alt="" fill className={styles.image} />
+    </div>
+    <Link href="/" className={styles.advert}>adverts link</Link>
+    </div>
       <div className={styles.post}>
         <div className={styles.imgContainer}>
           <Image src="/p1.jpeg" alt="" fill className={styles.image} />

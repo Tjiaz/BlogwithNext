@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 100px;
+  height: 90px;
   border-bottom:2px solid #0B73B1;
 }
 
@@ -76,10 +76,11 @@
   z-index: 1000;
 }
 
+
 .dropdownColumn {
   display: flex;
   flex-direction: column;
-  padding: 0 15px;
+  padding: 0 20px;
 }
 
 .dropdownItem {
@@ -87,10 +88,14 @@
   text-decoration: none;
   color: #333;
   white-space: nowrap;
+  border-bottom: 1px solid #2991ce;
+  margin-bottom:5px;
+  font-size: small;
 }
 
 .dropdownItem:hover {
-  color: #2991ce;
+
+  text-decoration: underline;
 }
 
 

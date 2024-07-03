@@ -1,16 +1,38 @@
 .container {
   margin-top: 30px;
 }
-.title {
+/* .title {
   font-size: 64px;
   font-weight: bold;
-}
+} */
 
+.imageadvert{
+  height: 150px;
+  position: relative;
+  width: 70vw;
+  display: block;
+  margin: 0 auto;
+  
+}
 .post {
   margin-top: 60px;
   display: flex;
   align-content: center;
   gap: 50px;
+}
+.advertsContainer{ 
+  align-items:  center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+ 
+}
+.advert{ 
+  width: 70vw; 
+  font-size: small;
+  text-decoration: underline;
+  text-align: center;
+  padding-left: 550px;
 }
 
 .imgContainer {
