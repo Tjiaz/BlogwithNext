@@ -36,7 +36,7 @@
 }
 
 .imgContainer {
-  flex: 1;
+  flex: 2;
   height: 500px;
   position: relative;
 }
@@ -52,6 +52,26 @@
   font-size: 20px;
   font-weight: 300;
   color: var(--softTextColor);
+}
+
+.searchContainer{ 
+  position:relative;
+  width:300px;
+}
+.searchInput{ 
+  width:100%;
+  padding:10px;
+  padding-right: 40px;
+  font-size: 16px;
+}
+.searchIcon{ 
+  position:absolute;
+  right:10px;
+  top:50%;
+  cursor:pointer;
+  color:grey;
+  font-size: 24px;
+  transform:translateY(-50%)
 }
 
 .button {
