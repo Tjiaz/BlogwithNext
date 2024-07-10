@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import styles from "./authLinks.module.css";
 import { signOut, useSession } from "next-auth/react";
 import { IoMdArrowDropdown } from "react-icons/io";
@@ -11,6 +11,26 @@ const AuthLinks = () => {
   const[showMenu,setShowMenu]=useState(false)
   const[showBlogMenu,setShowBlogMenu]=useState(false)
   const { status } = useSession();
+
+  // Close the menu when the screen width is larger than 640px
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 640) {
+        setOpen(false);
+        setShowMenu(false);
+        setShowResMenu(false);
+        setShowBlogMenu(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <>
       {status === "unauthenticated" ? (
@@ -35,7 +55,17 @@ const AuthLinks = () => {
       </div>
       {open && (
         <div className={styles.responsiveMenu}>
-        <Link href="/" className={styles.menuLink}>Blog</Link>
+        <div href="/" className={styles.menuLink} onClick={() => setShowBlogMenu(!showBlogMenu)}>Blog<span className={styles.arrow}><IoMdArrowDropdown/></span></div>
+        {showBlogMenu && (
+          <div className={styles.dropdownMenu}>
+            <div className={styles.dropdownMenu}>
+              <Link href="/" className={styles.dropdownItem}>Top post</Link>
+              <Link href="/" className={styles.dropdownItem}>About</Link>
+              
+            </div>
+          </div>
+        )}
+       
         <div 
         className={styles.menuLink} 
         onClick={() => setShowMenu(!showMenu)}
@@ -51,8 +81,6 @@ const AuthLinks = () => {
             <Link href="/" className={styles.dropdownItem}>Data Engineering</Link>
             <Link href="/" className={styles.dropdownItem}>Data Science</Link>
             <Link href="/" className={styles.dropdownItem}>Language Models</Link>
-          </div>
-          <div className={styles.dropdownMenu}>
             <Link href="/" className={styles.dropdownItem}>Machine Learning</Link>
             <Link href="/" className={styles.dropdownItem}>MLOps</Link>
             <Link href="/" className={styles.dropdownItem}>NLP</Link>
@@ -72,9 +100,11 @@ const AuthLinks = () => {
           </div>
           {showResMenu && (
             <div className={styles.dropdownMenu}>
+            <div className={styles.dropdownMenu}>
               <Link href="/" className={styles.dropdownItem}>Cheat Sheets</Link>
               <Link href="/" className={styles.dropdownItem}>Recommendations</Link>
               <Link href="/" className={styles.dropdownItem}>Tech Briefs</Link>
+            </div>
             </div>
           )}
           
