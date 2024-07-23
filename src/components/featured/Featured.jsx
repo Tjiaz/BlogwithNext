@@ -14,10 +14,19 @@ const Featured = () => {
     <Link href="/" className={styles.advert}>adverts link</Link>
     </div>
       <div className={styles.post}>
-        <div className={styles.imgContainer}>
-          <Image src="/p1.jpeg" alt="" fill className={styles.image} />
-        </div>
-        <div className={styles.textContainer}>
+      <div className={styles.textContainer1}>
+      <h1 className={styles.postTitle}>LLM Portfolio Projects Ideas to Wow Employers</h1>
+      <p className={styles.postDesc}>Build interesting AI projects using LangChain, VectorDB, FastAPI, OpenAI API, Zyte, Ollama, and Hugging Face.</p>
+      <div className={styles.author}>
+      By <strong>
+      <Link href="/" title="posted by author" rel="author"> Name </Link></strong>
+         KDnuggets Assistant Editor on June 26, 2024 in <Link href="/">Language Models</Link>
+      </div>
+      <Link href="/">
+        <Link  href="/" className={styles.readMore}>Read More</Link>
+      </Link>
+    </div>
+        <div className={styles.textContainer2}>
          
           <div className={styles.searchContainer}>
           <input type="text" className={styles.searchInput} placeholder="Search AzByteGems..." />
