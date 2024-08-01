@@ -5,8 +5,10 @@ import { useState,useEffect } from "react";
 import styles from "./authLinks.module.css";
 import { signOut, useSession } from "next-auth/react";
 import { IoMdArrowDropdown } from "react-icons/io";
+import { MdSearch } from "react-icons/md";
 const AuthLinks = () => {
   const [open, setOpen] = useState(false);
+  const[showSearch,setShowSearch] = useState(false);
   const [showResMenu, setShowResMenu] = useState(false);
   const[showMenu,setShowMenu]=useState(false)
   const[showBlogMenu,setShowBlogMenu]=useState(false)
@@ -20,6 +22,7 @@ const AuthLinks = () => {
         setShowMenu(false);
         setShowResMenu(false);
         setShowBlogMenu(false);
+        setShowSearch(false);
       }
     };
 
@@ -48,10 +51,19 @@ const AuthLinks = () => {
         </>
       )}
 
-      <div className={styles.burger} onClick={() => setOpen(!open)}>
+     
+      <div className={styles.topContainer} >
+       <MdSearch className={styles.searchIcon}
+        onClick={() => setShowSearch(!showSearch)} 
+        />
+        <div className={styles.burger} onClick={() => setOpen(!open)}>
         <div className={styles.line}></div>
         <div className={styles.line}></div>
         <div className={styles.line}></div>
+      </div>
+      {showSearch && ( 
+         <input type="text"  className={`${styles.searchInput} ${styles.showSearch}`} placeholder="Search AzByteGems..." />
+        )}
       </div>
       {open && (
         <div className={styles.responsiveMenu}>
@@ -65,7 +77,6 @@ const AuthLinks = () => {
             </div>
           </div>
         )}
-       
         <div 
         className={styles.menuLink} 
         onClick={() => setShowMenu(!showMenu)}
