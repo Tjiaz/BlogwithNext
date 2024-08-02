@@ -17,6 +17,15 @@
   gap: 50px;
 }
 
+.postItem {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.postImage {
+  margin-right: 20px;
+}
+
 .advertsContainer {
   align-items: center;
   display: flex;
@@ -32,6 +41,7 @@
   text-align: center;
   padding-left: 550px;
 }
+
 
 .textContainer1 {
   flex: 2;
@@ -49,16 +59,22 @@
 
 .postTitle{
 
-  font-size: 30px;
-  font-weight: bold;
+  font-size: 1.2em;
+  margin: 0 0 10px 0;
   
 }
 
 .postDesc {
-  font-size: 18px;
-  font-weight: 200;
+  font-size: 0.8em;
+  margin: 0 0 10px 0;
   color: var(--softTextColor);
 }
+
+.author {
+  font-size: 0.9em;
+  color: #000;
+}
+
 
 .searchContainer {
   position: relative;

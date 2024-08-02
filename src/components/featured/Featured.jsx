@@ -22,34 +22,44 @@ const Featured = () => {
     <Link href="/" className={styles.advert}>adverts link</Link>
     </div>
       <div className={styles.post}>
+     
       <div className={styles.textContainer1}>
-      <h1 className={styles.postTitle}>LLM Portfolio Projects Ideas to Wow Employers</h1>
-      <p className={styles.postDesc}>Build interesting AI projects using LangChain, VectorDB, FastAPI, OpenAI API, Zyte, Ollama, and Hugging Face.</p>
-      <div className={styles.author}>
-      By <strong>
-      <Link href="/" title="posted by author" rel="author"> Name </Link></strong>
-         KDnuggets Assistant Editor on June 26, 2024 in <Link href="/">Language Models</Link>
+      <h3>Latest Posts</h3>
+      <div style={{ display: 'flex', width: '100%' }}>
+        <div style={{ flex: '0 0 25%', borderBottom: '3px solid #0B73B1' }}></div>
+        <div style={{ flex: '1', borderBottom: '2px solid #0B73B1' }}></div>
       </div>
-      <div className={styles.postSocial}>
-      <Link className={styles.facebook} href="/facebook" rel="facebook"><FaFacebookSquare /></Link>
-      <Link className={styles.twitter} href="/twitter" rel="twitter"><FaTwitterSquare /></Link>
-      <Link className={styles.linkedin} href="/linkedin" rel="linkedin"><FaLinkedin /></Link>
-      <Link className={styles.reddit} href="/reddit" rel="reddit"><FaRedditSquare /></Link>
-      <Link className={styles.email} href="/email" rel="emailk"><MdEmail /></Link>
-      <Link className={styles.addbox} href="/addbox" rel="addbox"><MdOutlineAddBox /></Link>
-      </div>
-      <hr/>
-      <center>
-      <div className={styles.image_dummy}>
-      <Image src="/dummy_img.png" alt="" width={800}height={500} className={styles.dummy_image} />
-      </div>
-      <p>Image by Author</p>
-      </center>
-
-
-      <Link href="/">
-        <Link  href="/" className={styles.readMore}>Read More</Link>
-      </Link>
+      <div className={styles.postItem}>
+            <div className={styles.postImage}>
+              <Image src="/dummy_img.png" alt="History and Future of LLMs" width={100} height={100} className={styles.image} />
+            </div>
+            <div className={styles.postContent}>
+              <h1 className={styles.postTitle}>History and Future of LLMs</h1>
+              <p className={styles.postDesc}>Check out this concise history and future of large language models.</p>
+              <div className={styles.author}>
+                By <strong>
+                  <Link href="/" title="posted by author" rel="author"> Kevin Vu </Link>
+                </strong>
+                Exxact Corp on August 2, 2024 in <Link href="/">Language Models</Link>
+              </div>
+            </div>
+          </div>
+      <div className={styles.postItem}>
+            <div className={styles.postImage}>
+              <Image src="/dummy_img.png" alt="Organize, Search, and Back Up Files with Python’s Pathlib" width={100} height={100} className={styles.image} />
+            </div>
+            <div className={styles.postContent}>
+              <h1 className={styles.postTitle}>Organize, Search, and Back Up Files with Python’s Pathlib</h1>
+              <p className={styles.postDesc}>This tutorial will teach you how to simplify your file management tasks, from organization to backup, using Python’s pathlib module.</p>
+              <div className={styles.author}>
+                By <strong>
+                  <Link href="/" title="posted by author" rel="author"> Bala Priya C </Link>
+                </strong>
+                KDnuggets Contributing Editor & Technical Content Specialist on August 2, 2024 in <strong><Link href="/">Python</Link></strong>
+              </div>
+            </div>
+          </div>
+          
     </div>
         <div className={styles.textContainer2}>
          

@@ -14,9 +14,10 @@
 .topContainer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   width: 100%;
   position: relative; 
+ 
 }
 
 .searchIcon {
@@ -24,6 +25,7 @@
   cursor: pointer;
   display: none;
   margin-right: 15px; 
+ 
 }
 
 .searchInput {
@@ -33,9 +35,9 @@
   left: 0;
   width: 100%;
   padding: 10px;
-  font-size: 14px;
+  font-size: 10px;
   background: white;
-  border: 1px solid #ccc;
+  border: 1.2px solid #000;
   z-index: 10;
   box-sizing: border-box;
 }
