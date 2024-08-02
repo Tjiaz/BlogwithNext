@@ -19,7 +19,8 @@
 
 .postItem {
   display: flex;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #ccd;
 }
 
 .postImage {
@@ -143,6 +144,9 @@
 @media screen and (max-width: 640px) {
   .title {
     font-size: 48px;
+  }
+  .textContainer2 { 
+    display: none;
   }
 }
 

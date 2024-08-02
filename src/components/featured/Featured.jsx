@@ -24,6 +24,7 @@ const Featured = () => {
       <div className={styles.post}>
      
       <div className={styles.textContainer1}>
+      
       <h3>Latest Posts</h3>
       <div style={{ display: 'flex', width: '100%' }}>
         <div style={{ flex: '0 0 25%', borderBottom: '3px solid #0B73B1' }}></div>
@@ -40,7 +41,7 @@ const Featured = () => {
                 By <strong>
                   <Link href="/" title="posted by author" rel="author"> Kevin Vu </Link>
                 </strong>
-                Exxact Corp on August 2, 2024 in <Link href="/">Language Models</Link>
+                Exxact Corp on August 2, 2024 in <strong><Link href="/">Language Models</Link></strong>
               </div>
             </div>
           </div>
