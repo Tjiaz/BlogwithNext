@@ -19,8 +19,9 @@
 
 .postItem {
   display: flex;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   border-bottom: 1px solid #ccd;
+  padding-bottom: 20px;
 }
 
 .postImage {
@@ -44,8 +45,9 @@
 }
 
 
+
 .textContainer1 {
-  flex: 2;
+  flex: 2.25;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -56,6 +58,40 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+.advertImgContainer{ 
+ text-align: center;
+ }
+
+ 
+
+.advertImg{ 
+  width:85%;
+  height: auto;
+  margin:0 auto;
+  display: block;
+  
+}
+
+.topPosts{ 
+  text-align: center;
+}
+
+.noListStyle{
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  
+  
+}
+.listItem{
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+}
+.listItem:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .postTitle{
@@ -79,7 +115,7 @@
 
 .searchContainer {
   position: relative;
-  width: 300px;
+  width: 400px;
 }
 
 .searchInput {

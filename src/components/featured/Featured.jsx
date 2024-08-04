@@ -67,8 +67,37 @@ const Featured = () => {
           <div className={styles.searchContainer}>
           <input type="text" className={styles.searchInput} placeholder="Search AzByteGems..." />
           <MdSearch className={styles.searchIcon} />
-
-            
+         </div>
+         <div className={styles.advertImgContainer}>
+              <Image src="/dummy_img.png" alt="advert" width={100} height={100} className={styles.advertImg} />
+              <Link href="/" >Adverts</Link>
+            </div>
+          <div>
+          <h3>Top Posts</h3>
+          <div style={{ display: 'flex', width: '100%' }}>
+          <div style={{ flex: '0 0 25%', borderBottom: '3px solid #0B73B1' }}></div>
+          <div style={{ flex: '1', borderBottom: '2px solid #0B73B1' }}></div>
+       </div>
+          </div>
+          <div className={styles.topPosts}>
+          <ol className={styles.noListStyle}>
+          <li className={styles.listItem}>
+          <Link href="/" >Building Data Science Pipelines Using Pandas</Link>
+          </li>
+          <li className={styles.listItem}>
+           <Link href="/" >Building Data Science Pipelines Using Pandas</Link>
+           </li>
+           <li className={styles.listItem}>
+           <Link href="/" >Building Data Science Pipelines Using Pandas</Link>
+           </li>
+           <li className={styles.listItem}>
+           <Link href="/" >Building Data Science Pipelines Using Pandas</Link>
+           </li>
+           <li className={styles.listItem}>
+           <Link href="/" >Building Data Science Pipelines Using Pandas</Link>
+           </li>
+          </ol>
+           
           </div>
           <button className={styles.button}>Read More</button>
         </div>
