@@ -1,3 +1,4 @@
+"use client"
 import React from "react";
 import styles from "./featured.module.css";
 import Image from "next/image";
@@ -11,10 +12,25 @@ import { FaLinkedin } from "react-icons/fa";
 import { FaRedditSquare } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { MdOutlineAddBox } from "react-icons/md";
+import Pagination from "../pagination/Pagination"
+import { useSearchParams } from "next/navigation";
 
 
+const POSTS_PER_PAGE = 6
 
 const Featured = () => {
+  const searchParams = useSearchParams()
+  const pageParam = searchParams.get("page");
+  const page = parseInt(pageParam, 10) || 1;
+
+
+  
+  const startIndex = (page - 1) * POSTS_PER_PAGE 
+  const endIndex = startIndex - POSTS_PER_PAGE 
+  const paginatedPosts = posts.slice(startIndex,endIndex)
+
+  const hasPrev = page > 1
+  const hasNext = endIndex < posts.length
   return (
     <div className={styles.container}>
      <div className={styles.advertContainer}>
@@ -33,7 +49,7 @@ const Featured = () => {
         <div style={{ flex: '1', borderBottom: '2px solid #0B73B1' }}></div>
       </div>
      
-      {posts.map((post) => ( 
+      {paginatedPosts.map((post) => ( 
         <div className={styles.postItem}>
        
       <FeaturedCard key={post.id} id={post.id} postImg={post.postImg} postTitle={post.postTitle}
@@ -42,7 +58,7 @@ const Featured = () => {
       ))
      
     }
-           
+    <Pagination page={page} hasPrev={hasPrev} hasNext={hasNext} />
        
       </div>
       
