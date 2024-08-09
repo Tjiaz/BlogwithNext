@@ -25,9 +25,9 @@ const Featured = () => {
 
 
   
-  const startIndex = (page - 1) * POSTS_PER_PAGE 
-  const endIndex = startIndex - POSTS_PER_PAGE 
-  const paginatedPosts = posts.slice(startIndex,endIndex)
+  const startIndex = (page - 1) * POSTS_PER_PAGE // (2 - 1) * 4 = 4
+  const endIndex = startIndex + POSTS_PER_PAGE // 4 + 4 = 8
+  const paginatedPosts = posts.slice(startIndex,endIndex) // Extracts elements from index 4 to 7
 
   const hasPrev = page > 1
   const hasNext = endIndex < posts.length
@@ -99,7 +99,16 @@ const Featured = () => {
           </ol>
            
           </div>
-          <button className={styles.button}>Read More</button>
+          <div className={styles.advertImgContainer}>
+              <Image src="/dummy_img.png" alt="advert" width={100} height={100} className={styles.advertImg} />
+              <Link href="/" >Adverts</Link>
+            </div>
+          <div className={styles.signupContainer}>
+          <input type="text" className={styles.searchInput} placeholder="Your Email" />
+          <button href="/" className={styles.signupbutton}>sign up</button>
+         </div>
+        
+         
         </div>
       </div>
     </div>

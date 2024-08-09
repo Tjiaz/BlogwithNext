@@ -142,6 +142,26 @@
   width: max-content;
 }
 
+.signupContainer {
+  position: relative;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap:10px;
+  
+}
+
+.signupbutton{ 
+  background-color: #0B73B1;
+  color:#fff;
+  padding:10px 20px;
+  border:none;
+  text-transform: uppercase;
+  font-weight: bold;
+  cursor: pointer;
+  
+}
+
 .readMore {
   color: var(--primaryColor);
   text-decoration: underline;
