@@ -2,47 +2,44 @@ import React from "react";
 import styles from "./footer.module.css";
 import Image from "next/image";
 import Link from "next/link";
+import { BsFacebook, BsLinkedin, BsTwitterX } from "react-icons/bs";
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <div className={styles.container}>
       <div className={styles.info}>
         <div className={styles.logo}>
-          <Image src="/logo.png" alt="azedblog" width={50} height={50} />
-          <h1 className={styles.logoText}>Azedblog</h1>
+          <Image src="/AZbytegems2.png" alt="azbytegems" width={108} height={48} />
+          
         </div>
-        <p className={styles.desc}>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Rem dolores
-          amet dignissimos, placeat esse fuga.{" "}
+        <p className={styles.date}>
+        <p>&copy; <span className={styles.currentYear}>{currentYear}</span>  All rights reserved.</p>
         </p>
-        <div className={styles.icons}>
-          <Image src="/facebook.png" alt="" width={18} height={18} />
-          <Image src="/tiktok.png" alt="" width={18} height={18} />
-          <Image src="/instagram.png" alt="" width={18} height={18} />
-          <Image src="/youtube.png" alt="" width={18} height={18} />
+        <div className={styles.social}>
+        <Link href="/" className={styles.social_icons}><BsFacebook/></Link>
+        <Link href="/" className={styles.social_icons}><BsLinkedin/></Link>
+        <Link href="/" className={styles.social_icons}><BsTwitterX /></Link>
         </div>
       </div>
       <div className={styles.links}>
         <div className={styles.list}>
           <span className={styles.listTitle}>Links</span>
-          <Link href="/">Homepage</Link>
-          <Link href="/">Blog</Link>
+          
+          
           <Link href="/">About</Link>
+         
           <Link href="/">Contact</Link>
+         
         </div>
         <div className={styles.list}>
           <span className={styles.listTitle}>Tags</span>
-          <Link href="/">Style</Link>
-          <Link href="/">Fashion</Link>
-          <Link href="/">Travel</Link>
-          <Link href="/">Coding</Link>
+          <Link href="/">Privacy</Link>
+          <Link href="/">Terms of Service</Link>
+          <Link href="/">Advertise</Link>
+          
         </div>
-        <div className={styles.list}>
-          <span className={styles.listTitle}>Social</span>
-          <Link href="/">Facebook</Link>
-          <Link href="/">Tiktok</Link>
-          <Link href="/">Instagram</Link>
-          <Link href="/">Youtube</Link>
-        </div>
+       
       </div>
     </div>
   );

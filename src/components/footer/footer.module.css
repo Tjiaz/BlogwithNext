@@ -5,6 +5,7 @@
   justify-content: space-between;
   color: var(--softTextColor);
   padding: 20px 0px;
+  border-top: 1px solid #ccc;
 }
 
 .info {
@@ -20,10 +21,26 @@
   gap: 10px;
 }
 
-.desc {
+.date {
+  font-weight: 200;
+  font-size: medium;
+}
+.currentYear{ 
   font-weight: 300;
 }
 
+.social {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+  align-items: center;
+ 
+}
+
+.social_icons{ 
+  color:#282f32;
+  
+}
 .icons {
   margin-top: 10px;
   display: flex;
@@ -34,7 +51,7 @@
   flex: 1;
   display: flex;
   justify-content: flex-end;
-  gap: 100px;
+  gap: 90px;
 }
 
 .list {
