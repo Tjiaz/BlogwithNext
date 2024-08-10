@@ -80,7 +80,7 @@ const CategoryList = async () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Popular Categories</h1>
+      <h1 className={styles.title}>Recent Posts</h1>
       <div className={styles.categories}>
         {data.length > 0 ? (
           data.map((item) => (

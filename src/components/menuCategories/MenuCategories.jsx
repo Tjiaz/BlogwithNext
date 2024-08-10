@@ -8,25 +8,25 @@ const MenuCategories = () => {
         href="/blog?cat=style"
         className={`${styles.categoryItem}${styles.style}`}
       >
-        Style
+        Data Science
       </Link>
       <Link
         href="/blog?cat=travel"
         className={`${styles.categoryItem}${styles.travel}`}
       >
-        Travel
+        NLP
       </Link>
       <Link
         href="/blog?cat=fashion"
         className={`${styles.categoryItem}${styles.fashion}`}
       >
-        Fashion
+        SQL
       </Link>
       <Link
         href="/blog?cat=culture"
         className={`${styles.categoryItem}${styles.culture}`}
       >
-        Culture
+        Python
       </Link>
       <Link
         href="/blog?cat=coding"
@@ -38,7 +38,7 @@ const MenuCategories = () => {
         href="/blog?cat=food"
         className={`${styles.categoryItem}${styles.food}`}
       >
-        Food
+        AI
       </Link>
     </div>
   );

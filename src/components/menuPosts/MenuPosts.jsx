@@ -23,7 +23,7 @@ const MenuPosts = (withImage) => {
               fontSize: "12px",
             }}
           >
-            Travel
+            Coding
           </span>
           <h3 className={styles.postTitle}>
             Lorem ipsum dolor sit amet consectetur adipisicing elit.{" "}
@@ -51,7 +51,7 @@ const MenuPosts = (withImage) => {
               fontSize: "12px",
             }}
           >
-            Culture
+            NLP
           </span>
           <h3 className={styles.postTitle}>
             Lorem ipsum dolor sit amet consectetur adipisicing elit.{" "}
@@ -79,7 +79,7 @@ const MenuPosts = (withImage) => {
               fontSize: "12px",
             }}
           >
-            Food
+            Python
           </span>
           <h3 className={styles.postTitle}>
             Lorem ipsum dolor sit amet consectetur adipisicing elit.{" "}
@@ -107,7 +107,7 @@ const MenuPosts = (withImage) => {
               fontSize: "12px",
             }}
           >
-            Fashion
+            Data Science
           </span>
           <h3 className={styles.postTitle}>
             Lorem ipsum dolor sit amet consectetur adipisicing elit.{" "}

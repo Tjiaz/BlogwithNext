@@ -14,11 +14,14 @@ import { MdEmail } from "react-icons/md";
 import { MdOutlineAddBox } from "react-icons/md";
 import Pagination from "../pagination/Pagination"
 import { useSearchParams } from "next/navigation";
+import Card from "../card/Card";
+import Menu from "../menu/Menu";
 
 
 const POSTS_PER_PAGE = 6
 
 const Featured = () => {
+ 
   const searchParams = useSearchParams()
   const pageParam = searchParams.get("page");
   const page = parseInt(pageParam, 10) || 1;
@@ -31,6 +34,7 @@ const Featured = () => {
 
   const hasPrev = page > 1
   const hasNext = endIndex < posts.length
+  
   return (
     <div className={styles.container}>
      <div className={styles.advertContainer}>
