@@ -1,5 +1,5 @@
 "use client"
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./featured.module.css";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,12 +16,25 @@ import Pagination from "../pagination/Pagination"
 import { useSearchParams } from "next/navigation";
 import Card from "../card/Card";
 import Menu from "../menu/Menu";
-
+import useSWR from 'swr'
+import { fetchMediumData } from "@/utils/mediumData";
 
 const POSTS_PER_PAGE = 6
 
 const Featured = () => {
- 
+  const[post,setPost]=useState([])
+
+
+  useEffect(()=>{ 
+    async function loadData(){
+      const data = await fetchMediumData() 
+    if(data){ 
+      setPost(data)
+    }
+    }
+    loadData()
+  },[])
+  
   const searchParams = useSearchParams()
   const pageParam = searchParams.get("page");
   const page = parseInt(pageParam, 10) || 1;
