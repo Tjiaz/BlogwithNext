@@ -54,10 +54,17 @@ const Featured = () => {
       </div>
      
       {paginatedPosts.map((post) => ( 
-        <div className={styles.postItem}>
+        <div className={styles.postItem} key={post.id}>
        
-      <FeaturedCard key={post.id} id={post.id} postImg={post.postImg} postTitle={post.postTitle}
-      postDesc={post.postDesc} postAuthor={post.postAuthor} postDate={post.postDate} postTopic={post.postTopic} />
+      <FeaturedCard  
+      id={post.id} 
+      postImg={post.postImg} 
+      postTitle={post.postTitle}
+      postDesc={post.postDesc} 
+      postAuthor={post.postAuthor} 
+      postDate={post.postDate} 
+      postTopic={post.postTopic} 
+      />
         </div>
       ))
      
