@@ -6,6 +6,9 @@
 
 tasks:
   - init: yarn install && yarn run build
-    command: yarn run start
+    command: |
+      echo "NEXT_PUBLIC_MEDIUM_RAPID_KEY=7494c5f766msh811ac8633c75b17p1f45dbjsn8d1b295ec5da" >> .env.local
+      yarn run start
+
 
 

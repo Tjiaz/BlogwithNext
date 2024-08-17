@@ -1,8 +1,8 @@
 import articles from "../../medium_ids";
 
 export const fetchMediumData = async () => {
-    const apiKey = process.env.REACT_APP_MEDIUM_RAPID_KEY;
-    console.log('All Environment Variables:', process.env);
+    const apiKey = process.env.NEXT_PUBLIC_MEDIUM_RAPID_KEY;
+    
     const baseUrl = 'https://medium2.p.rapidapi.com/article/';
     const options = {
       method: 'GET',
