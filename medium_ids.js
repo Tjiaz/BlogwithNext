@@ -1,4 +1,4 @@
-export default articles = {
+const articles = {
     "datascience_articles": [
       "f853beb264f6",
       "e4ccce6ab64b",
@@ -119,3 +119,5 @@ export default articles = {
     "e738598a70d2","e9d5f9f79227","54ae94f09330"]
 
 }
+
+export default articles

@@ -7,7 +7,8 @@ import Link from "next/link";
 
 
 
-const FeaturedCard = ({postImg,postDesc,postTitle,postAuthor,postDate,postTopic}) => { 
+const FeaturedCard = ({postImg,postDesc,postTitle,postAuthor,postDate,postTopics}) => { 
+  
     return( 
      <>
     <div className={styles.postImage}>
@@ -20,7 +21,7 @@ const FeaturedCard = ({postImg,postDesc,postTitle,postAuthor,postDate,postTopic}
         By <strong>
           <Link href="/" title="posted by author" rel="author"> {postAuthor} </Link>
         </strong>
-        Exxact Corp on {postDate} in <strong><Link href="/">{postTopic.title ||"unknown title"}</Link></strong>
+        Exxact Corp on {postDate} in <strong><Link href="/">{postTopics}</Link></strong>
       </div>
     </div>
   </>)

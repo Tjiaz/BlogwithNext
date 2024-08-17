@@ -22,14 +22,14 @@ import { fetchMediumData } from "@/utils/mediumData";
 const POSTS_PER_PAGE = 6
 
 const Featured = () => {
-  const[post,setPost]=useState([])
+  const[mediumPosts,setMediumPosts]=useState([])
 
 
   useEffect(()=>{ 
     async function loadData(){
       const data = await fetchMediumData() 
     if(data){ 
-      setPost(data)
+      setMediumPosts(data)
     }
     }
     loadData()
@@ -43,10 +43,10 @@ const Featured = () => {
   
   const startIndex = (page - 1) * POSTS_PER_PAGE // (2 - 1) * 4 = 4
   const endIndex = startIndex + POSTS_PER_PAGE // 4 + 4 = 8
-  const paginatedPosts = posts.slice(startIndex,endIndex) // Extracts elements from index 4 to 7
+  const paginatedPosts = mediumPosts.slice(startIndex,endIndex) // Extracts elements from index 4 to 7
 
   const hasPrev = page > 1
-  const hasNext = endIndex < posts.length
+  const hasNext = endIndex < mediumPosts.length
   
   return (
     <div className={styles.container}>
@@ -71,12 +71,12 @@ const Featured = () => {
        
       <FeaturedCard  
       id={post.id} 
-      postImg={post.postImg} 
-      postTitle={post.postTitle}
-      postDesc={post.postDesc} 
-      postAuthor={post.postAuthor} 
-      postDate={post.postDate} 
-      postTopic={post.postTopic} 
+      postImg={post.image_url} 
+      postTitle={post.title}
+      postDesc={post.description} 
+      postAuthor={post.author} 
+      postDate={post.published_at} 
+      postTopics={post.topics} 
       />
         </div>
       ))

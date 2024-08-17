@@ -1,11 +1,12 @@
 import articles from "../../medium_ids";
 
 export const fetchMediumData = async () => {
+    const apiKey = process.env.MEDIUM_RAPID_KEY;
     const baseUrl = 'https://medium2.p.rapidapi.com/article/';
     const options = {
       method: 'GET',
       headers: {
-        'x-rapidapi-key': '7494c5f766msh811ac8633c75b17p1f45dbjsn8d1b295ec5da',
+        'x-rapidapi-key': apiKey,
         'x-rapidapi-host': 'medium2.p.rapidapi.com'
       }
     };
@@ -26,9 +27,11 @@ export const fetchMediumData = async () => {
         description: result.description,
         author: result.author,
         published_at: result.published_at,
-        topic: result.topic
+        topics: result.topics
       };
-      filteredArticle.push(fetchedArticles)
+      console.log('Filtered article:', filteredArticle);
+
+      fetchedArticles.push(filteredArticle)
     }
       catch(error){ 
         console.log(`Error fetching article ${id}:`,error)
