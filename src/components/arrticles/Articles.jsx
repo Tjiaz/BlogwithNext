@@ -6,37 +6,12 @@ import Link from "next/link";
 import { MdSearch } from "react-icons/md";
 import FeaturedCard from "./FeaturedCard";
 import Pagination from "../pagination/Pagination"
-import { useSearchParams } from "next/navigation";
-import { fetchMediumData } from "@/utils/mediumData";
+
 
 const POSTS_PER_PAGE = 6
 
-const Articles = () => {
-  const[mediumPosts,setMediumPosts]=useState([])
-
-
-  useEffect(()=>{ 
-    async function loadData(){
-      const data = await fetchMediumData() 
-    if(data){ 
-      setMediumPosts(data)
-    }
-    }
-    loadData()
-  },[])
+const Articles = ({}) => {
   
-  const searchParams = useSearchParams()
-  const pageParam = searchParams.get("page");
-  const page = parseInt(pageParam, 10) || 1;
-
-
-  
-  const startIndex = (page - 1) * POSTS_PER_PAGE // (2 - 1) * 4 = 4
-  const endIndex = startIndex + POSTS_PER_PAGE // 4 + 4 = 8
-  const paginatedPosts = mediumPosts.slice(startIndex,endIndex) // Extracts elements from index 4 to 7
-
-  const hasPrev = page > 1
-  const hasNext = endIndex < mediumPosts.length
   
   return (
     <div className={styles.container}>

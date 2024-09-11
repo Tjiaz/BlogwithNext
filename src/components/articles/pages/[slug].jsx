@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { getArticleBySlug } from '../../utils/articles';
+import { getArticleBySlug,getAllArticles } from '../../utils/articles';
 import Articles from '@/components/arrticles/Articles';
 
 const ArticlePage = ({ article }) => {
