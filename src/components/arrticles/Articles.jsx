@@ -5,40 +5,25 @@ import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
 import FeaturedCard from "./FeaturedCard";
-import posts from "../../Data";
-import { FaFacebookSquare } from "react-icons/fa";
-import { FaTwitterSquare } from "react-icons/fa";
-import { FaLinkedin } from "react-icons/fa";
-import { FaRedditSquare } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
-import { MdOutlineAddBox } from "react-icons/md";
 import Pagination from "../pagination/Pagination"
 import { useSearchParams } from "next/navigation";
-import Card from "../card/Card";
-import Menu from "../menu/Menu";
-import useSWR from 'swr'
 import { fetchMediumData } from "@/utils/mediumData";
 
 const POSTS_PER_PAGE = 6
 
-const Featured = () => {
-  const [latestPosts, setLatestPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+const Articles = () => {
+  const[mediumPosts,setMediumPosts]=useState([])
 
-  useEffect(() => {
-    async function fetchArticles() {
-      try {
-        const response = await fetch("/api/articles");
-        const data = await response.json();
-        console.log("Fetched data:", data);
-      } catch (error) {
-        console.error("Failed to fetch articles", error);
-      } finally {
-        setLoading(false);
-      }
+
+  useEffect(()=>{ 
+    async function loadData(){
+      const data = await fetchMediumData() 
+    if(data){ 
+      setMediumPosts(data)
     }
-    fetchArticles();
-  }, []);
+    }
+    loadData()
+  },[])
   
   const searchParams = useSearchParams()
   const pageParam = searchParams.get("page");
@@ -48,16 +33,10 @@ const Featured = () => {
   
   const startIndex = (page - 1) * POSTS_PER_PAGE // (2 - 1) * 4 = 4
   const endIndex = startIndex + POSTS_PER_PAGE // 4 + 4 = 8
-  const paginatedPosts = (latestPosts || []).slice(startIndex, endIndex); 
-
+  const paginatedPosts = mediumPosts.slice(startIndex,endIndex) // Extracts elements from index 4 to 7
 
   const hasPrev = page > 1
-  const hasNext = endIndex < latestPosts.length
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
+  const hasNext = endIndex < mediumPosts.length
   
   return (
     <div className={styles.container}>
@@ -150,4 +129,4 @@ const Featured = () => {
   );
 };
 
-export default Featured;
+export default Articles;

@@ -95,3 +95,21 @@ model Comment {
  
 }
 
+model Article { 
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  title          String
+  description    String
+  date           DateTime
+  author         String
+  filteredImages String[] // Array of image URLs
+  content        Content[] // Embedded array of content sections
+  topic          String
+}
+
+model Content{ 
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  heading   String?
+  paragraphs String[]
+  articleId String      @map("_articleId") @db.ObjectId
+  article   Article     @relation(fields: [articleId], references: [id])
+}
