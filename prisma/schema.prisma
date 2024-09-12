@@ -10,10 +10,6 @@ datasource db {
   url      = env("DATABASE_URL_DB1")
 }
 
-datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL_DB2")
-}
 
 
 
@@ -106,15 +102,15 @@ model Article {
   description    String
   date           DateTime
   author         String
-  filteredImages String[] // Array of image URLs
-  content        Content[] // Embedded array of content sections
+  filteredImages String[]   // Array of image URLs
+  content        Content[]  // Array of embedded content objects
   topic          String
 }
 
-model Content{ 
-  id        String      @id @default(auto()) @map("_id") @db.ObjectId
-  heading   String?
-  paragraphs String[]
-  articleId String      @map("_articleId") @db.ObjectId
-  article   Article     @relation(fields: [articleId], references: [id])
+model Content { 
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  heading   String?  // Optional heading
+  paragraphs String[] // Array of paragraphs
+  articleId String    @map("_articleId") @db.ObjectId
+  article   Article   @relation(fields: [articleId], references: [id])
 }

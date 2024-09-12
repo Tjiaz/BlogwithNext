@@ -1,17 +1,46 @@
 "use client"
 import React, { useState, useEffect } from "react";
-import styles from "./featured.module.css";
+import styles from "./article.module.css";
 import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
-import FeaturedCard from "./FeaturedCard";
-import Pagination from "../pagination/Pagination"
+import ArticleCard from "./ArticleCard";
 
 
-const POSTS_PER_PAGE = 6
 
-const Articles = ({}) => {
+
+
+const ArticlePage = ({params}) => {
+    const {slug} = params // Destructure slug from params
+    const [articles, setArticles] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchArticles() {
+      try {
+        const response = await fetch(`/api/articles/${slug}`);
+        const data = await response.json();
+        console.log("Fetched data:", data);
+        // setArticle(data);
+      } catch (error) {
+        console.error("Failed to fetch articles", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchArticles();
+  }, [slug]);
   
+  
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  
+  if (!articles) {
+    return <div>Article not found</div>;
+  }
+
   
   return (
     <div className={styles.container}>
@@ -25,16 +54,16 @@ const Articles = ({}) => {
      
       <div className={styles.textContainer1}>
       
-      <h3>Latest Posts</h3>
+      <h2>{slug}</h2>
       <div style={{ display: 'flex', width: '100%' }}>
         <div style={{ flex: '0 0 25%', borderBottom: '3px solid #0B73B1' }}></div>
         <div style={{ flex: '1', borderBottom: '2px solid #0B73B1' }}></div>
       </div>
      
-      {paginatedPosts.map((post) => ( 
+      {articles.map((post) => ( 
         <div className={styles.postItem} key={post.id}>
        
-      <FeaturedCard  
+      <ArticleCard  
       id={post.id} 
       postImg={post.image_url} 
       postTitle={post.title}
@@ -47,7 +76,7 @@ const Articles = ({}) => {
       ))
      
     }
-    <Pagination page={page} hasPrev={hasPrev} hasNext={hasNext} />
+   
        
       </div>
       
@@ -104,4 +133,4 @@ const Articles = ({}) => {
   );
 };
 
-export default Articles;
+export default ArticlePage;
