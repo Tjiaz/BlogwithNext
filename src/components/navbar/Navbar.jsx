@@ -49,18 +49,18 @@ const Navbar = () => {
           <div className={styles.dropdownMenu}>
             <div className={styles.dropdownColumn}>
               <Link href="/articles/ai" className={styles.dropdownItem}>AI</Link>
-              <Link href="/articles/career-advice" className={styles.dropdownItem}>Career Advice</Link>
-              <Link href="/articles/computer-vision" className={styles.dropdownItem}>Computer Vision</Link>
-              <Link href="/articles/data-engineering" className={styles.dropdownItem}>Data Engineering</Link>
-              <Link href="/articles/data-science" className={styles.dropdownItem}>Data Science</Link>
-              <Link href="/articles/language-models"  className={styles.dropdownItem}>Language Models</Link>
+              <Link href="/articles/career_advice" className={styles.dropdownItem}>Career Advice</Link>
+              <Link href="/articles/computer_vision" className={styles.dropdownItem}>Computer Vision</Link>
+              <Link href="/articles/data_engineer" className={styles.dropdownItem}>Data Engineering</Link>
+              <Link href="/articles/data_science" className={styles.dropdownItem}>Data Science</Link>
+              <Link href="/articles/language_models"  className={styles.dropdownItem}>Language Models</Link>
             </div>
             <div className={styles.dropdownColumn}>
-              <Link href="/articles/machine-learning" className={styles.dropdownItem}>Machine Learning</Link>
-              <Link href="/articles/mlops" className={styles.dropdownItem}>MLOps</Link>
+              <Link href="/articles/machine_learning" className={styles.dropdownItem}>Machine Learning</Link>
+              <Link href="/articles/machine_learning_ops" className={styles.dropdownItem}>MLOps</Link>
               <Link href="/articles/nlp" className={styles.dropdownItem}>NLP</Link>
               <Link href="/articles/programming" className={styles.dropdownItem}>Programming</Link>
-              <Link href="/articles/python" className={styles.dropdownItem}>Python</Link>
+              <Link href="/articles/py" className={styles.dropdownItem}>Python</Link>
               <Link href="/articles/sql" className={styles.dropdownItem}>SQL</Link>
             </div>
           </div>

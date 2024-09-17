@@ -10,6 +10,7 @@ import ArticleCard from "./ArticleCard";
 
 
 
+
 const ArticlePage = ({params}) => {
     const {slug} = params // Destructure slug from params
     const [articles, setArticles] = useState(null);
