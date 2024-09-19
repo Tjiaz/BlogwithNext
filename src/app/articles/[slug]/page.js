@@ -22,7 +22,8 @@ const ArticlePage = ({params}) => {
         const response = await fetch(`/api/articles/${slug}`);
         const data = await response.json();
         console.log("Fetched data:", data);
-        // setArticle(data);
+        console.log("Type of articles:", typeof data);
+          setArticles(data);
       } catch (error) {
         console.error("Failed to fetch articles", error);
       } finally {
@@ -61,22 +62,22 @@ const ArticlePage = ({params}) => {
         <div style={{ flex: '1', borderBottom: '2px solid #0B73B1' }}></div>
       </div>
      
-      {articles.map((post) => ( 
-        <div className={styles.postItem} key={post.id}>
+      
+        <div className={styles.postItem} >
        
       <ArticleCard  
-      id={post.id} 
-      postImg={post.image_url} 
-      postTitle={post.title}
-      postDesc={post.description} 
-      postAuthor={post.author} 
-      postDate={post.published_at} 
-      postTopics={post.topics} 
+      id={articles.id} 
+      postImg={articles.image_url} 
+      postTitle={articles.title}
+      postDesc={articles.description} 
+      postAuthor={articles.author} 
+      postDate={articles.published_at} 
+      postTopics={articles.topics} 
       />
         </div>
-      ))
+      
      
-    }
+    
    
        
       </div>
