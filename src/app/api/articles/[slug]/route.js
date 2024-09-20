@@ -20,7 +20,7 @@ export async function GET(req, { params }) {
     const collection = db.collection(collectionName);  // Access the collection dynamically based on slug
     console.log(`Fetching from collection: ${collectionName}`);
 
-    const article = await collection.findOne();  // Find the first article in the collection
+    const article = await collection.find().toArray();  // Find the first article in the collection
     console.log("Fetched article:", article);
 
     if (!article) {

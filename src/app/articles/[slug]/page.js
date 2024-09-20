@@ -9,11 +9,9 @@ import ArticleCard from "./ArticleCard";
 
 
 
-
-
 const ArticlePage = ({params}) => {
     const {slug} = params // Destructure slug from params
-    const [articles, setArticles] = useState(null);
+    const [articles, setArticles] = useState([]);
     const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,6 +20,7 @@ const ArticlePage = ({params}) => {
         const response = await fetch(`/api/articles/${slug}`);
         const data = await response.json();
         console.log("Fetched data:", data);
+        
         if(Array.isArray(data)){ 
           setArticles(data);// If already an array, use it directly
         }else if (typeof data === 'object'){ 
@@ -81,7 +80,7 @@ const ArticlePage = ({params}) => {
             key={article._id}
             postImg={article.filtered_images} // Image URL (if available)
             postTitle={
-              <Link href={`/articles/${article._id}`} passHref>
+              <Link href={`/articles/${article._id}`}>
                 {article.title}
               </Link>
             }
@@ -90,8 +89,7 @@ const ArticlePage = ({params}) => {
             postDate={article.date}
           />
 
-          
-          </div>
+       </div>
         ))
       ) : (
         <div>No articles found.</div>
