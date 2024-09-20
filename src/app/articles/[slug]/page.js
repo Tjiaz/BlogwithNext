@@ -22,8 +22,15 @@ const ArticlePage = ({params}) => {
         const response = await fetch(`/api/articles/${slug}`);
         const data = await response.json();
         console.log("Fetched data:", data);
-        console.log("Type of articles:", typeof data);
-          setArticles(data);
+        if(Array.isArray(data)){ 
+          setArticles(data);// If already an array, use it directly
+        }else if (typeof data === 'object'){ 
+          setArticles([data]);
+        }
+       else {
+        console.error("Unexpected data format", data);
+      }
+         
       } catch (error) {
         console.error("Failed to fetch articles", error);
       } finally {
@@ -32,6 +39,8 @@ const ArticlePage = ({params}) => {
     }
     fetchArticles();
   }, [slug]);
+  // Log articles to see its structure before rendering
+    console.log("Articles state before rendering:", articles);
   
   
 
@@ -63,24 +72,39 @@ const ArticlePage = ({params}) => {
       </div>
      
       
-        <div className={styles.postItem} >
-       
-      <ArticleCard  
-      id={articles.id} 
-      postImg={articles.image_url} 
-      postTitle={articles.title}
-      postDesc={articles.description} 
-      postAuthor={articles.author} 
-      postDate={articles.published_at} 
-      postTopics={articles.topics} 
-      />
-        </div>
+      <div className={styles.postItem}>
+      {articles && articles.length > 0 ?
+      (articles.map((article) => (
+        <div key={article._id}>
+          {/* Display the article using ArticleCard */}
+          <ArticleCard
+            key={article._id}
+            postImg={article.filtered_images} // Image URL (if available)
+            postTitle={
+              <Link href={`/articles/${article._id}`} passHref>
+                {article.title}
+              </Link>
+            }
+            postDesc={article.description}
+            postAuthor={article.author}
+            postDate={article.date}
+          />
+
+          
+          </div>
+        ))
+      ) : (
+        <div>No articles found.</div>
+      )}
+
+    
+</div>
       
      
     
    
        
-      </div>
+</div>
       
         <div className={styles.textContainer2}>
          
