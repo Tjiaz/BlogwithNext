@@ -109,7 +109,11 @@
     margin: 0 0 10px 0;
     color: var(--softTextColor);
   }
+.articleCard{ 
+  margin-bottom: 15px;
+  display: flex;
   
+}
   .author {
     font-size: 0.9em;
     color: #000;

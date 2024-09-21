@@ -78,7 +78,11 @@ const ArticlePage = ({params}) => {
           {/* Display the article using ArticleCard */}
           <ArticleCard
             key={article._id}
-            postImg={article.filtered_images} // Image URL (if available)
+            postImg={
+              article.filtered_images && article.filtered_images.length > 0
+                ? article.filtered_images[0] // Display the first image
+                : '/default-image.png' // Fallback image if none exists
+            }
             postTitle={
               <Link href={`/articles/${article._id}`}>
                 {article.title}

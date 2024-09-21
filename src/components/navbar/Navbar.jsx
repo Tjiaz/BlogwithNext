@@ -58,10 +58,10 @@ const Navbar = () => {
             <div className={styles.dropdownColumn}>
               <Link href="/articles/machine_learning" className={styles.dropdownItem}>Machine Learning</Link>
               <Link href="/articles/machine_learning_ops" className={styles.dropdownItem}>MLOps</Link>
-              <Link href="/articles/nlp" className={styles.dropdownItem}>NLP</Link>
+              <Link href="/articles/NLP" className={styles.dropdownItem}>NLP</Link>
               <Link href="/articles/programming" className={styles.dropdownItem}>Programming</Link>
               <Link href="/articles/py" className={styles.dropdownItem}>Python</Link>
-              <Link href="/articles/sql" className={styles.dropdownItem}>SQL</Link>
+              <Link href="/articles/SQL" className={styles.dropdownItem}>SQL</Link>
             </div>
           </div>
         )}

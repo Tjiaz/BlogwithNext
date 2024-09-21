@@ -7,10 +7,10 @@ import Link from "next/link";
 
 
 
-const ArticleCard = ({postImg,postDesc,postTitle,postAuthor,postDate,postTopics}) => { 
+const ArticleCard = ({postImg,postDesc,postTitle,postAuthor,postDate}) => { 
   
     return( 
-     <>
+     <div className={styles.articleCard}>
     <div className={styles.postImage}>
       <Image src={postImg} alt={postTitle} width={100} height={100} className={styles.image} />
     </div>
@@ -24,7 +24,7 @@ const ArticleCard = ({postImg,postDesc,postTitle,postAuthor,postDate,postTopics}
         on {postDate} 
       </div>
     </div>
-  </>)
+  </div>)
 }
 
 
