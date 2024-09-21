@@ -64,7 +64,7 @@ const ArticlePage = ({params}) => {
      
       <div className={styles.textContainer1}>
       
-      <h2>{slug}</h2>
+      <h2 className={styles.head}>{slug}</h2>
       <div style={{ display: 'flex', width: '100%' }}>
         <div style={{ flex: '0 0 25%', borderBottom: '3px solid #0B73B1' }}></div>
         <div style={{ flex: '1', borderBottom: '2px solid #0B73B1' }}></div>

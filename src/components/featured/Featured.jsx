@@ -28,7 +28,7 @@ const Featured = () => {
   useEffect(() => {
     async function fetchArticles() {
       try {
-        const response = await fetch("/api/articles");
+        const response = await fetch("/api/latest_articles");
         const data = await response.json();
         console.log("Fetched data:", data);
       } catch (error) {
