@@ -1,5 +1,7 @@
 import { MongoClient } from 'mongodb';
 
+
+
 const uri = process.env.DATABASE_URL;
 const client = new MongoClient(uri);
 
@@ -14,19 +16,50 @@ export async function GET(req) {
 
          try {
             await client.connect();
-            const collection = client.db(databaseName).collection("articles");
+            const collectionsToQuery = ['Artificial_intelligence_articles'
+                ,'NLP_articles','SQL_articles','career_advice_articles',
+                'computer_vision_article','data_engineer_article',
+                'data_science_articles','language_model_articles',
+                'machine_learning_articles','machine_learning_ops_articles',
+                'programming_articles']
 
-        
+            
 
-            // Fetch articles sorted by date in descending order
-            const latest_articles = await collection
-                .find({})
+            const results = []
+            for (const collectionName of collectionsToQuery) { 
+                const collection = client.db(databaseName).collection(collectionName);
+
+                // Apply filtering based on your query criteria (e.g., author, date range)
+                const query = {}; // Adjust the query object as needed
+                
+                // Fetch articles sorted by date in descending order
+                const latest_articles = await collection
+                .find(query)
                 .sort({ date: -1 }) // Sort by date, newest first
                 .skip(skip)
                 .limit(limit)
                 .toArray();
 
-            return new Response(JSON.stringify({latest_articles}),{status:200})
+                results.push(...latest_articles);
+
+
+            }
+           
+
+        
+
+            // Process the results as needed (e.g., deduplicate, format)
+            const processedResults = results.map((article) => { 
+                // Modify the article structure as desired
+                return { 
+                    title:article.title,
+                    description:article.description,
+                    author:article.author,
+                    date:article.date
+
+                }
+            })
+            return new Response(JSON.stringify({processedResults}),{status:200})
 
             }
          catch (error) {
