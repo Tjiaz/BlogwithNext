@@ -39,6 +39,17 @@ const Featured = () => {
         const response = await fetch(`/api/latest_articles?page=${page}`);
         const data = await response.json();
         console.log("Fetched data:", data);
+        
+        if(Array.isArray(data)){ 
+          setLatestPosts(data);// If already an array, use it directly
+        }else if (typeof data === 'object'){ 
+          setLatestPosts([data]);
+        }
+       else {
+        console.error("Unexpected data format", data);
+      }
+
+
       } catch (error) {
         console.error("Failed to fetch articles", error);
       } finally {
@@ -77,22 +88,29 @@ const Featured = () => {
         <div style={{ flex: '1', borderBottom: '2px solid #0B73B1' }}></div>
       </div>
      
-      {latestPosts.map((post) => ( 
-        <div className={styles.postItem} key={post.id}>
-       
-      <FeaturedCard  
-      id={post.id} 
-      postImg={post.image_url} 
-      postTitle={post.title}
-      postDesc={post.description} 
-      postAuthor={post.author} 
-      postDate={post.published_at} 
-      postTopics={post.topics} 
-      />
-        </div>
-      ))
-     
-    }
+    
+      {latestPosts && latestPosts.length > 0 ? (
+        latestPosts.map((post) => (
+          <FeaturedCard
+            key={post._id} // Use post._id for unique key
+            postImg={
+              post.filtered_images && post.filtered_images.length > 0
+                ? post.filtered_images[0]
+                : "/default-image.png"
+            }
+            postTitle={<Link href={`/articles/${post._id}`}>{post.title}</Link>} // Use post._id here too
+            postDesc={post.description}
+            postAuthor={post.author}
+            postDate={post.published_at}
+            postTopics={post.topics}
+          />
+        ))
+      ) : (
+        <div>No articles found.</div>
+      )}
+
+
+      
     <Pagination page={page} hasPrev={hasPrev} hasNext={hasNext} />
        
       </div>

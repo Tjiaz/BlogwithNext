@@ -21,7 +21,7 @@ const FeaturedCard = ({postImg,postDesc,postTitle,postAuthor,postDate,postTopics
         By <strong>
           <Link href="/" title="posted by author" rel="author"> {postAuthor} </Link>
         </strong>
-        Exxact Corp on {postDate} in <strong><Link href="/">{postTopics}</Link></strong>
+        on {postDate} in <strong><Link href="/">{postTopics}</Link></strong>
       </div>
     </div>
   </>)
