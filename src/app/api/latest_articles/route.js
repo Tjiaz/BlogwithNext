@@ -6,9 +6,10 @@ const client = new MongoClient(uri);
 
 export async function GET(req) {
          const { searchParams } = new URL(req.url);
-         searchParams.get('page') || 1; // Get the page number from query
+         const page=parseInt(searchParams.get('page'),8) || 1; // Default to 1 if page is not provided
          const limit = 8; // Number of articles per page
          const skip = (page - 1) * limit; // Calculate how many articles to skip
+         
          const databaseName = 'ARTICLES';  // Your MongoDB database name
 
          try {

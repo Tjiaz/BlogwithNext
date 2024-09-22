@@ -19,16 +19,24 @@ import Menu from "../menu/Menu";
 import useSWR from 'swr'
 import { fetchMediumData } from "@/utils/mediumData";
 
-const POSTS_PER_PAGE = 6
+const POSTS_PER_PAGE = 8
 
 const Featured = () => {
   const [latestPosts, setLatestPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Get the page from query params
+  const searchParams = useSearchParams();
+  const pageParam = searchParams.get("page");
+  const page = parseInt(pageParam, 10) || 1;
+
+
+
+
   useEffect(() => {
     async function fetchArticles() {
       try {
-        const response = await fetch("/api/latest_articles");
+        const response = await fetch(`/api/latest_articles?page=${page}`);
         const data = await response.json();
         console.log("Fetched data:", data);
       } catch (error) {
@@ -40,24 +48,16 @@ const Featured = () => {
     fetchArticles();
   }, []);
   
-  const searchParams = useSearchParams()
-  const pageParam = searchParams.get("page");
-  const page = parseInt(pageParam, 10) || 1;
-
+  
 
   
-  const startIndex = (page - 1) * POSTS_PER_PAGE // (2 - 1) * 4 = 4
-  const endIndex = startIndex + POSTS_PER_PAGE // 4 + 4 = 8
-  const paginatedPosts = (latestPosts || []).slice(startIndex, endIndex); 
-
-
-  const hasPrev = page > 1
-  const hasNext = endIndex < latestPosts.length
-
+ 
   if (loading) {
     return <div>Loading...</div>;
   }
-
+ 
+  const hasPrev = page > 1;
+  const hasNext = latestPosts.length === POSTS_PER_PAGE;
   
   return (
     <div className={styles.container}>
@@ -77,7 +77,7 @@ const Featured = () => {
         <div style={{ flex: '1', borderBottom: '2px solid #0B73B1' }}></div>
       </div>
      
-      {paginatedPosts.map((post) => ( 
+      {latestPosts.map((post) => ( 
         <div className={styles.postItem} key={post.id}>
        
       <FeaturedCard  
