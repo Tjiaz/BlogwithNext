@@ -52,14 +52,16 @@ export async function GET(req) {
             const processedResults = results.map((article) => { 
                 // Modify the article structure as desired
                 return { 
+                    filtered_images:article.filtered_images,
                     title:article.title,
                     description:article.description,
                     author:article.author,
-                    date:article.date
+                    date:article.date,
+                    content:article.content
 
                 }
             })
-            return new Response(JSON.stringify({processedResults}),{status:200})
+            return new Response(JSON.stringify(processedResults),{status:200})
 
             }
          catch (error) {

@@ -42,8 +42,6 @@ const Featured = () => {
         
         if(Array.isArray(data)){ 
           setLatestPosts(data);// If already an array, use it directly
-        }else if (typeof data === 'object'){ 
-          setLatestPosts([data]);
         }
        else {
         console.error("Unexpected data format", data);
@@ -57,7 +55,7 @@ const Featured = () => {
       }
     }
     fetchArticles();
-  }, []);
+  }, [page]);
   
   
 
@@ -101,7 +99,7 @@ const Featured = () => {
             postTitle={<Link href={`/articles/${post._id}`}>{post.title}</Link>} // Use post._id here too
             postDesc={post.description}
             postAuthor={post.author}
-            postDate={post.published_at}
+            postDate={post.date}
             postTopics={post.topics}
           />
         ))
