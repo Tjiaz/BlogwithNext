@@ -25,31 +25,33 @@ export async function GET(req) {
 
             
 
-            const results = []
+            let results = []
             for (const collectionName of collectionsToQuery) { 
                 const collection = client.db(databaseName).collection(collectionName);
 
-                // Apply filtering based on your query criteria (e.g., author, date range)
-                const query = {}; // Adjust the query object as needed
+               
                 
                 // Fetch articles sorted by date in descending order
                 const latest_articles = await collection
-                .find(query)
+                .find({})
                 .sort({ date: -1 }) // Sort by date, newest first
-                .skip(skip)
-                .limit(limit)
                 .toArray();
 
                 results.push(...latest_articles);
 
 
             }
+            
+            // Sort all combined articles by date
+            results.sort((a,b)=> new Date(b.date) - new Date(a.date))
+
+            const paginatedArticles = results.slice(skip, skip + limit)
            
 
         
 
             // Process the results as needed (e.g., deduplicate, format)
-            const processedResults = results.map((article) => { 
+            const processedResults = paginatedArticles.map((article) => { 
                 // Modify the article structure as desired
                 return { 
                     filtered_images:article.filtered_images,
