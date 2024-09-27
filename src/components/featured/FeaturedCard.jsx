@@ -7,10 +7,10 @@ import Link from "next/link";
 
 
 
-const FeaturedCard = ({postImg,postDesc,postTitle,postAuthor,postDate,postTopics}) => { 
+const FeaturedCard = ({postImg,postDesc,postTitle,postAuthor,postDate,postTopic}) => { 
   
     return( 
-     <>
+     <div className={styles.articleCard}>
     <div className={styles.postImage}>
       <Image src={postImg} alt={postTitle} width={100} height={100} className={styles.image} />
     </div>
@@ -21,10 +21,10 @@ const FeaturedCard = ({postImg,postDesc,postTitle,postAuthor,postDate,postTopics
         By <strong>
           <Link href="/" title="posted by author" rel="author"> {postAuthor} </Link>
         </strong>
-        on {postDate} in <strong><Link href="/">{postTopics}</Link></strong>
+        on {postDate} in <strong><Link href="/">{postTopic}</Link></strong>
       </div>
     </div>
-  </>)
+  </div>)
 }
 
 

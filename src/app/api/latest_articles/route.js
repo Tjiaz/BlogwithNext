@@ -11,22 +11,27 @@ export async function GET(req) {
          const page=parseInt(searchParams.get('page'),8) || 1; // Default to 1 if page is not provided
          const limit = 8; // Number of articles per page
          const skip = (page - 1) * limit; // Calculate how many articles to skip
-         
          const databaseName = 'ARTICLES';  // Your MongoDB database name
 
          try {
             await client.connect();
-            const collectionsToQuery = ['Artificial_intelligence_articles'
-                ,'NLP_articles','SQL_articles','career_advice_articles',
-                'computer_vision_article','data_engineer_article',
-                'data_science_articles','language_model_articles',
-                'machine_learning_articles','machine_learning_ops_articles',
-                'programming_articles']
-
+            const collectionsToQuery = [
+                { name: 'Artificial_intelligence_articles', topic: 'Artificial Intelligence' },
+                { name: 'NLP_articles', topic: 'Natural Language Processing' },
+                { name: 'SQL_articles', topic: 'SQL' },
+                { name: 'career_advice_articles', topic: 'Career Advice' },
+                { name: 'computer_vision_articles', topic: 'Computer Vision' },
+                { name: 'data_engineer_articles', topic: 'Data Engineering' },
+                { name: 'data_science_articles', topic: 'Data Science' },
+                { name: 'language_model_articles', topic: 'Language Models' },
+                { name: 'machine_learning_articles', topic: 'Machine Learning' },
+                { name: 'machine_learning_ops_articles', topic: 'MLOps' },
+                { name: 'programming_articles', topic: 'Programming' }
+              ];
             
 
             let results = []
-            for (const collectionName of collectionsToQuery) { 
+            for (const { name: collectionName, topic } of collectionsToQuery) { 
                 const collection = client.db(databaseName).collection(collectionName);
 
                
@@ -37,7 +42,12 @@ export async function GET(req) {
                 .sort({ date: -1 }) // Sort by date, newest first
                 .toArray();
 
-                results.push(...latest_articles);
+                const latest_articles_topic = latest_articles.map((latest_article) => ({ 
+                      ...latest_article,topic
+                })
+                )
+
+                results.push(...latest_articles_topic);
 
 
             }
@@ -59,7 +69,8 @@ export async function GET(req) {
                     description:article.description,
                     author:article.author,
                     date:article.date,
-                    content:article.content
+                    content:article.content,
+                    topic:article.topic
 
                 }
             })

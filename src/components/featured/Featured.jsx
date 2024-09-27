@@ -100,7 +100,7 @@ const Featured = () => {
             postDesc={post.description}
             postAuthor={post.author}
             postDate={post.date}
-            postTopics={post.topics}
+            postTopic={post.topic}
           />
         ))
       ) : (
