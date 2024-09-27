@@ -11,16 +11,17 @@
 }
 
 .post {
-  margin-top: 60px;
+  margin: 30px 0;
   display: flex;
-  align-content: center;
+  align-items: center;
+  justify-content: center;
   gap: 50px;
 }
 
 .postItem {
   display: flex;
   margin-bottom: 20px;
-  border-bottom: 1px solid #ccd;
+  
   padding-bottom: 20px;
 }
 
@@ -29,10 +30,15 @@
 }
 
 .articleCard{ 
-  margin-bottom: 15px;
   display: flex;
-  
+  border-bottom:2px solid rgb(225, 225, 236);
 }
+
+
+.author{ 
+  margin-bottom: 20px;
+}
+
 
 .advertsContainer {
   align-items: center;
