@@ -28,7 +28,7 @@ const Navbar = () => {
         <button href="/" className={styles.join_newsletter_button}>join newsletter</button>
         
       </div>
-      <div className={styles.logo}><Image src="/AZBYTEGEMS.png" alt="logo" width={108} height={48}/></div>
+      <Link  className={styles.logo} href='/'><Image src="/AZBYTEGEMS.png" alt="logo" width={108} height={48}/></Link>
       <div className={styles.links}>
         <ThemeToggle />
         <div className={styles.dropdown} onMouseEnter={() => setShowBlogMenu(true)} onMouseLeave={() => setShowBlogMenu(false)}>
