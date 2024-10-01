@@ -1,106 +1,61 @@
-// import React from "react";
-// import styles from "./categoryList.module.css";
-// import Link from "next/link";
-// import Image from "next/image";
-
-// const getData = async () => {
-//   const response = await fetch("http:localhost:3000/api/categories", {
-//     cache: "no-store",
-//   });
-
-//   if (!response.ok) {
-//     throw new Error("failed");
-//   }
-
-//   return response.json();
-// };
-// const CategoryList = async () => {
-//   const data = await getData();
-//   return (
-//     <div className={styles.container}>
-//       <h1 className={styles.title}>Popular Categories</h1>
-//       <div className={styles.categories}>
-//         {data?.map((item) => (
-//           <Link
-//             href="/blog?cat=style"
-//             className={`${styles.category} ${styles[item.slug]}`}
-//             key={item._id}
-//           >
-//             {item.img && <Image
-//               src={item.img}
-//               alt=""
-//               height={32}
-//               width={32}
-//               className={styles.image}
-//             />}
-//             {item.title}
-//           </Link>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default CategoryList;
-
-import React from "react";
+"use client"
+import React, { useState,useEffect } from "react";
 import styles from "./categoryList.module.css";
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import CatCard from "./CatCard";
 
-// Flag to disable fetching
-const shouldFetchData = false; // Set this to true when you want to fetch data
 
-const getData = async () => {
-  // Skip fetch data if the flag is set to false
-  if (!shouldFetchData) {
-    return []; // Fallback data
-  }
 
-  const response = await fetch("http://localhost:3000/api/categories", {
-    cache: "no-store",
-  });
+const CategoryList =  () => {
+    const [moreRecentPosts,setMoreRecentPosts] = useState([])
+    const searchParam = useSearchParams()
+    const moreParam= searchParam.get('page')
+    const page = parseInt(moreParam, ) || 1;
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch data");
-  }
 
-  return response.json();
-};
+    useEffect(()=> {
+      async function fetchRecentPosts(){
+        try{
+          const response = await fetch(`/api/moreRecent_articles?page=${page}`);
+          const data = await response.json();
+          console.log("Fetched data:", data);
+          if(Array.isArray(data)){ 
+             setMoreRecentPosts(data);// If already an array, use it directly
+          }
+         else {
+          console.error("Unexpected data format", data);
+        }
+  
+        
+        }
+         
 
-const CategoryList = async () => {
-  let data = [];
+        catch(error){ 
+          console.error("Failed to fetch more recent articles", error);
+        }
+        
+      
+      }
+      fetchRecentPosts()
+    },[page])
 
-  // Try to fetch data if the flag allows it
-  try {
-    data = await getData();
-  } catch (error) {
-    console.error(error);
-  }
+
+
+
+  
 
   return (
     <div className={styles.container}>
       <h3 className={styles.title}>More Recent Posts</h3>
       
       <div className={styles.categories}>
-        {data.length > 0 ? (
-          data.map((item) => (
-            <Link
-              href={`/blog?cat=${item.slug}`}
-              className={`${styles.category} ${styles[item.slug]}`}
-              key={item._id}
-            >
-              {item.img && (
-                <Image
-                  src={item.img}
-                  alt=""
-                  height={32}
-                  width={32}
-                  className={styles.image}
-                />
-              )}
-              {item.title}
-            </Link>
+        {moreRecentPosts.length > 0 ? (
+          moreRecentPosts.map((item) => (
+            <CatCard key={item._id} postTitle={<Link href={`/articles/${item._id}`}>{item.title}</Link>} />
+             
+           
           ))
         ) : (
           <p>No categories available at the moment.</p>
