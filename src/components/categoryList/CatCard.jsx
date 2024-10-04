@@ -7,18 +7,18 @@ import Link from "next/link";
 
 
 
-const CatCard = ({postImg,postDesc,postTitle,postAuthor,postDate,postTopic}) => { 
+const CatCard = ({postTitle}) => { 
   
     return( 
-     <div className={styles.cartCard}>
+     <div className={styles.moreCard}>
 
-     <div className={styles.topPosts}>
-          <ol className={styles.noListStyle}>
+     <div className={styles.morePosts}>
+          <ul className={styles.listStyle}>
           <li className={styles.listItem}>
           <Link href="/" >{postTitle}</Link>
           </li>
           
-          </ol>
+          </ul>
            
           </div>
     
