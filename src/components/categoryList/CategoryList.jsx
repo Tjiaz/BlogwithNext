@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import CatCard from "./CatCard";
+import MenuCategories from "../menuCategories/MenuCategories";
+import MenuPosts from "../menuPosts/MenuPosts";
 
 
 
@@ -27,9 +29,7 @@ const CategoryList =  () => {
          else {
           console.error("Unexpected data format", data);
         }
-  
-        
-        }
+   }
          
 
         catch(error){ 
@@ -41,26 +41,31 @@ const CategoryList =  () => {
       fetchRecentPosts()
     },[page])
 
-
-
-
-  
-
   return (
     <div className={styles.container}>
-      <h3 className={styles.title}>More Recent Posts</h3>
       
+      <div className={styles.recentContainer1}>
+     
       <div className={styles.categories}>
+      <h3 className={styles.title}>More Recent Posts</h3>
         {moreRecentPosts.length > 0 ? (
           moreRecentPosts.map((item) => (
             <CatCard key={item._id} postTitle={<Link href={`/articles/${item._id}`}>{item.title}</Link>} />
-             
-           
-          ))
+        ))
         ) : (
           <p>No categories available at the moment.</p>
         )}
       </div>
+      </div>
+     <div className={styles.recentContainer2}>
+
+      <div className={styles.menuContainer}>
+      <h2>Most Popular</h2>
+      <MenuPosts withImage={false} />
+      <h2 className={styles.subtitle}>Discover by topics</h2>
+      <MenuCategories />
+     </div>
+     </div>
     </div>
   );
 };

@@ -7,22 +7,25 @@ import Link from "next/link";
 
 
 
+
+
 const CatCard = ({postTitle}) => { 
   
     return( 
      <div className={styles.moreCard}>
-
      <div className={styles.morePosts}>
           <ul className={styles.listStyle}>
           <li className={styles.listItem}>
           <Link href="/" >{postTitle}</Link>
           </li>
-          
           </ul>
-           
-          </div>
+     </div>
     
-  </div>)
+   </div>
+  
+  
+  
+  )
 }
 
 

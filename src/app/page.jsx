@@ -12,7 +12,7 @@ export default function Home({ searchParams }) {
       <CategoryList />
       <div className={styles.content}>
         <CardList page={page} />
-        <Menu />
+       
       </div>
     </div>
   );
