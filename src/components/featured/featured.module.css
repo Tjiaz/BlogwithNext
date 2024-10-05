@@ -111,6 +111,10 @@
   margin: 0 0 10px 0;
 }
 
+.postTitle:hover { 
+  text-decoration: underline;
+}
+
 .postDesc {
   font-size: 0.8em;
   margin: 0 0 10px 0;
