@@ -94,19 +94,27 @@ const BlogPage = () => {
 
           <div className={styles.socialmedialinks}>
             <a href="#">
-              <img src="/facebook.png" alt="" className={styles.socialmedia} />
+              <Image
+                src="/facebook.png"
+                alt=""
+                className={styles.socialmedia}
+              />
             </a>
             <a href="#">
-              <img src="/twitter.png" alt="" className={styles.socialmedia} />
+              <Image src="/twitter.png" alt="" className={styles.socialmedia} />
             </a>
             <a href="#">
-              <img src="/instagram.png" alt="" className={styles.socialmedia} />
+              <Image
+                src="/instagram.png"
+                alt=""
+                className={styles.socialmedia}
+              />
             </a>
             <a href="#">
-              <img src="/youtube.png" alt="" className={styles.socialmedia} />
+              <Image src="/youtube.png" alt="" className={styles.socialmedia} />
             </a>
             <a href="#">
-              <img src="/reddit.png" alt="" className={styles.socialmedia} />
+              <Image src="/reddit.png" alt="" className={styles.socialmedia} />
             </a>
           </div>
           <hr />
@@ -199,7 +207,7 @@ const BlogPage = () => {
             />
             <MdSearch className={styles.searchIcon} />
           </div>
-          <div className={styles.advertImgContainer}>
+          <div className={styles.advertImageContainer}>
             <Image
               src="/dummy_img.png"
               alt="advert"
