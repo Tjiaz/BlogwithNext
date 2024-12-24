@@ -1,29 +1,22 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import styles from "./article.module.css";
+import React, { useEffect, useState } from "react";
+import styles from "./datasets.module.css";
 import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
-import ArticleCard from "./ArticleCard";
+import datasets from "@/Data2";
 
-const ArticlePage = ({ params }) => {
-  const { slug } = params; // Destructure slug from params
-  console.log("Article slug:", slug);
-  const [articles, setArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [topPosts, setTopPosts] = useState([]);
+const DatasetPage = () => {
+  const [latestPosts, setLatestPosts] = useState([]);
 
   useEffect(() => {
     async function fetchArticles() {
       try {
-        const response = await fetch(`/api/articles/${slug}`);
+        const response = await fetch(`/api/latest_articles`);
         const data = await response.json();
-        console.log("Fetched data:", data);
 
         if (Array.isArray(data)) {
-          setArticles(data); // If already an array, use it directly
-        } else if (typeof data === "object") {
-          setArticles([data]);
+          setLatestPosts(data); // If already an array, use it directly
         } else {
           console.error("Unexpected data format", data);
         }
@@ -34,36 +27,8 @@ const ArticlePage = ({ params }) => {
       }
     }
     fetchArticles();
-  }, [slug]);
-
-  // Fetch top 5 articles for the topPosts section
-  useEffect(() => {
-    async function fetchTopPosts() {
-      try {
-        const response = await fetch(`/api/topArticles?page=1`);
-        const data = await response.json();
-
-        if (Array.isArray(data)) {
-          setTopPosts(data.slice(0, 7)); // Limit to 5 articles
-        } else {
-          console.error("Unexpected data format", data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch top posts", error);
-      } finally {
-        setLoadingTopPosts(false);
-      }
-    }
-    fetchTopPosts();
-  }, []); // Empty dependency array to run once on component mount
-  // Log articles to see its structure before rendering
-  console.log("Articles state before rendering:", articles);
-
-  return loading ? (
-    <div>Loading...</div>
-  ) : !articles ? (
-    <div>Article not found</div>
-  ) : (
+  }, []);
+  return (
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
@@ -75,44 +40,81 @@ const ArticlePage = ({ params }) => {
       </div>
       <div className={styles.post}>
         <div className={styles.textContainer1}>
-          <h2 className={styles.head}>{slug}</h2>
+          <h1 className={styles.head}>
+            Datasets for Data Science, Machine Learning, AI & Analytics
+          </h1>
+
+          <div className={styles.socialmedialinks}>
+            <a href="#">
+              <img src="/facebook.png" alt="" className={styles.socialmedia} />
+            </a>
+            <a href="#">
+              <img src="/twitter.png" alt="" className={styles.socialmedia} />
+            </a>
+            <a href="#">
+              <img src="/instagram.png" alt="" className={styles.socialmedia} />
+            </a>
+            <a href="#">
+              <img src="/youtube.png" alt="" className={styles.socialmedia} />
+            </a>
+            <a href="#">
+              <img src="/reddit.png" alt="" className={styles.socialmedia} />
+            </a>
+          </div>
+          <hr style={{ color: "#bbbbbb" }} />
+          <h2 className={styles.lightText}>
+            <strong className={styles.boldText}>AzByteGems</strong> subscribers
+            have access to the{" "}
+            <strong className={styles.boldText}>WorldData.AI Partners</strong>{" "}
+            Check out the world’s largest external curated data platform,
+            integrating data from all leading global sources.
+          </h2>
+
+          <h2 style={{ textAlign: "center" }}>Data Repositories</h2>
           <div style={{ display: "flex", width: "100%" }}>
             <div
-              style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
+              style={{ flex: "0 0 25%", borderBottom: "2.5px solid #0B73B1" }}
             ></div>
             <div style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}></div>
           </div>
-
-          <div className={styles.postItem}>
-            {articles && articles.length > 0 ? (
-              articles.map((article) => (
-                <div key={article._id}>
-                  {/* Display the article using ArticleCard */}
-                  <ArticleCard
-                    key={article._id}
-                    postImg={
-                      article.filtered_images &&
-                      article.filtered_images.length > 0
-                        ? article.filtered_images[0] // Display the first image
-                        : "/default-image.png" // Fallback image if none exists
-                    }
-                    postTitle={
-                      <Link href={`/article_details/${article._id}`}>
-                        {article.title}
-                      </Link>
-                    }
-                    postDesc={article.description}
-                    postAuthor={article.author}
-                    postDate={article.date}
-                  />
-                </div>
-              ))
-            ) : (
-              <div>No articles found.</div>
-            )}
-          </div>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+          ></div>
+          {datasets.map((dataset) => (
+            <div
+              key={dataset.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "20px",
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+              }}
+            >
+              <div key={dataset.id}>
+                <a
+                  href={dataset.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.link}
+                >
+                  <h3
+                    style={{
+                      margin: "0 0 10px",
+                      color: "#0B73B1",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {dataset.name}
+                  </h3>
+                </a>
+                <p style={{ margin: "0 0 10px", color: "#555" }}>
+                  {dataset.description}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
-
         <div className={styles.textContainer2}>
           <div className={styles.searchContainer}>
             <input
@@ -133,7 +135,7 @@ const ArticlePage = ({ params }) => {
             <Link href="/">Adverts</Link>
           </div>
           <div>
-            <h3>Top Posts</h3>
+            <h3>Latest Posts</h3>
             <div style={{ display: "flex", width: "100%" }}>
               <div
                 style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
@@ -145,8 +147,8 @@ const ArticlePage = ({ params }) => {
           </div>
           <div className={styles.topPosts}>
             <ol className={styles.noListStyle}>
-              {topPosts && topPosts.length > 0 ? (
-                topPosts.map((post) => (
+              {latestPosts && latestPosts.length > 0 ? (
+                latestPosts.map((post) => (
                   <li key={post._id} className={styles.listItem}>
                     <Link href={`/post/${post._id}`}>{post.title}</Link>
                   </li>
@@ -182,4 +184,4 @@ const ArticlePage = ({ params }) => {
   );
 };
 
-export default ArticlePage;
+export default DatasetPage;

@@ -32,29 +32,44 @@
   font-weight: 250;
   color: var(--softTextColor);
 }
+.detail {
+  margin: 5px;
+}
 
 .category {
   padding: 3px 8px;
   border-radius: 10px;
   font-size: 12px;
-  color: white;
   width: max-content;
 }
-/* .category.style {
+.category.career_advice {
   background-color: #57c4ff31;
 }
-.category.fashion {
+.category.data_engineering {
   background-color: #da85c731;
 }
-.food {
+.category.data_science {
   background-color: #7fb88133;
 }
-.category.travel {
+.category.sql {
   background-color: #ff795736;
 }
-.category.culture {
+.category.language_models {
   background-color: #ffb04f45;
-} */
+}
+.category.machine_learning {
+  background-color: #b2a4d5;
+}
+.category.mlops {
+  background-color: #f5a623;
+}
+.category.programming {
+  background-color: #4caf50;
+}
+.category.default {
+  background-color: #cccccc33;
+  color: #fff;
+}
 
 .date {
   color: grey;
@@ -67,4 +82,16 @@
   border-radius: 50%;
   border: 3px solid lightgrey;
   object-fit: cover;
+}
+
+@media screen and (max-width: 768px) {
+  .item {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .item {
+    display: none;
+  }
 }

@@ -12,18 +12,14 @@
   font-size: 12px;
 }
 
-.category.style {
-  background-color: #57c4ff31;
+@media screen and (max-width: 768px) {
+  .categoryList {
+    display: none;
+  }
 }
-.category.fashion {
-  background-color: #da85c731;
-}
-.food {
-  background-color: #7fb88133;
-}
-.category.travel {
-  background-color: #ff795736;
-}
-.category.culture {
-  background-color: #ffb04f45;
+
+@media screen and (max-width: 640px) {
+  .categoryList {
+    display: none;
+  }
 }

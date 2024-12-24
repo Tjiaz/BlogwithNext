@@ -6,7 +6,7 @@ const client = new MongoClient(uri);
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get("page"), 8) || 1; // Default to 1 if page is not provided
-  const limit = 8; // Number of articles per page
+  const limit = 5; // Number of articles per page
   const skip = (page - 1) * limit; // Calculate how many articles to skip
   const databaseName = "ARTICLES"; // Your MongoDB database name
 
@@ -33,19 +33,19 @@ export async function GET(req) {
     for (const { name: collectionName, topic } of collectionsToQuery) {
       const collection = client.db(databaseName).collection(collectionName);
 
-      // Fetch all articles sorted by date in descending order
-      const more_recent_articles = await collection
+      // Fetch the first article sorted by date in descending order (newest first)
+      const top_article = await collection
         .find({})
         .sort({ date: -1 }) // Sort by date, newest first
+        .limit(1) // Fetch only the first article
         .toArray();
 
-      const recent_articles_topic = more_recent_articles.map(
-        (latest_article) => ({
-          ...latest_article,
+      if (top_article.length > 0) {
+        results.push({
+          ...top_article[0],
           topic,
-        })
-      );
-      results.push(...recent_articles_topic);
+        });
+      }
     }
 
     // Shuffle the combined articles randomly
@@ -53,7 +53,8 @@ export async function GET(req) {
 
     // Paginate: skip the first 'skip' articles and return the next 'limit' articles
     const paginatedArticles = results.slice(skip, skip + limit);
-    // Process the results as needed (e.g., deduplicate, format)
+
+    // Process the results as needed
     const processedResults = paginatedArticles.map((article) => ({
       filtered_images: article.filtered_images,
       title: article.title,
@@ -64,6 +65,7 @@ export async function GET(req) {
       topic: article.topic,
       id: article._id,
     }));
+
     return new Response(JSON.stringify(processedResults), { status: 200 });
   } catch (error) {
     console.error("Error fetching articles:", error);

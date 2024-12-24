@@ -11,7 +11,6 @@ const Menu = () => {
       <MenuPosts withImage={false} />
       <h2 className={styles.subtitle}>Discover by topics</h2>
       <MenuCategories />
-      
     </div>
   );
 };

@@ -11,31 +11,32 @@
 }
 
 .post {
-  margin: 30px 0;
+  margin-top: 60px;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  align-content: center;
   gap: 50px;
+}
+
+.topPosts {
+  text-align: justify;
+}
+
+.noListStyle {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
 }
 
 .postItem {
   display: flex;
+  flex-direction: column;
   margin-bottom: 20px;
-
+  border-bottom: 1px solid #ccd;
   padding-bottom: 20px;
 }
 
 .postImage {
   margin-right: 20px;
-}
-
-.articleCard {
-  display: flex;
-  border-bottom: 2px solid rgb(225, 225, 236);
-}
-
-.author {
-  margin-bottom: 20px;
 }
 
 .advertsContainer {
@@ -70,6 +71,9 @@
 .advertImgContainer {
   text-align: center;
 }
+.head {
+  text-transform: capitalize;
+}
 
 .advertImg {
   width: 85%;
@@ -79,7 +83,7 @@
 }
 
 .topPosts {
-  text-align: justify;
+  text-align: center;
 }
 
 .noListStyle {
@@ -102,16 +106,15 @@
   margin: 0 0 10px 0;
 }
 
-.postTitle:hover {
-  text-decoration: underline;
-}
-
 .postDesc {
   font-size: 0.8em;
   margin: 0 0 10px 0;
   color: var(--softTextColor);
 }
-
+.articleCard {
+  margin-bottom: 15px;
+  display: flex;
+}
 .author {
   font-size: 0.9em;
   color: #000;
@@ -127,7 +130,6 @@
   padding: 10px;
   padding-right: 40px;
   font-size: 16px;
-  margin-bottom: 5px;
 }
 
 .searchIcon {
@@ -170,6 +172,30 @@
   text-decoration: underline;
 }
 
+.socialmedia {
+  width: 30px;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.link:hover h3 {
+  text-decoration: underline;
+}
+
+/* .yearlyArticle {
+  border-bottom: 0.5px solid grey;
+} */
+
+.lightText {
+  font-weight: 300; /* Light font weight */
+}
+
+.boldTExt {
+  font-weight: 700; /* Bold font weight */
+}
+
 @media screen and (max-width: 1280px) {
   .title {
     font-size: 72px;
@@ -198,9 +224,6 @@
     text-align: center;
     padding-left: 200px;
   }
-  .textContainer2 {
-    display: none;
-  }
 }
 
 @media screen and (max-width: 640px) {
@@ -215,8 +238,5 @@
 @media screen and (max-width: 768) {
   .title {
     font-size: 36px;
-  }
-  .textContainer2 {
-    display: none;
   }
 }

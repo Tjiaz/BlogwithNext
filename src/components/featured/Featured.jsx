@@ -5,27 +5,34 @@ import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
 import FeaturedCard from "./FeaturedCard";
-import posts from "../../Data";
-import { FaFacebookSquare } from "react-icons/fa";
-import { FaTwitterSquare } from "react-icons/fa";
-import { FaLinkedin } from "react-icons/fa";
-import { FaRedditSquare } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
-import { MdOutlineAddBox } from "react-icons/md";
 import Pagination from "../pagination/Pagination";
 import { useSearchParams } from "next/navigation";
-import { slugify } from "@/utils/slugify";
+import SubscribeModal from "../subscribeModal/SubscribeModal";
 
 const POSTS_PER_PAGE = 8;
 
 const Featured = () => {
   const [latestPosts, setLatestPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [topPosts, setTopPosts] = useState([]);
+  const [loadingTopPosts, setLoadingTopPosts] = useState(true);
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   // Get the page from query params
   const searchParams = useSearchParams();
   const pageParam = searchParams.get("page");
   const page = parseInt(pageParam, 10) || 1;
+
+  // Check for first visit using localStorage
+  useEffect(() => {
+    const hasVisited = localStorage.getItem("hasVisited");
+    if (!hasVisited) {
+      setShowModal(true);
+      localStorage.setItem("hasVisited", "true");
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchArticles() {
@@ -47,12 +54,55 @@ const Featured = () => {
     fetchArticles();
   }, [page]);
 
-  if (loading) {
+  // Fetch top 5 articles for the topPosts section
+  useEffect(() => {
+    async function fetchTopPosts() {
+      try {
+        const response = await fetch(`/api/topArticles?page=1`);
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          setTopPosts(data.slice(0, 7)); // Limit to 5 articles
+        } else {
+          console.error("Unexpected data format", data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch top posts", error);
+      } finally {
+        setLoadingTopPosts(false);
+      }
+    }
+    fetchTopPosts();
+  }, []); // Empty dependency array to run once on component mount
+
+  if (loading || loadingTopPosts) {
     return <div>Loading...</div>;
   }
 
   const hasPrev = page > 1;
   const hasNext = latestPosts.length === POSTS_PER_PAGE;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+      if (response.ok) {
+        setStatus("success");
+        setEmail("");
+      } else {
+        setStatus("error");
+      }
+    } catch (error) {
+      setStatus("error");
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -83,11 +133,12 @@ const Featured = () => {
                     ? post.filtered_images[0]
                     : "/default-image.png"
                 }
-                postTitle={slugify(post.title)} // Use post._id here too
+                postTitle={post.title}
                 postDesc={post.description}
                 postAuthor={post.author}
                 postDate={post.date}
                 postTopic={post.topic}
+                postId={post.id}
               />
             ))
           ) : (
@@ -129,31 +180,15 @@ const Featured = () => {
           </div>
           <div className={styles.topPosts}>
             <ol className={styles.noListStyle}>
-              <li className={styles.listItem}>
-                <Link href="/">
-                  Building Data Science Pipelines Using Pandas
-                </Link>
-              </li>
-              <li className={styles.listItem}>
-                <Link href="/">
-                  Building Data Science Pipelines Using Pandas
-                </Link>
-              </li>
-              <li className={styles.listItem}>
-                <Link href="/">
-                  Building Data Science Pipelines Using Pandas
-                </Link>
-              </li>
-              <li className={styles.listItem}>
-                <Link href="/">
-                  Building Data Science Pipelines Using Pandas
-                </Link>
-              </li>
-              <li className={styles.listItem}>
-                <Link href="/">
-                  Building Data Science Pipelines Using Pandas
-                </Link>
-              </li>
+              {topPosts && topPosts.length > 0 ? (
+                topPosts.map((post) => (
+                  <li key={post._id} className={styles.listItem}>
+                    <Link href={`/post/${post._id}`}>{post.title}</Link>
+                  </li>
+                ))
+              ) : (
+                <li>No top posts found.</li>
+              )}
             </ol>
           </div>
           <div className={styles.advertImgContainer}>
@@ -167,16 +202,68 @@ const Featured = () => {
             <Link href="/">Adverts</Link>
           </div>
           <div className={styles.signupContainer}>
-            <input
-              type="text"
-              className={styles.searchInput}
-              placeholder="Your Email"
-            />
-            <button href="/" className={styles.signupbutton}>
-              sign up
-            </button>
+            <form onSubmit={handleSubmit}>
+              <input
+                type="email"
+                className={styles.searchInput}
+                value={email}
+                placeholder="Your Email"
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <button
+                type="submit"
+                href="/"
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  backgroundColor: "#0B73B1",
+                  color: "#fff",
+                  border: "none",
+
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  letterSpacing: "0.5px",
+
+                  textTransform: "uppercase",
+                }}
+                // className={styles.signupbutton}
+              >
+                sign up
+              </button>
+            </form>
+            {status === "success" && (
+              <p style={{ color: "green", marginTop: "10px" }}>
+                Thank you for subscribing!
+              </p>
+            )}
+            {status === "error" && (
+              <p style={{ color: "red", marginTop: "10px" }}>
+                Something went wrong. Please try again.
+              </p>
+            )}
+            <p
+              style={{
+                fontSize: "12px",
+                marginTop: "10px",
+                color: "#555",
+                textAlign: "center",
+              }}
+            >
+              By subscribing you accept our{" "}
+              <a href="/privacy-policy" style={{ color: "#0B73B1" }}>
+                Privacy Policy
+              </a>
+            </p>
           </div>
         </div>
+      </div>
+      <div>
+        {/* Your existing page content */}
+        <h1>Welcome to AzByteGems</h1>
+
+        {/* Modal */}
+        <SubscribeModal show={showModal} onClose={() => setShowModal(false)} />
       </div>
     </div>
   );

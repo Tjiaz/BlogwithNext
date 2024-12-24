@@ -1,27 +1,58 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 const uri = process.env.DATABASE_URL;
 const client = new MongoClient(uri);
 
-export async function GET(req) {
-  const { searchParams } = new URL(req.url);
-  const titleName = searchParams.get("title");
+const collectionNames = [
+  "Artificial_intelligence_articles",
+  "NLP_articles",
+  "SQL_articles",
+  "career_advice_articles",
+  "computer_vision_articles",
+  "data_engineer_articles",
+  "data_science_articles",
+  "language_model_articles",
+  "machine_learning_articles",
+  "machine_learning_ops_articles",
+  "programming_articles",
+  "py_articles",
+];
 
-  if (topicName) {
+export async function GET(req, { params }) {
+  const articleSlug = params.slug;
+  console.log("Article slug:", JSON.stringify(articleSlug, null, 2));
+
+  const { searchParams } = new URL(req.url);
+
+  if (articleSlug) {
     try {
       await client.connect();
-      const collection = client
-        .db("ARTICLES")
-        .collection(titleName.toLowerCase() + "_articles");
+      console.log("Connected to MongoDB successfully.");
 
-      const articles = await collection.find({}).toArray();
-      const topicDetails = articles.map((article) => ({
-        title: article.title,
-        content: article.content,
-        author: article.author,
-        date: article.date,
-      }));
+      let article = null;
+      for (const collectionName of collectionNames) {
+        const collection = client.db("ARTICLES").collection(collectionName);
 
-      return new Response(JSON.stringify(topicDetails), { status: 200 });
+        //check for an article with the provided _id
+        article = await collection.findOne({ _id: new ObjectId(articleSlug) });
+
+        if (article) break;
+      }
+
+      if (article) {
+        return new Response(
+          JSON.stringify({
+            filtered_images: article.filtered_images,
+            title: article.title,
+            content: article.content,
+            author: article.author,
+            topic: article.topic,
+            date: article.date,
+          }),
+          { status: 200 }
+        );
+      } else {
+        return new Response(JSON.stringify(topicDetails), { status: 200 });
+      }
     } catch (error) {
       console.error("Error fetching topic details:", error);
       return new Response(
@@ -32,7 +63,8 @@ export async function GET(req) {
       await client.close();
     }
   }
-
-  // If no specific topic is requested, return all topics
-  // Your existing logic for fetching all topics here...
+  //if no specific articleID is requested
+  return new Response(JSON.stringify({ message: "No articleID provided" }), {
+    status: 400,
+  });
 }

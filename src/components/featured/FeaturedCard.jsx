@@ -10,7 +10,9 @@ const FeaturedCard = ({
   postAuthor,
   postDate,
   postTopic,
+  postId,
 }) => {
+  console.log("Post Id:", postId);
   console.log("Post Title:", postTitle);
   return (
     <div className={styles.articleCard}>
@@ -24,10 +26,7 @@ const FeaturedCard = ({
         />
       </div>
       <div className={styles.postContent}>
-        <Link
-          href={`/article_details/${postTitle}`}
-          className={styles.postTitle}
-        >
+        <Link href={`/article_details/${postId}`} className={styles.postTitle}>
           <h4>{postTitle}</h4>
         </Link>
         <p className={styles.postDesc}>{postDesc}</p>

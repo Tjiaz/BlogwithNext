@@ -23,7 +23,7 @@ const MenuPosts = (withImage) => {
               fontSize: "12px",
             }}
           >
-            Coding
+            Programming
           </span>
           <h3 className={styles.postTitle}>
             Lorem ipsum dolor sit amet consectetur adipisicing elit.{" "}
