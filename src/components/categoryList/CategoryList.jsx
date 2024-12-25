@@ -6,7 +6,6 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import CatCard from "./CatCard";
 import MenuCategories from "../menuCategories/MenuCategories";
-import MenuPosts from "../menuPosts/MenuPosts";
 import MenuPostCard from "../menuPosts/menuPostCard";
 
 const CategoryList = () => {

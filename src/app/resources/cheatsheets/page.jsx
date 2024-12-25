@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
 
-const page = () => {
+const Page = () => {
   const [latestPosts, setLatestPosts] = useState([]);
 
   useEffect(() => {
@@ -44,23 +44,22 @@ const page = () => {
 
           <div className={styles.socialmedialinks}>
             <a href="#">
-              <img src="/facebook.png" alt="" className={styles.socialmedia} />
+              <Image src="/facebook.png" alt="" className={styles.socialmedia} />
             </a>
             <a href="#">
-              <img src="/twitter.png" alt="" className={styles.socialmedia} />
+              <Image src="/twitter.png" alt="" className={styles.socialmedia} />
             </a>
             <a href="#">
-              <img src="/instagram.png" alt="" className={styles.socialmedia} />
+              <Image src="/instagram.png" alt="" className={styles.socialmedia} />
             </a>
             <a href="#">
-              <img src="/youtube.png" alt="" className={styles.socialmedia} />
+              <Image src="/youtube.png" alt="" className={styles.socialmedia} />
             </a>
             <a href="#">
-              <img src="/reddit.png" alt="" className={styles.socialmedia} />
+              <Image src="/reddit.png" alt="" className={styles.socialmedia} />
             </a>
           </div>
           <hr style={{ color: "#bbbbbb" }} />
-          
         </div>
         <div className={styles.textContainer2}>
           <div className={styles.searchContainer}>
@@ -71,13 +70,13 @@ const page = () => {
             />
             <MdSearch className={styles.searchIcon} />
           </div>
-          <div className={styles.advertImgContainer}>
+          <div className={styles.advertImageContainer}>
             <Image
-              src="/dummy_img.png"
+              src="/dummy_Image.png"
               alt="advert"
               width={100}
               height={100}
-              className={styles.advertImg}
+              className={styles.advertImage}
             />
             <Link href="/">Adverts</Link>
           </div>
@@ -105,13 +104,13 @@ const page = () => {
               )}
             </ol>
           </div>
-          <div className={styles.advertImgContainer}>
+          <div className={styles.advertImageContainer}>
             <Image
-              src="/dummy_img.png"
+              src="/dummy_Image.png"
               alt="advert"
               width={100}
               height={100}
-              className={styles.advertImg}
+              className={styles.advertImage}
             />
             <Link href="/">Adverts</Link>
           </div>
@@ -131,4 +130,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
