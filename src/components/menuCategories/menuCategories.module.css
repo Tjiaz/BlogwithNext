@@ -1,0 +1,25 @@
+.categoryList {
+  margin-top: 25px;
+  margin-bottom: 60px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.categoryItem {
+  padding: 10px 25px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+@media screen and (max-width: 768px) {
+  .categoryList {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .categoryList {
+    display: none;
+  }
+}

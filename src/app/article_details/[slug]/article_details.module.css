@@ -1,0 +1,86 @@
+.container {
+  margin-top: 30px;
+}
+
+.imageadvert {
+  height: 100px;
+  position: relative;
+  width: 70vw;
+  display: block;
+  margin: 0 auto;
+}
+
+.articleInfo {
+  margin: 30px 0;
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  gap: 50px;
+}
+
+.textContainer1 {
+  flex: 2.25;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.textContainer2 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.searchContainer {
+  position: relative;
+  width: 400px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px;
+  padding-right: 40px;
+  font-size: 16px;
+}
+
+.searchIcon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  cursor: pointer;
+  color: grey;
+  font-size: 24px;
+  transform: translateY(-50%);
+}
+
+.advertsContainer {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+.advert {
+  width: 70vw;
+  font-size: small;
+  text-decoration: underline;
+  text-align: center;
+  padding-left: 550px;
+}
+
+.advertImgContainer {
+  text-align: center;
+}
+
+.advertImg {
+  width: 85%;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+}
+.socialLink {
+  display: flex;
+  flex-direction: row;
+}

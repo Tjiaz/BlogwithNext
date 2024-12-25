@@ -1,0 +1,75 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  margin: 10px 0px;
+  text-decoration: underline;
+}
+
+.moreCard {
+  display: flex;
+  margin: 0 auto;
+  border-bottom: 1px solid #ccc;
+}
+
+.morePost {
+  margin: 40px 0;
+}
+.recentContainer1 {
+  display: flex;
+  flex: 2.25;
+  gap: 20px;
+}
+.recentContainer2 {
+  display: flex;
+  flex: 1;
+}
+.menuCardContainer {
+  display: flex;
+  flex: 1;
+}
+.listStyle {
+  margin: 10px 0;
+}
+.listItem {
+  padding-bottom: 10px;
+}
+.listItem:hover {
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 1280px) {
+  .category {
+    width: 20%;
+  }
+}
+@media screen and (max-width: 1024px) {
+  .category {
+    width: 25%;
+  }
+}
+@media screen and (max-width: 768px) {
+  .category {
+    width: 25%;
+  }
+}
+@media screen and (max-width: 768px) {
+  .category {
+    width: 45%;
+  }
+  .recentContainer2 {
+    display: none;
+  }
+}
+@media screen and (max-width: 640px) {
+  .category {
+    width: 100%;
+  }
+  .recentContainer2 {
+    display: none;
+  }
+}
