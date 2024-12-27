@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import CatCard from "./CatCard";
 import MenuCategories from "../menuCategories/MenuCategories";
-import MenuPostCard from "../menuPosts/menuPostCard";
+import MenuPostCard from "../menuPosts/MenuPostCard";
 
 const CategoryList = () => {
   const [moreRecentPosts, setMoreRecentPosts] = useState([]);
