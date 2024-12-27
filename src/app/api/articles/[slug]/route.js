@@ -1,27 +1,49 @@
 import { MongoClient } from "mongodb";
-const uri = process.env.DATABASE_URL;
-const client = new MongoClient(uri);
+
+// Create a global variable to cache the MongoDB client
+let cachedClient = null;
+
+async function connectToDatabase() {
+  if (cachedClient) {
+    return cachedClient;
+  }
+
+  const uri = process.env.DATABASE_URL;
+
+  if (!uri) {
+    throw new Error("Please define DATABASE_URL environment variable");
+  }
+
+  try {
+    const client = new MongoClient(uri);
+    await client.connect();
+    cachedClient = client;
+    return client;
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    throw error;
+  }
+}
 
 export async function GET(req, { params }) {
-  const { slug } = params; // Get the topic slug from the URL params
-
-  const databaseName = "ARTICLES"; // Your MongoDB database name
-  const collectionName = `${slug}_articles`; // Dynamically create the collection name based on the topic
+  const { slug } = params;
+  const databaseName = "ARTICLES";
+  const collectionName = `${slug}_articles`;
 
   console.log("Received slug:", slug);
 
   try {
-    await client.connect();
+    const client = await connectToDatabase();
     console.log("Connected to MongoDB successfully.");
 
-    const db = client.db(databaseName); // Access the correct database
+    const db = client.db(databaseName);
     console.log(`Using database: ${databaseName}`);
 
-    const collection = db.collection(collectionName); // Access the collection dynamically based on slug
+    const collection = db.collection(collectionName);
     console.log(`Fetching from collection: ${collectionName}`);
 
-    const articles = await collection.find().toArray(); // Find the first article in the collection
-    console.log("Fetched article:", articles);
+    const articles = await collection.find().toArray();
+    console.log("Fetched articles:", articles);
 
     // Convert _id to string explicitly
     const articlesWithStringId = articles.map((article) => ({
@@ -29,25 +51,32 @@ export async function GET(req, { params }) {
       _id: article._id.toString(),
     }));
 
-    console.log("Articles with string _id:", articlesWithStringId); // Log the converted articles
+    console.log("Articles with string _id:", articlesWithStringId);
 
     if (!articlesWithStringId || articlesWithStringId.length === 0) {
-      console.error("No article found.");
-      return new Response(JSON.stringify({ error: "Article Not Found" }), {
+      console.error("No articles found.");
+      return new Response(JSON.stringify({ error: "Articles Not Found" }), {
         status: 404,
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
     }
 
     return new Response(JSON.stringify(articlesWithStringId), {
       status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
   } catch (error) {
-    console.error("Error fetching article:", error);
-    return new Response(JSON.stringify({ error: "Failed to fetch article" }), {
+    console.error("Error fetching articles:", error);
+    return new Response(JSON.stringify({ error: "Failed to fetch articles" }), {
       status: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
-  } finally {
-    await client.close();
-    console.log("MongoDB connection closed.");
   }
+  // Remove the client.close() call since we're reusing the connection
 }
