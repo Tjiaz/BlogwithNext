@@ -49,7 +49,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   Post          Post[]
-  Comment       Comment[]
+
 }
 
 model VerificationToken {
@@ -80,21 +80,11 @@ model Post {
   cat       Category  @relation(fields: [catSlug], references: [slug]) 
   userEmail String
   user      User      @relation(fields: [userEmail], references: [email]) 
-  comments  Comment[]
+ 
 
   // Additional fields...
 }
-model Comment { 
-  id    String @id @default(cuid()) @map("_id")
-  createdAt DateTime @default(now())
-  desc  String
-  userEmail String
-  user   User   @relation(fields: [userEmail],references: [email])
-  postSlug String
-  posts   Post  @relation(fields: [postSlug],references: [slug])
-  
- 
-}
+
 
 model Article { 
   id             String    @id @default(auto()) @map("_id") @db.ObjectId
