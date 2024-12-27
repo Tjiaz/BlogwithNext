@@ -14,6 +14,11 @@ async function connectToDatabase() {
     throw new Error("Please define DATABASE_URL environment variable");
   }
 
+  // Validate connection string format
+  if (!uri.startsWith("mongodb://") && !uri.startsWith("mongodb+srv://")) {
+    throw new Error("Invalid MongoDB connection string format");
+  }
+
   try {
     const client = new MongoClient(uri);
     await client.connect();
