@@ -194,7 +194,7 @@ const Navbar = () => {
             </div>
           )}
         </div>
-        {/* <AuthLinks /> */}
+        <AuthLinks />
       </div>
     </div>
   );
