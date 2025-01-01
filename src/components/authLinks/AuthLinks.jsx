@@ -36,7 +36,7 @@ const AuthLinks = () => {
 
   return (
     <>
-      {status === "unauthenticated" ? (
+      {/* {status === "unauthenticated" ? (
         <Link href="/login" className={styles.link}>
           Login
         </Link>
@@ -49,7 +49,7 @@ const AuthLinks = () => {
             Logout
           </span>
         </>
-      )}
+      )} */}
 
       <div className={styles.topContainer}>
         <MdSearch
