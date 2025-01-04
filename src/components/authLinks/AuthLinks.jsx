@@ -6,51 +6,46 @@ import styles from "./authLinks.module.css";
 import { signOut, useSession } from "next-auth/react";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { MdSearch } from "react-icons/md";
+
 const AuthLinks = () => {
   const [open, setOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [showResMenu, setShowResMenu] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-  const [showBlogMenu, setShowBlogMenu] = useState(false);
+  const [activeMenu, setActiveMenu] = useState(null);
   const { status } = useSession();
+
+  // Close menus and reset state
+  const closeAllMenus = () => {
+    setOpen(false);
+    setActiveMenu(null);
+    setShowSearch(false);
+  };
+
+  // Handle menu toggle
+  const toggleMenu = (menuName) => {
+    setActiveMenu(activeMenu === menuName ? null : menuName);
+  };
 
   // Close the menu when the screen width is larger than 640px
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 640) {
-        setOpen(false);
-        setShowMenu(false);
-        setShowResMenu(false);
-        setShowBlogMenu(false);
-        setShowSearch(false);
+        closeAllMenus();
       }
     };
 
     window.addEventListener("resize", handleResize);
-
-    // Cleanup event listener on component unmount
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
 
+  // Close menu when a link is clicked
+  const handleLinkClick = () => {
+    closeAllMenus();
+  };
+
   return (
     <>
-      {/* {status === "unauthenticated" ? (
-        <Link href="/login" className={styles.link}>
-          Login
-        </Link>
-      ) : (
-        <>
-          <Link href="/write" className={styles.link}>
-            Write
-          </Link>
-          <span className={styles.link} onClick={signOut}>
-            Logout
-          </span>
-        </>
-      )} */}
-
       <div className={styles.topContainer}>
         <MdSearch
           className={styles.searchIcon}
@@ -71,115 +66,144 @@ const AuthLinks = () => {
       </div>
       {open && (
         <div className={styles.responsiveMenu}>
-          <div
-            href="/"
-            className={styles.menuLink}
-            onClick={() => setShowBlogMenu(!showBlogMenu)}
-          >
+          {/* Blog Dropdown */}
+          <div className={styles.menuLink} onClick={() => toggleMenu("blog")}>
             Blog
             <span className={styles.arrow}>
               <IoMdArrowDropdown />
             </span>
           </div>
-          {showBlogMenu && (
+          {activeMenu === "blog" && (
             <div className={styles.dropdownMenu}>
-              <div className={styles.dropdownMenu}>
-                <Link href="/" className={styles.dropdownItem}>
-                  Top post
-                </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  About
-                </Link>
-              </div>
+              <Link
+                href="/blog"
+                className={styles.dropdownItem}
+                onClick={handleLinkClick}
+              >
+                Top post
+              </Link>
+              <Link
+                href="/blog/about"
+                className={styles.dropdownItem}
+                onClick={handleLinkClick}
+              >
+                About
+              </Link>
             </div>
           )}
-          <div
-            className={styles.menuLink}
-            onClick={() => setShowMenu(!showMenu)}
-          >
+
+          {/* Topics Dropdown */}
+          <div className={styles.menuLink} onClick={() => toggleMenu("topics")}>
             Topics
             <span className={styles.arrow}>
               <IoMdArrowDropdown />
             </span>
           </div>
-          {showMenu && (
+          {activeMenu === "topics" && (
             <div className={styles.dropdownMenu}>
-              <div className={styles.dropdownMenu}>
-                <Link href="/" className={styles.dropdownItem}>
-                  AI
+              {[
+                { name: "AI", path: "/articles/Artificial_intelligence" },
+                { name: "Career Advice", path: "/articles/career_advice" },
+                { name: "Computer Vision", path: "/articles/computer_vision" },
+                { name: "Data Engineering", path: "/articles/data_engineer" },
+                { name: "Data Science", path: "/articles/data_science" },
+                { name: "Language Models", path: "/articles/language_models" },
+                {
+                  name: "Machine Learning",
+                  path: "/articles/machine_learning",
+                },
+                { name: "MLOps", path: "/articles/machine_learning_ops" },
+                { name: "NLP", path: "/articles/NLP" },
+                { name: "Programming", path: "/articles/programming" },
+                { name: "Python", path: "/articles/py" },
+                { name: "SQL", path: "/articles/SQL" },
+              ].map((topic) => (
+                <Link
+                  key={topic.name}
+                  href={topic.path}
+                  className={styles.dropdownItem}
+                  onClick={handleLinkClick}
+                >
+                  {topic.name}
                 </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  Career Advice
-                </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  Computer Vision
-                </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  Data Engineering
-                </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  Data Science
-                </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  Language Models
-                </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  Machine Learning
-                </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  MLOps
-                </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  NLP
-                </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  Programming
-                </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  Python
-                </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  SQL
-                </Link>
-              </div>
+              ))}
             </div>
           )}
 
-          <Link href="/" className={styles.menuLink}>
+          {/* Datasets Link */}
+          <Link
+            href="/datasets"
+            className={styles.menuLink}
+            onClick={handleLinkClick}
+          >
             Datasets
           </Link>
+
+          {/* Resources Dropdown */}
           <div
             className={styles.menuLink}
-            onClick={() => setShowResMenu(!showResMenu)}
+            onClick={() => toggleMenu("resources")}
           >
             Resources
             <span className={styles.arrow}>
               <IoMdArrowDropdown />
             </span>
           </div>
-          {showResMenu && (
+          {activeMenu === "resources" && (
             <div className={styles.dropdownMenu}>
-              <div className={styles.dropdownMenu}>
-                <Link href="/" className={styles.dropdownItem}>
-                  Cheat Sheets
-                </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  Recommendations
-                </Link>
-                <Link href="/" className={styles.dropdownItem}>
-                  Tech Briefs
-                </Link>
-              </div>
+              <Link
+                href="/resources/cheatsheets"
+                className={styles.dropdownItem}
+                onClick={handleLinkClick}
+              >
+                Cheat Sheets
+              </Link>
+              <Link
+                href="/resources/recommendations"
+                className={styles.dropdownItem}
+                onClick={handleLinkClick}
+              >
+                Recommendations
+              </Link>
+              <Link
+                href="/resources/techbriefs"
+                className={styles.dropdownItem}
+                onClick={handleLinkClick}
+              >
+                Tech Briefs
+              </Link>
             </div>
           )}
 
-          {status === "notautheticated" ? (
-            <Link href="/login">Login</Link>
+          {/* Authentication Links
+          {status === "unauthenticated" ? (
+            <Link
+              href="/login"
+              className={styles.menuLink}
+              onClick={handleLinkClick}
+            >
+              Login
+            </Link>
           ) : (
             <>
-              <span className={styles.link}>Logout</span>
+              <Link
+                href="/write"
+                className={styles.menuLink}
+                onClick={handleLinkClick}
+              >
+                Write
+              </Link>
+              <span
+                className={styles.menuLink}
+                onClick={() => {
+                  signOut();
+                  handleLinkClick();
+                }}
+              >
+                Logout
+              </span>
             </>
-          )}
+          )} */}
         </div>
       )}
     </>

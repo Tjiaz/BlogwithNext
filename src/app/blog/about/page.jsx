@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import styles from "../blogPage.module.css";
-
 import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
@@ -29,6 +28,7 @@ const Page = () => {
     }
     fetchArticles();
   }, []);
+
   return (
     <div className={styles.container}>
       <div className={styles.advertContainer}>
@@ -54,20 +54,40 @@ const Page = () => {
               />
             </a>
             <a href="#">
-              <Image src="/twitter.png" alt="" className={styles.socialmedia} />
+              <Image
+                src="/twitter.png"
+                alt=""
+                width={24}
+                height={24}
+                className={styles.socialmedia}
+              />
             </a>
             <a href="#">
               <Image
                 src="/instagram.png"
                 alt=""
+                width={24}
+                height={24}
                 className={styles.socialmedia}
               />
             </a>
             <a href="#">
-              <Image src="/youtube.png" alt="" className={styles.socialmedia} />
+              <Image
+                src="/youtube.png"
+                alt=""
+                width={24}
+                height={24}
+                className={styles.socialmedia}
+              />
             </a>
             <a href="#">
-              <Image src="/reddit.png" alt="" className={styles.socialmedia} />
+              <Image
+                src="/reddit.png"
+                alt=""
+                width={24}
+                height={24}
+                className={styles.socialmedia}
+              />
             </a>
           </div>
           <hr style={{ color: "#bbbbbb" }} />
@@ -106,9 +126,9 @@ const Page = () => {
                 <Image
                   src={profile.image}
                   alt={profile.name}
+                  width={100}
+                  height={100}
                   style={{
-                    width: "100px",
-                    height: "100px",
                     borderRadius: "50%",
                     marginRight: "20px",
                   }}
@@ -132,7 +152,8 @@ const Page = () => {
                         <Image
                           src="/icons/linkedin.png"
                           alt="LinkedIn"
-                          style={{ width: "24px", height: "24px" }}
+                          width={24}
+                          height={24}
                         />
                       </a>
                     )}
@@ -145,7 +166,8 @@ const Page = () => {
                         <Image
                           src="/icons/twitter.png"
                           alt="Twitter"
-                          style={{ width: "24px", height: "24px" }}
+                          width={24}
+                          height={24}
                         />
                       </a>
                     )}
@@ -158,7 +180,8 @@ const Page = () => {
                         <Image
                           src="/icons/github.png"
                           alt="GitHub"
-                          style={{ width: "24px", height: "24px" }}
+                          width={24}
+                          height={24}
                         />
                       </a>
                     )}
@@ -167,7 +190,8 @@ const Page = () => {
                         <Image
                           src="/icons/email.png"
                           alt="Email"
-                          style={{ width: "24px", height: "24px" }}
+                          width={24}
+                          height={24}
                         />
                       </a>
                     )}

@@ -48,23 +48,45 @@ const Page = () => {
                 src="/facebook.png"
                 alt=""
                 className={styles.socialmedia}
+                width={24}
+                height={24}
               />
             </a>
             <a href="#">
-              <Image src="/twitter.png" alt="" className={styles.socialmedia} />
+              <Image
+                src="/twitter.png"
+                alt=""
+                width={24}
+                height={24}
+                className={styles.socialmedia}
+              />
             </a>
             <a href="#">
               <Image
                 src="/instagram.png"
                 alt=""
+                width={24}
+                height={24}
                 className={styles.socialmedia}
               />
             </a>
             <a href="#">
-              <Image src="/youtube.png" alt="" className={styles.socialmedia} />
+              <Image
+                src="/youtube.png"
+                alt=""
+                width={24}
+                height={24}
+                className={styles.socialmedia}
+              />
             </a>
             <a href="#">
-              <Image src="/reddit.png" alt="" className={styles.socialmedia} />
+              <Image
+                src="/reddit.png"
+                alt=""
+                width={24}
+                height={24}
+                className={styles.socialmedia}
+              />
             </a>
           </div>
           <hr style={{ color: "#bbbbbb" }} />

@@ -19,7 +19,7 @@ async function getTopicDetails(slug) {
 
 export default function ArticleDetails() {
   const { slug } = useParams();
-  
+
   const [article, setArticle] = useState(null);
   const [error, setError] = useState(null);
   const [latestPosts, setLatestPosts] = useState(null);
@@ -119,7 +119,8 @@ export default function ArticleDetails() {
                 <Image
                   src="/default-image.png"
                   alt="Default image"
-                  style={{ width: "100%", height: "auto" }}
+                  width={700}
+                  height={475}
                 />
               )}
 
