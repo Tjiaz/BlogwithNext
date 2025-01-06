@@ -16,16 +16,14 @@
   align-items: center;
   justify-content: flex-end;
   width: 100%;
-  position: relative; 
- 
+  position: relative;
 }
 
 .searchIcon {
   color: #0b73b1;
   cursor: pointer;
   display: none;
-  margin-right: 15px; 
- 
+  margin-right: 15px;
 }
 
 .searchInput {
@@ -46,8 +44,6 @@
   display: block;
 }
 
-
-
 .line {
   width: 100%;
   height: 2px;
@@ -62,25 +58,25 @@
   height: calc(100vh - 100px);
   width: 100vw;
   display: flex;
-  justify-content: flex-start;;
+  justify-content: flex-start;
   align-items: flex-start;
   font-size: 32px;
   flex-direction: column;
   gap: 20px;
   font-size: large;
   z-index: 5;
-  
 }
- .menuLink{ 
-  padding-top: 20px;
-  width:100%;
-  padding-left:40px;
-  padding-bottom: 10px;
-  margin:0;
-  
- }
-.responsiveMenu .menuLink{ 
-  border-bottom: 2px solid #0B73B1;
+.menuLink {
+  padding: 15px 40px 10px 40px;
+  width: 100%;
+  padding-left: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.responsiveMenu .menuLink {
+  border-bottom: 2px solid #0b73b1;
 }
 
 .dropdownMenu {
@@ -90,35 +86,33 @@
   flex-direction: column;
   gap: 10px;
   font-size: 14px;
-  max-height:300px;
+  max-height: 300px;
   overflow-y: auto;
   padding-right: 30px;
 }
 
-.dropdownMenu::-webkit-scrollbar{
-  width:10px;
-
+.dropdownMenu::-webkit-scrollbar {
+  width: 10px;
 }
 .dropdownMenu::-webkit-scrollbar-track {
   background: #c2c2c2; /* Background of the scrollbar track */
 }
 
 .dropdownMenu::-webkit-scrollbar-thumb {
-  background: #0B73B1; /* Color of the scrollbar handle */
+  background: #0b73b1; /* Color of the scrollbar handle */
 }
 
 .dropdownMenu::-webkit-scrollbar-thumb:hover {
-  background: #58a1cb;; /* Color of the scrollbar handle on hover */
+  background: #58a1cb; /* Color of the scrollbar handle on hover */
 }
 .dropdownItem {
   padding-bottom: 10px;
-  border-bottom: 1px solid #0B73B1;;
+  border-bottom: 1px solid #0b73b1;
 }
 
-.dropdownItem:hover{ 
+.dropdownItem:hover {
   text-decoration: underline;
 }
-
 
 @media screen and (max-width: 640px) {
   .burger {
@@ -133,7 +127,7 @@
   .searchInput {
     width: 100vw; /* Adjust width for better alignment on small screens */
     left: 0;
-    width: 100vw; 
-    max-width: 100%; 
+    width: 100vw;
+    max-width: 100%;
   }
 }

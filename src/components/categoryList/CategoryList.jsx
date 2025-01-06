@@ -90,7 +90,7 @@ const CategoryList = () => {
                 image={
                   post.filtered_images && post.filtered_images.length > 0
                     ? post.filtered_images[0]
-                    : "/default-image.png"
+                    : "/AZBYTEGEMS.png"
                 }
               />
             ))

@@ -76,7 +76,7 @@ const Featured = () => {
   }, []); // Empty dependency array to run once on component mount
 
   if (loading || loadingTopPosts) {
-    return <div>Loading...</div>;
+    return <div className={styles.spinner}></div>;
   }
 
   const hasPrev = page > 1;
@@ -108,7 +108,12 @@ const Featured = () => {
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/p1.jpeg" alt="" fill className={styles.image} />
+          <Image
+            src="/Data-science-engineering.jpeg"
+            alt=""
+            fill
+            className={styles.image}
+          />
         </div>
         <Link href="/" className={styles.advert}>
           adverts link
@@ -131,7 +136,7 @@ const Featured = () => {
                 postImg={
                   post.filtered_images && post.filtered_images.length > 0
                     ? post.filtered_images[0]
-                    : "/default-image.png"
+                    : "/AZBYTEGEMS.png"
                 }
                 postTitle={post.title}
                 postDesc={post.description}

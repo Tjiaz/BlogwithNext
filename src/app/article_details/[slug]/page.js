@@ -5,8 +5,10 @@ import styles from "./article_details.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { MdFacebook, MdSearch } from "react-icons/md";
+import { MdFacebook, MdSearch, MdYoutubeSearchedFor } from "react-icons/md";
 import FeaturedCard from "@/components/featured/FeaturedCard";
+import { FaLinkedinIn } from "react-icons/fa";
+import { BsTwitterX } from "react-icons/bs";
 
 // Function to fetch article by ID
 async function getTopicDetails(slug) {
@@ -70,12 +72,17 @@ export default function ArticleDetails() {
   return error ? (
     <div>Error: {error}</div>
   ) : !article ? (
-    <div>Loading ...</div>
+    <div className={styles.spinner}></div>
   ) : (
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/p1.jpeg" alt="" fill className={styles.image} />
+          <Image
+            src="/Data-science-engineering.jpeg"
+            alt=""
+            fill
+            className={styles.image}
+          />
         </div>
         <Link href="/" className={styles.advert}>
           adverts link
@@ -91,17 +98,14 @@ export default function ArticleDetails() {
             <Link href="https://facebook.com/">
               <MdFacebook className={styles.facebookIcon} />
             </Link>
-            <Link href="https://facebook.com/">
-              <MdFacebook className={styles.facebookIcon} />
+            <Link href="https://linkedin.com/">
+              <FaLinkedinIn className={styles.linkedIcon} />
             </Link>
-            <Link href="https://facebook.com/">
-              <MdFacebook className={styles.facebookIcon} />
+            <Link href="https://youtube.com/">
+              <MdYoutubeSearchedFor className={styles.youtubeIcon} />
             </Link>
-            <Link href="https://facebook.com/">
-              <MdFacebook className={styles.facebookIcon} />
-            </Link>
-            <Link href="https://facebook.com/">
-              <MdFacebook className={styles.facebookIcon} />
+            <Link href="https://twitter.com/">
+              <BsTwitterX className={styles.xIcon} />
             </Link>
           </div>
           <hr style={{ color: "#cccccc" }} />
@@ -173,7 +177,7 @@ export default function ArticleDetails() {
                   postImg={
                     post.filtered_images && post.filtered_images.length > 0
                       ? post.filtered_images[0]
-                      : "/default-image.png"
+                      : "/AZBYTEGEMS.png"
                   }
                   postTitle={post.title}
                   postDesc={post.description}

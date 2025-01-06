@@ -60,14 +60,19 @@ const ArticlePage = ({ params }) => {
   console.log("Articles state before rendering:", articles);
 
   return loading ? (
-    <div>Loading...</div>
+    <div className={styles.spinner}></div>
   ) : !articles ? (
     <div>Article not found</div>
   ) : (
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/p1.jpeg" alt="" fill className={styles.image} />
+          <Image
+            src="/Data-science-engineering.jpeg"
+            alt=""
+            fill
+            className={styles.image}
+          />
         </div>
         <Link href="/" className={styles.advert}>
           adverts link
@@ -94,7 +99,7 @@ const ArticlePage = ({ params }) => {
                       article.filtered_images &&
                       article.filtered_images.length > 0
                         ? article.filtered_images[0] // Display the first image
-                        : "/default-image.png" // Fallback image if none exists
+                        : "/azbyte.jpeg" // Fallback image if none exists
                     }
                     postTitle={
                       <Link href={`/article_details/${article._id}`}>

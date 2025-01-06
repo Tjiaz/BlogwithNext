@@ -19,14 +19,20 @@ const Navbar = () => {
   return (
     <div className={styles.container}>
       <div className={styles.social}>
-        <Link href="/" className={styles.social_icons}>
+        <Link
+          href="https://facebook.com/azbytegems"
+          className={styles.social_icons}
+        >
           <BsFacebook />
         </Link>
 
-        <Link href="/" className={styles.social_icons}>
+        <Link
+          href="https://linkedin.com/azbytegems"
+          className={styles.social_icons}
+        >
           <BsLinkedin />
         </Link>
-        <Link href="/" className={styles.social_icons}>
+        <Link href="https://x.com/azbytegems" className={styles.social_icons}>
           <BsTwitterX />
         </Link>
         <button

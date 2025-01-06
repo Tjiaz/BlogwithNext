@@ -75,14 +75,19 @@ const BlogPage = () => {
   }, []);
 
   return loading ? (
-    <div>Loading...</div>
+    <div className={styles.spinner}></div>
   ) : !topPosts ? (
     <div>top posts not found</div>
   ) : (
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/p1.jpeg" alt="" fill className={styles.image} />
+          <Image
+            src="/Data-science-engineering.jpeg"
+            alt=""
+            fill
+            className={styles.image}
+          />
         </div>
         <Link href="/" className={styles.advert}>
           adverts link
