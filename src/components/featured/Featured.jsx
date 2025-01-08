@@ -19,6 +19,7 @@ const Featured = () => {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
 
   // Get the page from query params
   const searchParams = useSearchParams();
@@ -76,7 +77,7 @@ const Featured = () => {
   }, []); // Empty dependency array to run once on component mount
 
   if (loading || loadingTopPosts) {
-    return <div className={styles.spinner}></div>;
+    return <div>Loading...</div>;
   }
 
   const hasPrev = page > 1;
@@ -104,16 +105,16 @@ const Featured = () => {
     }
   };
 
+  // Filter posts based on search query
+  const filteredPosts = latestPosts.filter((post) =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
-          <Image
-            src="/Data-science-engineering.jpeg"
-            alt=""
-            fill
-            className={styles.image}
-          />
+          <Image src="/p1.jpeg" alt="" fill className={styles.image} />
         </div>
         <Link href="/" className={styles.advert}>
           adverts link
@@ -129,14 +130,14 @@ const Featured = () => {
             <div style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}></div>
           </div>
 
-          {latestPosts && latestPosts.length > 0 ? (
-            latestPosts.map((post) => (
+          {filteredPosts && filteredPosts.length > 0 ? (
+            filteredPosts.map((post) => (
               <FeaturedCard
                 key={post._id} // Use post._id for unique key
                 postImg={
                   post.filtered_images && post.filtered_images.length > 0
                     ? post.filtered_images[0]
-                    : "/AZBYTEGEMS.png"
+                    : "/azbyte.jpeg"
                 }
                 postTitle={post.title}
                 postDesc={post.description}
@@ -225,11 +226,9 @@ const Featured = () => {
                   backgroundColor: "#0B73B1",
                   color: "#fff",
                   border: "none",
-
                   fontWeight: "bold",
                   cursor: "pointer",
                   letterSpacing: "0.5px",
-
                   textTransform: "uppercase",
                 }}
                 // className={styles.signupbutton}

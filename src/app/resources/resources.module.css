@@ -92,7 +92,7 @@
   margin: 0;
 }
 .listItem {
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid#f2f2f2;
   margin-bottom: 10px;
   padding-bottom: 10px;
 }

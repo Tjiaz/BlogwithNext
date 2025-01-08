@@ -9,8 +9,9 @@
 .item {
   display: flex;
   align-items: center;
+
   gap: 20px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #f2f2f2;
   padding-bottom: 5px;
 }
 
@@ -26,14 +27,20 @@
   position: relative;
   aspect-ratio: 1/1;
 }
-
-.postTitle {
+.topic {
   font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+}
+.postTitle {
+  font-size: 12px;
   font-weight: 250;
   color: var(--softTextColor);
 }
 .detail {
-  margin: 5px;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
 }
 
 .category {

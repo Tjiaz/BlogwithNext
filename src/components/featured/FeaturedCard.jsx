@@ -12,8 +12,6 @@ const FeaturedCard = ({
   postTopic,
   postId,
 }) => {
-  console.log("Post Id:", postId);
-  console.log("Post Title:", postTitle);
   return (
     <div className={styles.articleCard}>
       <div className={styles.postImage}>

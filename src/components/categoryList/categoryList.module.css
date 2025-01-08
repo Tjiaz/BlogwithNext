@@ -13,7 +13,7 @@
 .moreCard {
   display: flex;
   margin: 0 auto;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #f2f2f2;
 }
 
 .morePost {
@@ -27,6 +27,8 @@
 .recentContainer2 {
   display: flex;
   flex: 1;
+  border-left: 1px solid #f2f2f2;
+  padding-left: 20px;
 }
 .menuCardContainer {
   display: flex;

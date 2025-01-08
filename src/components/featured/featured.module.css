@@ -31,7 +31,7 @@
 
 .articleCard {
   display: flex;
-  border-bottom: 2px solid rgb(225, 225, 236);
+  border-bottom: 2px solid #f2f2f2;
 }
 
 .author {
@@ -66,6 +66,8 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  border-left: 0.5px solid #f2f2f2;
+  padding-left: 20px;
 }
 .advertImgContainer {
   text-align: center;
@@ -114,7 +116,7 @@
 
 .author {
   font-size: 0.9em;
-  color: #000;
+  color: #242424;
 }
 
 .searchContainer {
