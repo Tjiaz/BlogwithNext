@@ -165,7 +165,7 @@ const Featured = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/dummy_img.png"
+              src="/Data-science-engineering.jpeg"
               alt="advert"
               width={100}
               height={100}

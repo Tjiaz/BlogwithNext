@@ -77,6 +77,14 @@ const SubscribeModal = ({ onClose, show }) => {
           >
             Sign Up
           </button>
+          <p
+            style={{
+              fontSize: "10px",
+              color: "#ccc",
+            }}
+          >
+            By subscribing you agree to the AzByteGems Privacy Policy
+          </p>
         </form>
       </div>
     </div>

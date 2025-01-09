@@ -122,6 +122,14 @@
   }
 }
 
+.paragraphs {
+  font-size: 16px; /* Adjust font size for readability */
+  line-height: 1.6; /* Increase line height for better spacing */
+  margin-bottom: 20px; /* Add space between paragraphs */
+  color: #333; /* Set a readable text color */
+  text-align: justify; /* Justify text for a cleaner look */
+}
+
 @media (max-width: 480px) {
   .searchInput {
     font-size: 14px;

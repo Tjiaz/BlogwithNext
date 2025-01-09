@@ -2,6 +2,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "./article_details.module.css";
+
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -92,7 +93,7 @@ export default function ArticleDetails() {
         <div className={styles.textContainer1}>
           <h1>{article.title}</h1>
           <p>
-            By <b>{article.author}</b> on {article.date} in {article.topic}
+            By <b>{article.author}</b> on {article.date}
           </p>
           <div className={styles.socialLink}>
             <Link href="https://facebook.com/">
@@ -121,7 +122,7 @@ export default function ArticleDetails() {
                 />
               ) : (
                 <Image
-                  src="/default-image.png"
+                  src="/azbyte.jpeg"
                   alt="Default image"
                   width={700}
                   height={475}
@@ -130,7 +131,9 @@ export default function ArticleDetails() {
 
               <h2>{section.heading}</h2>
               {section.paragraphs.map((para, i) => (
-                <p key={i}>{para}</p>
+                <p key={i} className={styles.paragraphs}>
+                  {para}
+                </p>
               ))}
             </div>
           ))}
@@ -162,7 +165,9 @@ export default function ArticleDetails() {
           </div>
           <div>
             <h3>Latest Posts</h3>
-            <div style={{ display: "flex", width: "100%" }}>
+            <div
+              style={{ display: "flex", width: "100%", marginBottom: "20px" }}
+            >
               <div
                 style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
               ></div>
