@@ -50,7 +50,7 @@ const Navbar = () => {
         )}
       </div>
       <Link className={styles.logo} href="/">
-        <Image src="/AZBYTEGEMS.png" alt="logo" width={108} height={48} />
+        <Image src="/AZBYTEGEMS.png" alt="logo" width={174} height={52} />
       </Link>
       <div className={styles.links}>
         <ThemeToggle />

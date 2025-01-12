@@ -19,6 +19,7 @@
 body {
   min-width: 100vw;
   overflow-x: hidden;
+  padding-top: 90px;
 }
 
 a {
@@ -73,6 +74,8 @@ a {
 }
 @media screen and (max-width: 768px) {
   .wrapper {
-    max-width: 640px;
+    max-width: 100vw;
+    padding-left: 20px; /* Adjust padding for mobile view */
+    padding-right: 20px;
   }
 }

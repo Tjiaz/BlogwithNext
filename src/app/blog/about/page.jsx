@@ -33,10 +33,10 @@ const Page = () => {
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/p1.jpeg" alt="" fill className={styles.image} />
+          <Image src="/ads.gif" alt="" fill className={styles.image} />
         </div>
         <Link href="/" className={styles.advert}>
-          adverts link
+          Google-bigquery
         </Link>
       </div>
       <div className={styles.post}>
@@ -212,13 +212,13 @@ const Page = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/dummy_img.png"
+              src="/ads2.gif"
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Adverts</Link>
+            <Link href="/">Google-advert</Link>
           </div>
           <div>
             <h3>Latest Posts</h3>
@@ -246,13 +246,13 @@ const Page = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/dummy_img.png"
+              src="/ads2.gif"
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Adverts</Link>
+            <Link href="/">Google-advert</Link>
           </div>
           <div className={styles.signupContainer}>
             <input

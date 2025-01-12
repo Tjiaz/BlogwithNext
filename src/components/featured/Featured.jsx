@@ -77,7 +77,7 @@ const Featured = () => {
   }, []); // Empty dependency array to run once on component mount
 
   if (loading || loadingTopPosts) {
-    return <div>Loading...</div>;
+    return <div className={styles.spinner}></div>;
   }
 
   const hasPrev = page > 1;
@@ -114,10 +114,10 @@ const Featured = () => {
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/p1.jpeg" alt="" fill className={styles.image} />
+          <Image src="/ads.gif" alt="" fill className={styles.image} />
         </div>
         <Link href="/" className={styles.advert}>
-          adverts link
+          Google-bigquery
         </Link>
       </div>
       <div className={styles.post}>
@@ -165,13 +165,13 @@ const Featured = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/Data-science-engineering.jpeg"
+              src="/ads2.gif"
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Adverts</Link>
+            <Link href="/">Google-bigquery</Link>
           </div>
           <div>
             <h3>Top Posts</h3>
@@ -199,13 +199,13 @@ const Featured = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/dummy_img.png"
+              src="/ads2.gif"
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Adverts</Link>
+            <Link href="/">Google-bigquery</Link>
           </div>
           <div className={styles.signupContainer}>
             <form onSubmit={handleSubmit}>
