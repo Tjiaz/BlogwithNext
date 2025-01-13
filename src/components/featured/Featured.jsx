@@ -112,9 +112,14 @@ const Featured = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.advertContainer}>
+      <div className={styles.advertsContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/ads.gif" alt="" fill className={styles.image} />
+          <Image
+            src="/ads.gif"
+            alt="advert"
+            layout="fill"
+            className={styles.image}
+          />
         </div>
         <Link href="/" className={styles.advert}>
           Google-bigquery

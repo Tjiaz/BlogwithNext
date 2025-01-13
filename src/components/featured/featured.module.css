@@ -19,7 +19,6 @@
 .postItem {
   display: flex;
   margin-bottom: 20px;
-
   padding-bottom: 20px;
 }
 
@@ -43,7 +42,7 @@
   justify-content: center;
   width: 100%;
   max-width: 1200px;
-  margin-top: 110px auto;
+  margin: 110px auto; /* Center the container and add top margin */
 }
 
 .advert {
@@ -51,7 +50,7 @@
   font-size: small;
   text-decoration: underline;
   text-align: center;
-  padding-left: 0;
+  padding-left: 0; /* Remove padding for better alignment */
 }
 
 .textContainer1 {
