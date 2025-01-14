@@ -33,7 +33,7 @@ const Page = () => {
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/ads.gif" alt="" fill className={styles.image} />
+          <Image src="/ads.gif" alt="advert" fill className={styles.image} />
         </div>
         <Link href="/" className={styles.advert}>
           Google-bigquery

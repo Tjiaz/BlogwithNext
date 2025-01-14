@@ -66,14 +66,16 @@
   gap: 20px;
   font-size: large;
   z-index: 5;
+  box-sizing: border-box;
 }
 .menuLink {
   padding: 15px 40px 10px 40px;
-  width: 100%;
+  width: calc(100% - 40px);
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-sizing: border-box;
 }
 
 .responsiveMenu .menuLink {

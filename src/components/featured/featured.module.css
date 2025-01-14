@@ -3,9 +3,11 @@
 }
 
 .imageadvert {
-  width: 100%;
+  height: 150px;
   position: relative;
-  max-width: 70vw;
+  width: 70vw;
+  display: block;
+  margin: 0 auto;
 }
 
 .post {
@@ -41,8 +43,6 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  max-width: 1200px;
-  margin: 110px auto; /* Center the container and add top margin */
 }
 
 .advert {
@@ -50,7 +50,7 @@
   font-size: small;
   text-decoration: underline;
   text-align: center;
-  padding-left: 0; /* Remove padding for better alignment */
+  padding-left: 0;
 }
 
 .textContainer1 {
@@ -235,5 +235,17 @@
   }
   .textContainer2 {
     display: none;
+  }
+}
+
+@media screen and (min-width: 1600px) {
+  .advertsContainer {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    max-width: 1400px; /* Set a maximum width */
+    margin: 0 auto; /* Center the container */
   }
 }
