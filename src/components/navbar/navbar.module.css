@@ -134,12 +134,20 @@
     display: none;
   }
   .container {
-    width: 92vw;
+    width: 100vw;
+    max-width: 100%;
+    left: 0;
+  }
+ 
+
+  .burger {
+    margin-right: 20px; 
   }
 
   .logo img {
     width: 130px;
     height: 52px; /* Ensure the width is applied on smaller screens */
+    margin-left: 20px;
   }
 }
 @media screen and (min-width: 1600px) {

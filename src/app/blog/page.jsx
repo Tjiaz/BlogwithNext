@@ -229,7 +229,7 @@ const BlogPage = () => {
             />
             <MdSearch className={styles.searchIcon} />
           </div>
-          <div className={styles.advertImageContainer}>
+          <div className={styles.advertImgContainer}>
             <Image
               src="/ads2.gif"
               alt="advert"
@@ -237,7 +237,7 @@ const BlogPage = () => {
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Google BigQuery</Link>
+            <Link href="/">Google-bigquery</Link>
           </div>
           <div>
             <h3>Latest Posts</h3>

@@ -49,6 +49,8 @@ model User {
   accounts      Account[]
   sessions      Session[]
   Post          Post[]
+  articles      Article[]
+ 
 
 }
 
@@ -95,6 +97,8 @@ model Article {
   filteredImages String[]   // Array of image URLs
   content        Content[]  // Array of embedded content objects
   topic          String
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
 }
 
 model Content { 

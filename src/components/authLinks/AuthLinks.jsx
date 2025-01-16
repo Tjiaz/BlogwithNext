@@ -91,7 +91,6 @@ const AuthLinks = () => {
               </Link>
             </div>
           )}
-
           {/* Topics Dropdown */}
           <div className={styles.menuLink} onClick={() => toggleMenu("topics")}>
             Topics
@@ -129,7 +128,6 @@ const AuthLinks = () => {
               ))}
             </div>
           )}
-
           {/* Datasets Link */}
           <Link
             href="/datasets"
@@ -138,7 +136,6 @@ const AuthLinks = () => {
           >
             Datasets
           </Link>
-
           {/* Resources Dropdown */}
           <div
             className={styles.menuLink}
@@ -175,7 +172,6 @@ const AuthLinks = () => {
             </div>
           )}
 
-          {/* Authentication Links
           {status === "unauthenticated" ? (
             <Link
               href="/login"
@@ -203,7 +199,7 @@ const AuthLinks = () => {
                 Logout
               </span>
             </>
-          )} */}
+          )}
         </div>
       )}
     </>

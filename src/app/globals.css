@@ -75,7 +75,7 @@ a {
 @media screen and (max-width: 768px) {
   .wrapper {
     max-width: 100vw;
-    padding-left: 20px; /* Adjust padding for mobile view */
+    padding-left: 20px;
     padding-right: 20px;
   }
 }
