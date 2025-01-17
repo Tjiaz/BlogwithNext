@@ -11,7 +11,11 @@ const AuthLinks = () => {
   const [open, setOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
-  const { status } = useSession();
+  const { data: session, status } = useSession();
+
+  // Add this console.log to debug
+  console.log("Session status:", status);
+  console.log("Session data:", session);
 
   // Close menus and reset state
   const closeAllMenus = () => {
@@ -46,6 +50,20 @@ const AuthLinks = () => {
 
   return (
     <>
+      {status === "unauthenticated" ? (
+        <Link href="/login" className={styles.link}>
+          Login
+        </Link>
+      ) : (
+        <>
+          <Link href="/write" className={styles.link}>
+            Write
+          </Link>
+          <span className={styles.link} onClick={signOut}>
+            Logout
+          </span>
+        </>
+      )}
       <div className={styles.topContainer}>
         <MdSearch
           className={styles.searchIcon}

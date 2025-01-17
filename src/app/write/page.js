@@ -1,6 +1,7 @@
+"use client";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import "react-quill/dist/quill.snow.css";
 import styles from "./write.module.css";
@@ -89,6 +90,7 @@ const Write = () => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
+          className={styles.input}
         />
         <input
           type="text"
@@ -96,6 +98,7 @@ const Write = () => {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
+          className={styles.input}
         />
         <ReactQuill
           value={content}
@@ -108,6 +111,7 @@ const Write = () => {
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
           required
+          className={styles.select}
         >
           <option value="">Select Topic</option>
           <option value="AI">AI</option>
@@ -123,7 +127,9 @@ const Write = () => {
           <option value="Python">Python</option>
           <option value="SQL">SQL</option>
         </select>
-        <button type="submit">Publish</button>
+        <button type="submit" className={styles.button}>
+          Publish
+        </button>
       </form>
     </div>
   );

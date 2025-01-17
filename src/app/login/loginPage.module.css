@@ -36,6 +36,70 @@
   background-color: #087bea;
 }
 
+.submitButton {
+  background-color: #0b73b1;
+  color: white;
+  padding: 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+.toggle {
+  color: #eee;
+  cursor: pointer;
+  text-decoration: underline;
+  text-align: center;
+}
+
+.toggle:hover {
+  color: #0b73b1;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.input {
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.submitButton:hover {
+  background-color: #2991ce;
+}
+
+.loading {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #0b73b1;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 50px auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error {
+  color: red;
+  text-align: center;
+}
+
+.success {
+  color: green;
+  text-align: center;
+}
 @media screen and (max-width: 768px) {
   .wrapper {
     padding: 50px 100px;
