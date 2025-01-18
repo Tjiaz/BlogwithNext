@@ -1,5 +1,5 @@
 import { getSession } from "next-auth/react";
-import prisma from "../../../../utils/connect";
+import prisma from "@/utils/connect";
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
