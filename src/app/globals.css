@@ -19,7 +19,8 @@
 body {
   min-width: 100vw;
   overflow-x: hidden;
-  padding-top: 90px;
+  background-color: var(--bg);
+  color: var(--textColor);
 }
 
 a {

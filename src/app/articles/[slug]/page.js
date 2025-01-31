@@ -8,7 +8,7 @@ import ArticleCard from "./ArticleCard";
 
 const ArticlePage = ({ params }) => {
   const { slug } = params; // Destructure slug from params
-  console.log("Article slug:", slug);
+
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [topPosts, setTopPosts] = useState([]);
@@ -18,7 +18,7 @@ const ArticlePage = ({ params }) => {
       try {
         const response = await fetch(`/api/articles/${slug}`);
         const data = await response.json();
-        console.log("Fetched data:", data);
+       
 
         if (Array.isArray(data)) {
           setArticles(data); // If already an array, use it directly
@@ -42,6 +42,7 @@ const ArticlePage = ({ params }) => {
       try {
         const response = await fetch(`/api/topArticles?page=1`);
         const data = await response.json();
+        console.log("Top Posts Data:", data);
 
         if (Array.isArray(data)) {
           setTopPosts(data.slice(0, 7)); // Limit to 5 articles
@@ -147,8 +148,15 @@ const ArticlePage = ({ params }) => {
             <ol className={styles.noListStyle}>
               {topPosts && topPosts.length > 0 ? (
                 topPosts.map((post) => (
-                  <li key={post._id} className={styles.listItem}>
-                    <Link href={`/post/${post._id}`}>{post.title}</Link>
+                  <li key={post.id} className={styles.listItem}>
+                    <Link
+                      href={`/article_details/${post.id}`}
+                      onClick={(e) => {
+                        console.log("Clicked post:", post._id);
+                      }}
+                    >
+                      {post.title}
+                    </Link>
                   </li>
                 ))
               ) : (

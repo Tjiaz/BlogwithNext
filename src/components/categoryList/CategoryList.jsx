@@ -11,6 +11,7 @@ import MenuPostCard from "../menuPosts/MenuPostCard";
 const CategoryList = () => {
   const [moreRecentPosts, setMoreRecentPosts] = useState([]);
   const [menuPosts, setMenuPosts] = useState([]);
+  const [loading, setLoading] = useState(true); // Added loading state
   const searchParam = useSearchParams();
   const moreParam = searchParam.get("page");
   const page = parseInt(moreParam) || 1;
@@ -28,6 +29,8 @@ const CategoryList = () => {
         }
       } catch (error) {
         console.error("Failed to fetch more recent articles", error);
+      } finally {
+        setLoading(false); // Ensure loading state is updated
       }
     }
     fetchRecentPosts();
@@ -48,7 +51,7 @@ const CategoryList = () => {
       } catch (error) {
         console.error("Failed to fetch articles", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Ensure loading state is updated
       }
     }
     fetchMenuArticles();
@@ -57,7 +60,7 @@ const CategoryList = () => {
   return (
     <div className={styles.container}>
       <div className={styles.recentContainer1}>
-        <div className={styles.categories}>
+        <div className={styles.category}>
           <h3 className={styles.title}>More Recent Posts</h3>
           {moreRecentPosts.length > 0 ? (
             moreRecentPosts.map((item) => (

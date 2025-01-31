@@ -1,11 +1,10 @@
-import { Prisma } from "@prisma/client";
 import FacebookProvider from "next-auth/providers/facebook";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "./connect";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { getServerSession } from "next-auth";
+// import { getServerSession } from "next-auth";
 import { compare } from "bcryptjs";
 
 export const authOptions = {
@@ -67,7 +66,7 @@ export const authOptions = {
     }),
   ],
   session: {
-    jwt: true,
+    strategy: "jwt",
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -86,17 +85,18 @@ export const authOptions = {
       console.log("Session Callback - Token:", token);
       console.log("Session Callback - Session before:", session);
 
-      if (token) {
+      if (session?.user) {
         session.user.id = token.id || null;
-        session.user.email = token.email || null;
+        // session.user.email = token.email || null;
       }
 
       console.log("Session Callback - Session after:", session);
       return session;
     },
   },
-  debug: process.env.NODE_ENV === "development",
+
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development",
 };
 
-export const getAuthSession = () => getServerSession(authOptions);
+// export const getAuthSession = () => getServerSession(authOptions);

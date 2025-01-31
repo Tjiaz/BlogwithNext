@@ -43,6 +43,7 @@ export async function GET(req, { params }) {
           JSON.stringify({
             filtered_images: article.filtered_images,
             title: article.title,
+            description: article.description,
             content: article.content,
             author: article.author,
             topic: article.topic,

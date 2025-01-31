@@ -10,9 +10,11 @@ const ThemeProvider = ({ children }) => {
     setMounted(true);
   }, []);
 
-  if (mounted) {
-    return <div className={theme}>{children}</div>;
+  if (!mounted) {
+    return null; // or a loading spinner
   }
+
+  return <div className={theme}>{children}</div>;
 };
 
 export default ThemeProvider;

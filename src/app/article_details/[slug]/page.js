@@ -87,6 +87,7 @@ export default function ArticleDetails() {
       <div className={styles.articleInfo}>
         <div className={styles.textContainer1}>
           <h1>{article.title}</h1>
+          <i>{article.description}</i>
           <p>
             By <b>{article.author}</b> on {article.date}
           </p>
@@ -105,33 +106,44 @@ export default function ArticleDetails() {
             </Link>
           </div>
           <hr style={{ color: "#cccccc" }} />
-          {article.content.map((section, index) => (
-            <div key={index}>
-              {article.filtered_images && article.filtered_images.length > 0 ? (
-                <Image
-                  src={article.filtered_images[2]}
-                  alt="Article image"
-                  layout="responsive"
-                  width={700}
-                  height={475}
-                />
-              ) : (
-                <Image
-                  src="/azbyte.jpeg"
-                  alt="Default image"
-                  width={700}
-                  height={475}
-                />
-              )}
+          {typeof article.content === "string" ? (
+            // For string content (HTML)
+            <div
+              dangerouslySetInnerHTML={{ __html: article.content }}
+              className={styles.paragraphs}
+            />
+          ) : (
+            // For array content (old format)
+            Array.isArray(article.content) &&
+            article.content.map((section, index) => (
+              <div key={index}>
+                {article.filtered_images &&
+                article.filtered_images.length > 0 ? (
+                  <Image
+                    src={article.filtered_images[2]}
+                    alt="Article image"
+                    layout="responsive"
+                    width={700}
+                    height={475}
+                  />
+                ) : (
+                  <Image
+                    src="/azbyte.jpeg"
+                    alt="Default image"
+                    width={700}
+                    height={475}
+                  />
+                )}
 
-              <h2>{section.heading}</h2>
-              {section.paragraphs.map((para, i) => (
-                <p key={i} className={styles.paragraphs}>
-                  {para}
-                </p>
-              ))}
-            </div>
-          ))}
+                <h2>{section.heading}</h2>
+                {section.paragraphs.map((para, i) => (
+                  <p key={i} className={styles.paragraphs}>
+                    {para}
+                  </p>
+                ))}
+              </div>
+            ))
+          )}
           <p>
             <strong>Author:</strong> {article.author}
           </p>
@@ -170,26 +182,19 @@ export default function ArticleDetails() {
                 style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}
               ></div>
             </div>
-            {latestPosts && latestPosts.length > 0 ? (
-              latestPosts.map((post) => (
-                <FeaturedCard
-                  key={post._id} // Use post._id for unique key
-                  postImg={
-                    post.filtered_images && post.filtered_images.length > 0
-                      ? post.filtered_images[0]
-                      : "/AZBYTEGEMS.png"
-                  }
-                  postTitle={post.title}
-                  postDesc={post.description}
-                  postAuthor={post.author}
-                  postDate={post.date}
-                  postTopic={post.topic}
-                  postId={post.id}
-                />
-              ))
-            ) : (
-              <div>No articles found.</div>
-            )}
+            <div className={styles.topPosts}>
+              <ol className={styles.noListStyle}>
+                {latestPosts && latestPosts.length > 0 ? (
+                  latestPosts.map((post) => (
+                    <li key={post._id} className={styles.listItem}>
+                      <Link href={`/post/${post._id}`}>{post.title}</Link>
+                    </li>
+                  ))
+                ) : (
+                  <li>No top posts found.</li>
+                )}
+              </ol>
+            </div>
           </div>
         </div>
       </div>

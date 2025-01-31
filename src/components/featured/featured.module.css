@@ -1,13 +1,30 @@
 .container {
-  margin-top: 30px;
+  margin-top: 90px;
+}
+
+.advertsContainer {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding-top: 40px; /* Add space at the top to account for the navbar */
 }
 
 .imageadvert {
-  height: 150px;
+  height: 100px;
   position: relative;
   width: 70vw;
   display: block;
   margin: 0 auto;
+}
+
+.advert {
+  width: 70vw;
+  font-size: small;
+  text-decoration: underline;
+  text-align: center;
+  padding-left: 0;
 }
 
 .post {
@@ -35,22 +52,6 @@
 
 .author {
   margin-bottom: 20px;
-}
-
-.advertsContainer {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 100%;
-}
-
-.advert {
-  width: 70vw;
-  font-size: small;
-  text-decoration: underline;
-  text-align: center;
-  padding-left: 0;
 }
 
 .textContainer1 {
@@ -227,9 +228,23 @@
   .textContainer2 {
     display: none;
   }
+
+  .advert {
+    width: 90vw;
+    font-size: smaller;
+    height: 50px; /* Small height for small screens */
+  }
+
+  .imageadvert {
+    height: 100px; /* Smaller height for small screens */
+  }
 }
 
 @media screen and (max-width: 768) {
+  .container {
+    margin-top: 60px;
+  }
+
   .title {
     font-size: 36px;
   }

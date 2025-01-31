@@ -122,7 +122,7 @@ const Featured = () => {
       </div>
       <div className={styles.post}>
         <div className={styles.textContainer1}>
-          <h3>Latest Posts</h3>
+          <h2>Current Posts</h2>
           <div style={{ display: "flex", width: "100%" }}>
             <div
               style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
@@ -131,22 +131,50 @@ const Featured = () => {
           </div>
 
           {filteredPosts && filteredPosts.length > 0 ? (
-            filteredPosts.map((post) => (
-              <FeaturedCard
-                key={post._id} // Use post._id for unique key
-                postImg={
-                  post.filtered_images && post.filtered_images.length > 0
-                    ? post.filtered_images[0]
-                    : "/azbyte.jpeg"
+            filteredPosts.map((post) => {
+              // Function to extract image URL from content if it exists
+              const extractImageFromContent = (content) => {
+                try {
+                  // Check if content exists and is a string
+                  if (!content || typeof content !== "string") return null;
+
+                  const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
+                  return imgMatch ? imgMatch[1] : null;
+                } catch (error) {
+                  console.error("Error extracting image from content:", error);
+                  return null;
                 }
-                postTitle={post.title}
-                postDesc={post.description}
-                postAuthor={post.author}
-                postDate={post.date}
-                postTopic={post.topic}
-                postId={post.id}
-              />
-            ))
+              };
+
+              // Get image from content with error handling
+              let contentImage = null;
+              try {
+                contentImage = extractImageFromContent(post.content);
+              } catch (error) {
+                console.error("Error processing content:", error);
+              }
+
+              // Determine which image to use
+              const imageToUse =
+                post.filtered_images && post.filtered_images.length > 0
+                  ? post.filtered_images[0]
+                  : contentImage
+                  ? contentImage
+                  : "/azbyte.jpeg";
+
+              return (
+                <FeaturedCard
+                  key={post._id}
+                  postImg={imageToUse}
+                  postTitle={post.title}
+                  postDesc={post.description}
+                  postAuthor={post.author}
+                  postDate={post.date}
+                  postTopic={post.topic}
+                  postId={post.id}
+                />
+              );
+            })
           ) : (
             <div>No articles found.</div>
           )}
@@ -188,8 +216,10 @@ const Featured = () => {
             <ol className={styles.noListStyle}>
               {topPosts && topPosts.length > 0 ? (
                 topPosts.map((post) => (
-                  <li key={post._id} className={styles.listItem}>
-                    <Link href={`/post/${post._id}`}>{post.title}</Link>
+                  <li key={post.id} className={styles.listItem}>
+                    <Link href={`/article_details/${post.id}`}>
+                      {post.title}
+                    </Link>
                   </li>
                 ))
               ) : (
@@ -263,9 +293,6 @@ const Featured = () => {
         </div>
       </div>
       <div>
-        {/* Your existing page content */}
-        <h1>Welcome to AzByteGems</h1>
-
         {/* Modal */}
         <SubscribeModal show={showModal} onClose={() => setShowModal(false)} />
       </div>

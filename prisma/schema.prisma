@@ -15,7 +15,7 @@ datasource db {
 
 model Account {
   id                 String  @id @default(cuid()) @map("_id")
-  userId             String
+  userId             String 
   type               String
   provider           String
   providerAccountId  String
@@ -35,13 +35,13 @@ model Account {
 model Session {
   id           String   @id @default(cuid()) @map("_id")
   sessionToken String   @unique
-  userId       String
+  userId       String   
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id            String    @id @default(cuid()) @map("_id")
+  id            String    @id @default(cuid()) @map("_id") 
   name          String?
   email         String   @unique
   password      String?   // Make this field optional
@@ -57,7 +57,7 @@ model User {
 
 model VerificationToken {
   identifier String @id @map("_id")
-  token      String   @unique
+  token      String @unique
   expires    DateTime
 
   @@unique([identifier, token])
@@ -90,22 +90,27 @@ model Post {
 
 
 model Article { 
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  title          String
-  description    String
-  date           DateTime
-  author         String
-  filteredImages String[]   // Array of image URLs
-  content        Content[]  // Array of embedded content objects
-  topic          String
-  userId         String
-  user           User      @relation(fields: [userId], references: [id])
+  id          String   @id @default(cuid()) @map("_id") 
+  title       String
+  description String
+  date        DateTime @default(now())
+  content     String
+  topic       String
+  author      String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  contents    Content[]
 }
 
+
+
+
 model Content { 
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(cuid()) @map("_id") 
   heading   String?  // Optional heading
   paragraphs String[] // Array of paragraphs
-  articleId String    @map("_articleId") @db.ObjectId
+  articleId String    @map("_articleId") 
   article   Article   @relation(fields: [articleId], references: [id])
 }

@@ -235,8 +235,10 @@ const Page = () => {
             <ol className={styles.noListStyle}>
               {latestPosts && latestPosts.length > 0 ? (
                 latestPosts.map((post) => (
-                  <li key={post._id} className={styles.listItem}>
-                    <Link href={`/post/${post._id}`}>{post.title}</Link>
+                  <li key={post.id} className={styles.listItem}>
+                    <Link href={`/article_details/${post.id}`}>
+                      {post.title}
+                    </Link>
                   </li>
                 ))
               ) : (

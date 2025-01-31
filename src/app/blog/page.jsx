@@ -150,12 +150,12 @@ const BlogPage = () => {
           <div className={styles.postItem}>
             {topPosts && topPosts.length > 0 ? (
               topPosts.map((post) => (
-                <div key={post._id}>
+                <div key={post.id}>
                   {/* Display the article using ArticleCard */}
                   <ToppostCard
-                    key={post._id}
+                    key={post.id}
                     postTitle={
-                      <Link href={`/article_details/${post._id}`}>
+                      <Link href={`/article_details/${post.id}`}>
                         {post.title}
                       </Link>
                     }
@@ -254,8 +254,10 @@ const BlogPage = () => {
             <ol className={styles.noListStyle}>
               {latestPosts && latestPosts.length > 0 ? (
                 latestPosts.map((post) => (
-                  <li key={post._id} className={styles.listItem}>
-                    <Link href={`/post/${post._id}`}>{post.title}</Link>
+                  <li key={post.id} className={styles.listItem}>
+                    <Link href={`/article_details/${post.id}`}>
+                      {post.title}
+                    </Link>
                   </li>
                 ))
               ) : (
@@ -265,7 +267,7 @@ const BlogPage = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/dummy_img.png"
+              src="/ads2.gif"
               alt="advert"
               width={100}
               height={100}

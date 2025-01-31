@@ -83,7 +83,9 @@ const AuthLinks = () => {
         )}
       </div>
       {open && (
-        <div className={styles.responsiveMenu}>
+        <div
+          className={`${styles.responsiveMenu} ${!open ? styles.hidden : ""}`}
+        >
           {/* Blog Dropdown */}
           <div className={styles.menuLink} onClick={() => toggleMenu("blog")}>
             Blog

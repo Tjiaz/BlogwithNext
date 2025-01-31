@@ -28,6 +28,7 @@
   gap: 20px;
   width: 100%;
   max-width: 800px;
+  overflow: hidden;
 }
 
 .textContainer2 {
@@ -96,7 +97,7 @@
 .socialLink {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
 }
 
@@ -122,12 +123,32 @@
   }
 }
 
+.topPosts {
+  text-align: justify;
+}
+
+.noListStyle {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.listItem {
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+}
+.listItem:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .paragraphs {
-  font-size: 16px; /* Adjust font size for readability */
-  line-height: 1.6; /* Increase line height for better spacing */
-  margin-bottom: 20px; /* Add space between paragraphs */
+  font-size: 18px; /* Adjust font size for readability */
+  line-height: 1.8; /* Increase line height for better spacing */
+  margin-bottom: 24px; /* Add space between paragraphs */
   color: #333; /* Set a readable text color */
   text-align: justify; /* Justify text for a cleaner look */
+  font-family: "Georgia", serif; /* Use a serif font for better readability */
 }
 
 @media (max-width: 480px) {

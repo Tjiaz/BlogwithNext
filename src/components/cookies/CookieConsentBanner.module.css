@@ -1,0 +1,25 @@
+.cookieConsentBanner {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #2b373b;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  z-index: 1000;
+}
+
+.cookieConsentBanner p {
+  margin: 0;
+  padding: 0;
+  display: inline;
+}
+
+.cookieConsentBanner button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: #4e503b;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
