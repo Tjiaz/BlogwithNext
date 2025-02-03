@@ -65,9 +65,9 @@ const CategoryList = () => {
           {moreRecentPosts.length > 0 ? (
             moreRecentPosts.map((item) => (
               <CatCard
-                key={item._id}
+                key={item.id}
                 postTitle={
-                  <Link href={`/articles/${item._id}`} postId={item.id}>
+                  <Link href={`/article_details/${item.id}`} postId={item.id}>
                     {item.title}
                   </Link>
                 }

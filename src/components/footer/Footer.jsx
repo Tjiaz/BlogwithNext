@@ -23,31 +23,19 @@ const Footer = () => {
             rights reserved.
           </p>
         </p>
-        <div className={styles.social}>
-          <Link href="/" className={styles.social_icons}>
-            <BsFacebook />
-          </Link>
-          <Link href="/" className={styles.social_icons}>
-            <BsLinkedin />
-          </Link>
-          <Link href="/" className={styles.social_icons}>
-            <BsTwitterX />
-          </Link>
-        </div>
       </div>
       <div className={styles.links}>
         <div className={styles.list}>
           <span className={styles.listTitle}>Links</span>
 
-          <Link href="/">About</Link>
+          <Link href="/blog/about">About</Link>
 
-          <Link href="/">Contact</Link>
+          <Link href="/contact">Contact</Link>
         </div>
         <div className={styles.list}>
           <span className={styles.listTitle}>Tags</span>
-          <Link href="/">Privacy</Link>
-          <Link href="/">Terms of Service</Link>
-          <Link href="/">Advertise</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms of Service</Link>
         </div>
       </div>
     </div>

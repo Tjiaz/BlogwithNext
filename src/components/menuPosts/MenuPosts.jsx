@@ -3,7 +3,7 @@ import Link from "next/link";
 import React from "react";
 import styles from "./menusPosts.module.css";
 
-const MenuPosts = (withImage) => {
+const MenuPosts = ({ withImage }) => {
   return (
     <div className={styles.items}>
       <Link href="/" className={styles.item}>
@@ -13,20 +13,11 @@ const MenuPosts = (withImage) => {
           </div>
         )}
         <div className={styles.textContainer}>
-          <span
-            className={`${styles.category}${styles.travel}`}
-            style={{
-              backgroundColor: "#57c4ff31",
-              width: "max-content",
-              padding: "3px 8px",
-              borderRadius: "10px",
-              fontSize: "12px",
-            }}
-          >
+          <span className={`${styles.category} ${styles.programming}`}>
             Programming
           </span>
           <h3 className={styles.postTitle}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.{" "}
+            Lorem ipsum dolor sit amet consectetur adipisicing elit.
           </h3>
           <div className={styles.detail}>
             <span className={styles.username}>Ola Az</span>
@@ -41,20 +32,9 @@ const MenuPosts = (withImage) => {
           </div>
         )}
         <div className={styles.textContainer}>
-          <span
-            className={`${styles.category}${styles.culture}`}
-            style={{
-              backgroundColor: "#ffb04f45",
-              width: "max-content",
-              padding: "3px 8px",
-              borderRadius: "10px",
-              fontSize: "12px",
-            }}
-          >
-            NLP
-          </span>
+          <span className={`${styles.category} ${styles.nlp}`}>NLP</span>
           <h3 className={styles.postTitle}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.{" "}
+            Lorem ipsum dolor sit amet consectetur adipisicing elit.
           </h3>
           <div className={styles.detail}>
             <span className={styles.username}>Ola Az</span>
@@ -69,23 +49,12 @@ const MenuPosts = (withImage) => {
           </div>
         )}
         <div className={styles.textContainer}>
-          <span
-            className={`${styles.category}${styles.food}`}
-            style={{
-              backgroundColor: "#7fb88133",
-              width: "max-content",
-              padding: "3px 8px",
-              borderRadius: "10px",
-              fontSize: "12px",
-            }}
-          >
-            Python
-          </span>
+          <span className={`${styles.category} ${styles.python}`}>Python</span>
           <h3 className={styles.postTitle}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.{" "}
+            Lorem ipsum dolor sit amet consectetur adipisicing elit.
           </h3>
           <div className={styles.detail}>
-            <span className={styles.username}>Ola Az </span>
+            <span className={styles.username}>Ola Az</span>
             <span className={styles.date}>22.10.2023</span>
           </div>
         </div>
@@ -97,23 +66,14 @@ const MenuPosts = (withImage) => {
           </div>
         )}
         <div className={styles.textContainer}>
-          <span
-            className={`${styles.category}${styles.fashion}`}
-            style={{
-              backgroundColor: "#da85c731",
-              width: "max-content",
-              padding: "3px 8px",
-              borderRadius: "10px",
-              fontSize: "12px",
-            }}
-          >
+          <span className={`${styles.category} ${styles.data_science}`}>
             Data Science
           </span>
           <h3 className={styles.postTitle}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.{" "}
+            Lorem ipsum dolor sit amet consectetur adipisicing elit.
           </h3>
           <div className={styles.detail}>
-            <span className={styles.username}>Ola Az </span>
+            <span className={styles.username}>Ola Az</span>
             <span className={styles.date}>22.10.2023</span>
           </div>
         </div>

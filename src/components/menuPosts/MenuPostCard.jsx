@@ -13,7 +13,13 @@ const MenuPostCard = ({ withImage, topic, title, author, date, image }) => {
           </div>
         )}
         <div className={styles.textContainer}>
-          <span className={styles.topic}>{topic}</span>
+          <span
+            className={`${styles.category} ${
+              styles[topic.replace(/\s+/g, "_").toLowerCase()]
+            }`}
+          >
+            {topic}
+          </span>
           <h3 className={styles.postTitle}>{title}</h3>
           <div className={styles.detail}>
             <span className={styles.username}>{author}</span>

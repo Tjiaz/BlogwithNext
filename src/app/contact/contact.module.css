@@ -1,3 +1,18 @@
+.termsContainer {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.termsContainer h1,
+.termsContainer h2 {
+  margin-top: 20px;
+}
+
+.termsContainer p {
+  margin-bottom: 10px;
+}
+
 .container {
   margin-top: 90px;
 }
@@ -8,56 +23,52 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  max-width: 1536px; /* Match your body max-width */
-  padding-top: 40px;
-  margin: 0 auto; /* Center the container */
+  padding-top: 40px; /* Add space at the top to account for the navbar */
 }
 
 .imageadvert {
   height: 100px;
   position: relative;
   width: 70vw;
-  max-width: 1000px; /* Set a maximum width for large screens */
   display: block;
   margin: 0 auto;
 }
 
 .advert {
   width: 70vw;
-  max-width: 1000px; /* Match the imageadvert max-width */
   font-size: small;
   text-decoration: underline;
   text-align: center;
   padding-left: 0;
-  margin: 0 auto;
 }
 
 .post {
-  margin: 30px 0;
+  margin-top: 60px;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  align-content: center;
   gap: 50px;
+}
+
+.topPosts {
+  text-align: justify;
+}
+
+.noListStyle {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
 }
 
 .postItem {
   display: flex;
+  flex-direction: column;
   margin-bottom: 20px;
+  border-bottom: 1px solid #ccd;
   padding-bottom: 20px;
 }
 
 .postImage {
   margin-right: 20px;
-}
-
-.articleCard {
-  display: flex;
-  border-bottom: 2px solid #f2f2f2;
-}
-
-.author {
-  margin-bottom: 20px;
-  text-decoration-color: #0b73b1;
 }
 
 .textContainer1 {
@@ -72,11 +83,12 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  border-left: 0.5px solid #f2f2f2;
-  padding-left: 20px;
 }
 .advertImgContainer {
   text-align: center;
+}
+.head {
+  text-transform: capitalize;
 }
 
 .advertImg {
@@ -96,7 +108,7 @@
   margin: 0;
 }
 .listItem {
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid#f2f2f2;
   margin-bottom: 10px;
   padding-bottom: 10px;
 }
@@ -110,19 +122,18 @@
   margin: 0 0 10px 0;
 }
 
-.postTitle:hover {
-  text-decoration: underline;
-}
-
 .postDesc {
   font-size: 0.8em;
   margin: 0 0 10px 0;
   color: var(--softTextColor);
 }
-
+.articleCard {
+  margin-bottom: 15px;
+  display: flex;
+}
 .author {
   font-size: 0.9em;
-  color: #242424;
+  color: #000;
 }
 
 .searchContainer {
@@ -135,7 +146,6 @@
   padding: 10px;
   padding-right: 40px;
   font-size: 16px;
-  margin-bottom: 5px;
 }
 
 .searchIcon {
@@ -178,20 +188,38 @@
   text-decoration: underline;
 }
 
-.spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-left-color: #0b73b1;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 50px auto;
+.socialmedialinks {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.socialmedia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: #0b73b1;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.socialmedia:hover {
+  background-color: #005f8d;
+}
+
+.lightText {
+  font-weight: 300; /* Light font weight */
+}
+.lightText:hover {
+  text-decoration: underline;
+}
+.boldText {
+  font-weight: 300; /* Bold font weight */
 }
 
 @media screen and (max-width: 1280px) {
@@ -222,9 +250,6 @@
     text-align: center;
     padding-left: 200px;
   }
-  .textContainer2 {
-    display: none;
-  }
 }
 
 @media screen and (max-width: 640px) {
@@ -234,56 +259,10 @@
   .textContainer2 {
     display: none;
   }
-
-  .advert {
-    width: 90vw;
-    font-size: smaller;
-    height: 50px; /* Small height for small screens */
-  }
-
-  .imageadvert {
-    height: 100px; /* Smaller height for small screens */
-  }
 }
 
 @media screen and (max-width: 768) {
-  .container {
-    margin-top: 60px;
-  }
-
   .title {
     font-size: 36px;
-  }
-  .textContainer2 {
-    display: none;
-  }
-}
-
-@media screen and (min-width: 1600px) {
-  .advertsContainer {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 100%;
-    max-width: 1400px; /* Set a maximum width */
-    margin: 0 auto; /* Center the container */
-  }
-}
-
-/* Add media queries for different screen sizes */
-@media screen and (min-width: 1920px) {
-  .imageadvert,
-  .advert {
-    width: 50vw; /* Reduce width percentage on very large screens */
-    max-width: 800px; /* Further limit maximum width */
-  }
-}
-
-@media screen and (min-width: 2560px) {
-  .imageadvert,
-  .advert {
-    width: 40vw; /* Even smaller width percentage on ultra-wide screens */
-    max-width: 700px; /* Even smaller maximum width */
   }
 }

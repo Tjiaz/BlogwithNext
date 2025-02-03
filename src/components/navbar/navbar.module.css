@@ -2,7 +2,7 @@
   display: flex;
   justify-content: center; /* Center the inner content */
   height: 90px;
-  border-bottom: 2px solid #0b73b1;
+  align-items: center;
   position: fixed;
   top: 0;
   width: 100%;
@@ -16,8 +16,9 @@
   justify-content: space-between;
   width: 100%;
   max-width: 1536px; /* Match the .wrapper max-width */
-  padding: 0 80px; /* Match the .wrapper padding */
+  padding: 10px 80px; /* Match the .wrapper padding */
   box-sizing: border-box;
+  border-bottom: 2px solid #0b73b1;
 }
 
 .social {
@@ -31,9 +32,9 @@
 }
 
 .join_newsletter_button {
-  background-color: transparent;
+  background-color: #2991ce;
   border: 2px solid #0b73b1;
-  color: #0b73b1;
+  color: #fff;
   padding: 10px 20px;
   font-size: 14px;
   text-transform: uppercase;
@@ -43,10 +44,9 @@
 }
 
 .join_newsletter_button:hover {
-  background-color: #2991ce;
-  color: #fff;
+  background-color: transparent;
+  color: #0b73b1;
 }
-
 .logo {
   flex: 1;
   text-align: center;
@@ -61,7 +61,8 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  font-size: 18px;
+  font-size: 16px;
+  text-transform: uppercase;
 }
 
 .link {
@@ -157,6 +158,27 @@
   .logo img {
     width: 130px;
     height: 52px;
-    margin-left: 20px;
+    margin-left: 0;
+  }
+}
+
+/* Mobile-specific adjustments */
+@media screen and (max-width: 640px) {
+  .navbarContent {
+    padding: 5px 12px; /* Further reduce padding for very small screens */
+  }
+
+  .logo img {
+    width: 100px; /* Smaller logo for mobile */
+    height: auto; /* Maintain aspect ratio */
+  }
+
+  .links {
+    gap: 8px; /* Reduce gap between items */
+  }
+
+  .themeToggleContainer {
+    margin-right: 10px;
+    width: 20px;
   }
 }

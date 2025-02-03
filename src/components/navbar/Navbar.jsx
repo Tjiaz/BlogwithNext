@@ -10,6 +10,7 @@ import { BsTwitterX } from "react-icons/bs";
 import { BsLinkedin } from "react-icons/bs";
 import { BsFacebook } from "react-icons/bs";
 import SubscribeModal from "../subscribeModal/SubscribeModal";
+import { RiArrowDropDownLine } from "react-icons/ri";
 
 const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
@@ -65,7 +66,7 @@ const Navbar = () => {
             <Link href="/" className={styles.link}>
               Blog
               <span className={styles.arrow}>
-                <IoMdArrowDropdown />
+                <RiArrowDropDownLine />
               </span>
             </Link>
             {showBlogMenu && (
@@ -89,7 +90,7 @@ const Navbar = () => {
             <Link href="/" className={styles.link}>
               Topics
               <span className={styles.arrow}>
-                <IoMdArrowDropdown />
+                <RiArrowDropDownLine />
               </span>
             </Link>
             {showMenu && (
@@ -175,7 +176,7 @@ const Navbar = () => {
             <Link href="/" className={styles.link}>
               Resources
               <span className={styles.arrow}>
-                <IoMdArrowDropdown />
+                <RiArrowDropDownLine />
               </span>
             </Link>
             {showResMenu && (

@@ -36,7 +36,7 @@
   padding: 10px;
   font-size: 10px;
   background: white;
-  border: 1.2px solid #000;
+  border: 1.2px solid #0b73b1;
   z-index: 10;
   box-sizing: border-box;
 }
@@ -85,11 +85,16 @@
   align-items: center;
   justify-content: space-between;
   box-sizing: border-box;
+  text-transform: uppercase;
+  cursor: pointer;
 }
-
-.responsiveMenu .menuLink {
+.menuLink:hover {
+  background-color: #0b73b1;
+  color: #fff;
+}
+/* .responsiveMenu .menuLink {
   border-bottom: 2px solid #0b73b1;
-}
+} */
 
 .dropdownMenu {
   width: 100%;
@@ -101,6 +106,7 @@
   max-height: 300px;
   overflow-y: auto;
   padding-right: 40px;
+  text-transform: uppercase;
 }
 
 .dropdownMenu::-webkit-scrollbar {

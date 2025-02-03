@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import styles from "./authLinks.module.css";
 import { signOut, useSession } from "next-auth/react";
-import { IoMdArrowDropdown } from "react-icons/io";
+
 import { MdSearch } from "react-icons/md";
+import { RiArrowDropDownLine } from "react-icons/ri";
 
 const AuthLinks = () => {
   const [open, setOpen] = useState(false);
@@ -90,7 +91,7 @@ const AuthLinks = () => {
           <div className={styles.menuLink} onClick={() => toggleMenu("blog")}>
             Blog
             <span className={styles.arrow}>
-              <IoMdArrowDropdown />
+              <RiArrowDropDownLine />
             </span>
           </div>
           {activeMenu === "blog" && (
@@ -115,7 +116,7 @@ const AuthLinks = () => {
           <div className={styles.menuLink} onClick={() => toggleMenu("topics")}>
             Topics
             <span className={styles.arrow}>
-              <IoMdArrowDropdown />
+              <RiArrowDropDownLine />
             </span>
           </div>
           {activeMenu === "topics" && (
@@ -163,7 +164,7 @@ const AuthLinks = () => {
           >
             Resources
             <span className={styles.arrow}>
-              <IoMdArrowDropdown />
+              <RiArrowDropDownLine />
             </span>
           </div>
           {activeMenu === "resources" && (
