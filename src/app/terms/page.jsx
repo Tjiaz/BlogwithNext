@@ -131,7 +131,7 @@ const Page = () => {
               its licensee and licensors, and their employees, contractors,
               agents, officers, and directors, from and against any and all
               claims, damages, obligations, losses, liabilities, costs, or debt,
-              and expenses (including but not limited to attorney&apos;ss fees),
+              and expenses (including but not limited to attorney&apos;s fees),
               resulting from or arising out of a) your use and access of the
               Service, or b) a breach of these Terms.
             </p>
@@ -154,17 +154,17 @@ const Page = () => {
             <h2>Disclaimer</h2>
             <p>
               Your use of the Service is at your sole risk. The Service is
-              provided on an &quot;AS IS&quot; and &quot;AS
-              AVAILABLE&quot;basis. The Service is provided without warranties
-              of any kind, whether express or implied, including, but not
-              limited to, implied warranties of merchantability, fitness for a
-              particular purpose, non-infringement, or course of performance.
-              Azbyte Gems, its subsidiaries, affiliates, and its licensors do
-              not warrant that a) the Service will function uninterrupted,
-              secure, or available at any particular time or location; b) any
-              errors or defects will be corrected; c) the Service is free of
-              viruses or other harmful components; or d) the results of using
-              the Service will meet your requirements.
+              provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot;
+              basis. The Service is provided without warranties of any kind,
+              whether express or implied, including, but not limited to, implied
+              warranties of merchantability, fitness for a particular purpose,
+              non-infringement, or course of performance. Azbyte Gems, its
+              subsidiaries, affiliates, and its licensors do not warrant that a)
+              the Service will function uninterrupted, secure, or available at
+              any particular time or location; b) any errors or defects will be
+              corrected; c) the Service is free of viruses or other harmful
+              components; or d) the results of using the Service will meet your
+              requirements.
             </p>
             <h2>Exclusions</h2>
             <p>
