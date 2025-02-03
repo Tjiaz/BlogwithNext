@@ -118,8 +118,8 @@ const Page = () => {
             </p>
             <h2>Unsubscribe</h2>
             <p>
-              To unsubscribe, just click the "unsubscribe" link at the bottom of
-              each Azbyte Gems newsletter.
+              To unsubscribe, just click the &quot;unsubscribe&quot; link at the
+              bottom of each Azbyte Gems newsletter.
             </p>
             <h2>Cookies</h2>
             <p>
@@ -157,7 +157,7 @@ const Page = () => {
               you for being part of our email list. Although we take reasonable
               measures to secure our data, we cannot guarantee that the measures
               taken are or will remain adequate. Since we may include links from
-              messages sent to the email list to other companies' websites,
+              messages sent to the email list to other companies&apos; websites,
               please refer to the privacy policies of those sites for
               information on how they handle security for information they
               collect.
@@ -168,8 +168,8 @@ const Page = () => {
               does not meet any of the three requirements for CCPA in terms of
               either $25M Gross Annual Revenue, obtaining PI from 50,000+
               California residents, households, or devices per year, or earning
-              50% or more of annual revenue from selling California residents'
-              PI.
+              50% or more of annual revenue from selling California
+              residents&apos; PI.
             </p>
             <h2>Changes to Our Privacy Policy</h2>
             <p>
