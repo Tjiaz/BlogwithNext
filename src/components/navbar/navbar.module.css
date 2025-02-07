@@ -19,6 +19,7 @@
   padding: 10px 80px; /* Match the .wrapper padding */
   box-sizing: border-box;
   border-bottom: 2px solid #0b73b1;
+  margin: 0 auto;
 }
 
 .social {
@@ -117,19 +118,21 @@
 @media screen and (max-width: 1536px) {
   .navbarContent {
     max-width: 1366px;
+    padding: 10px 40px;
   }
 }
 
 @media screen and (max-width: 1280px) {
   .navbarContent {
     max-width: 1024px;
+    padding: 10px 30px;
   }
 }
 
 @media screen and (max-width: 1024px) {
   .navbarContent {
     max-width: 768px;
-    padding: 0 40px;
+    padding: 10px 20px;
   }
 
   .social {
@@ -144,7 +147,7 @@
 @media screen and (max-width: 768px) {
   .navbarContent {
     max-width: 100vw;
-    padding: 0 20px;
+    padding: 10px 15px;
   }
 
   .links {
@@ -165,7 +168,7 @@
 /* Mobile-specific adjustments */
 @media screen and (max-width: 640px) {
   .navbarContent {
-    padding: 5px 20px;
+    padding: 10px 10px; 
   }
 
   .logo img {
