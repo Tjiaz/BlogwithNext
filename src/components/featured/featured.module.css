@@ -50,14 +50,42 @@
   margin-right: 20px;
 }
 
+.postInfo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
 .articleCard {
   display: flex;
   border-bottom: 2px solid #f2f2f2;
 }
 
 .author {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 20px;
-  text-decoration-color: #0b73b1;
+  font-size: 0.9em;
+  color: #242424;
+}
+
+.sourceTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #f0f0f0;
+  color: #666;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #ddd;
+}
+
+.rssIcon {
+  font-size: 14px;
+  color: #ff6b00;
 }
 
 .textContainer1 {
@@ -188,6 +216,89 @@
   margin: 50px auto;
 }
 
+.rssBadge {
+  display: inline-flex;
+  align-items: center;
+  background: #0b73b1;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  height: 24px;
+}
+
+.badgeAndShare {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.shareButtons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.articleCard a[target="_blank"] {
+  color: inherit;
+  text-decoration: none;
+}
+
+.articleCard a[target="_blank"]:hover {
+  color: #0b73b1;
+}
+
+.shareButton {
+  /* background-color: #343a40;
+  color: white;
+  border: none;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 10px;
+  transition: all 0.3s ease;
+  font-weight: 500; */
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.shareButton:hover {
+  background-color: #23272b;
+  transform: translateY(-1px);
+}
+
+.shareButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.twitterButton {
+  background-color: #1da1f2;
+}
+
+.twitterButton:hover {
+  background-color: #1a91da;
+}
+
+.facebookButton {
+  background-color: #4267b2;
+}
+
+.facebookButton:hover {
+  background-color: #365899;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -224,6 +335,16 @@
   }
   .textContainer2 {
     display: none;
+  }
+
+  .author {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .badgeAndShare {
+    margin-top: 0;
   }
 }
 

@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import ThemeToggle from "../themetoggle/ThemeToggle";
 import AuthLinks from "../authLinks/AuthLinks";
-import { IoMdArrowDropdown } from "react-icons/io";
+
 import { BsTwitterX } from "react-icons/bs";
 import { BsLinkedin } from "react-icons/bs";
 import { BsFacebook } from "react-icons/bs";

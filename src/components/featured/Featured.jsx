@@ -15,6 +15,7 @@ const Featured = () => {
   const [latestPosts, setLatestPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [topPosts, setTopPosts] = useState([]);
+  const [rssPosts, setRssPosts] = useState([]);
   const [loadingTopPosts, setLoadingTopPosts] = useState(true);
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null);
@@ -35,19 +36,146 @@ const Featured = () => {
     }
   }, []);
 
+  // useEffect(() => {
+  //   async function fetchArticles() {
+  //     try {
+  //       const mongoResponse = await fetch(`/api/latest_articles?page=${page}`);
+  //       const rssResponse = await fetch("/api/rss");
+
+  //       const [mongoData, rssData] = await Promise.all([
+  //         mongoResponse.json(),
+  //         rssResponse.json(),
+  //       ]);
+
+  //       // Transform RSS data
+  //       const transformedRssData = rssData.map((item) => ({
+  //         ...item,
+  //         id: item.guid,
+  //         title: item.title?.trim(),
+  //         description: item.contentSnippet || item.description || "",
+  //         date: item.isoDate || item.pubDate,
+  //         author: item.author?.trim().replace(/\n/g, "") || "RSS Feed",
+  //         link: item.link?.trim(),
+  //         topic: "RSS Feed",
+  //         img: item.image || "/azbyte.jpeg",
+  //         isRssPost: true,
+  //       }));
+
+  //       // Create a Map to store unique posts by ID
+  //       const uniquePosts = new Map();
+
+  //       // Add MongoDB posts
+  //       mongoData.forEach((post) => {
+  //         const key = post.id || post._id;
+  //         uniquePosts.set(key, post);
+  //       });
+
+  //       // Add RSS posts, avoiding duplicates
+  //       transformedRssData.forEach((post) => {
+  //         const key = post.guid || post.id;
+  //         if (!uniquePosts.has(key)) {
+  //           uniquePosts.set(key, post);
+  //         }
+  //       });
+
+  //       // Convert Map to array and sort by date
+  //       const allPosts = Array.from(uniquePosts.values()).sort((a, b) => {
+  //         const dateA = new Date(a.date || a.pubDate || a.isoDate);
+  //         const dateB = new Date(b.date || b.pubDate || b.isoDate);
+  //         return dateB - dateA;
+  //       });
+
+  //       // Paginate the combined, unique posts
+  //       const startIndex = (page - 1) * POSTS_PER_PAGE;
+  //       const endIndex = startIndex + POSTS_PER_PAGE;
+  //       const paginatedPosts = allPosts.slice(startIndex, endIndex);
+
+  //       setLatestPosts(paginatedPosts);
+  //       // Store RSS posts separately if needed
+  //       setRssPosts(transformedRssData);
+  //     } catch (error) {
+  //       console.error("Failed to fetch articles:", error);
+  //       setLatestPosts([]);
+  //       setRssPosts([]);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+  //   fetchArticles();
+  // }, [page]);
+
   useEffect(() => {
     async function fetchArticles() {
       try {
-        const response = await fetch(`/api/latest_articles?page=${page}`);
-        const data = await response.json();
+        const mongoResponse = await fetch(`/api/latest_articles?page=${page}`);
+        const rssResponse = await fetch("/api/rss");
 
-        if (Array.isArray(data)) {
-          setLatestPosts(data); // If already an array, use it directly
-        } else {
-          console.error("Unexpected data format", data);
-        }
+        const [mongoData, rssData] = await Promise.all([
+          mongoResponse.json(),
+          rssResponse.json(),
+        ]);
+
+        const getFirstImageFromContent = (content) => {
+          if (!content) return null;
+          const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
+          return imgMatch ? imgMatch[1] : null;
+        };
+
+        const transformedRssData = rssData.map((item) => {
+          const imageFromContent = getFirstImageFromContent(item.content);
+          console.log("Image from content:", imageFromContent); // Log the extracted image URL
+          return {
+            ...item,
+            id: item.guid,
+            title: item.title?.trim(),
+            description: item.contentSnippet || item.description || "",
+            date: item.isoDate || item.pubDate,
+            author: item.author?.trim().replace(/\n/g, "") || "RSS Feed",
+            link: item.link?.trim(),
+            topic: "RSS Feed",
+            img:
+              item.enclosure?.url ||
+              item.image ||
+              imageFromContent ||
+              "/azbyte.jpeg", // Use image from content if available
+            isRssPost: true,
+          };
+        });
+
+        // Create a Set to track unique articles by ID
+        const uniquePosts = new Set();
+
+        // Add MongoDB posts
+        mongoData.forEach((post) => {
+          uniquePosts.add(post.id || post._id);
+        });
+
+        // Add RSS posts, avoiding duplicates
+        const uniqueRssPosts = transformedRssData.filter((post) => {
+          if (!uniquePosts.has(post.guid || post.id)) {
+            uniquePosts.add(post.guid || post.id);
+            return true;
+          }
+          return false;
+        });
+
+        // Combine MongoDB and unique RSS posts
+        const combinedPosts = [...mongoData, ...uniqueRssPosts];
+
+        // Sort combined posts by date (newest first)
+        combinedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Paginate the combined posts
+        const startIndex = (page - 1) * POSTS_PER_PAGE;
+        const endIndex = startIndex + POSTS_PER_PAGE;
+        const paginatedPosts = combinedPosts.slice(startIndex, endIndex);
+
+        setLatestPosts(paginatedPosts);
+        setRssPosts(transformedRssData); // Store RSS posts separately if needed
       } catch (error) {
-        console.error("Failed to fetch articles", error);
+        console.error("Failed to fetch articles:", error);
+        setLatestPosts([]);
+        setRssPosts([]);
       } finally {
         setLoading(false);
       }
@@ -55,7 +183,19 @@ const Featured = () => {
     fetchArticles();
   }, [page]);
 
-  // Fetch top 5 articles for the topPosts section
+  const extractImageFromContent = (content) => {
+    try {
+      // Check if content exists and is a string
+      if (!content || typeof content !== "string") return null;
+
+      const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
+      return imgMatch ? imgMatch[1] : null;
+    } catch (error) {
+      console.error("Error extracting image from content:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     async function fetchTopPosts() {
       try {
@@ -81,7 +221,7 @@ const Featured = () => {
   }
 
   const hasPrev = page > 1;
-  const hasNext = latestPosts.length === POSTS_PER_PAGE;
+  const hasNext = latestPosts.length >= POSTS_PER_PAGE;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -105,11 +245,22 @@ const Featured = () => {
     }
   };
 
-  // Filter posts based on search query
-  const filteredPosts = latestPosts.filter((post) =>
-    post.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // First, ensure both arrays exist and are actually arrays
+  // const combinedPosts = () => {
+  //   const mongoPosts = Array.isArray(latestPosts) ? latestPosts : [];
+  //   const rss = Array.isArray(rssPosts) ? rssPosts : [];
 
+  //   return [...mongoPosts, ...rss].sort((a, b) => {
+  //     const dateA = new Date(a.date || a.pubDate);
+  //     const dateB = new Date(b.date || b.pubDate);
+  //     return dateB - dateA;
+  //   });
+  // };
+
+  // Then use it in your filter
+  const filteredPosts = latestPosts.filter((post) =>
+    post?.title?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   return (
     <div className={styles.container}>
       <div className={styles.advertsContainer}>
@@ -132,46 +283,40 @@ const Featured = () => {
 
           {filteredPosts && filteredPosts.length > 0 ? (
             filteredPosts.map((post) => {
-              // Function to extract image URL from content if it exists
-              const extractImageFromContent = (content) => {
-                try {
-                  // Check if content exists and is a string
-                  if (!content || typeof content !== "string") return null;
-
-                  const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
-                  return imgMatch ? imgMatch[1] : null;
-                } catch (error) {
-                  console.error("Error extracting image from content:", error);
-                  return null;
-                }
-              };
-
-              // Get image from content with error handling
-              let contentImage = null;
-              try {
-                contentImage = extractImageFromContent(post.content);
-              } catch (error) {
-                console.error("Error processing content:", error);
-              }
-
               // Determine which image to use
-              const imageToUse =
-                post.filtered_images && post.filtered_images.length > 0
-                  ? post.filtered_images[0]
-                  : contentImage
-                  ? contentImage
-                  : "/azbyte.jpeg";
+              const imageToUse = post.isRssPost
+                ? post.img || "/azbyte.jpeg" // RSS posts
+                : post.filtered_images && post.filtered_images.length > 0
+                ? post.filtered_images[0]
+                : post.content && extractImageFromContent(post.content)
+                ? extractImageFromContent(post.content)
+                : "/azbyte.jpeg";
+
+              // Log the post date information
+              console.log("Post date info:", {
+                title: post.title,
+                isoDate: post.isoDate,
+                pubDate: post.pubDate,
+                date: post.date,
+              });
+
+              // Choose the most appropriate date
+              const postDate = post.isRssPost
+                ? post.isoDate || post.pubDate || post.date
+                : post.date;
 
               return (
                 <FeaturedCard
-                  key={post._id}
+                  key={post.isRssPost ? post.guid : post._id}
                   postImg={imageToUse}
                   postTitle={post.title}
-                  postDesc={post.description}
+                  postDesc={post.isRssPost ? post.description : post.desc}
                   postAuthor={post.author}
-                  postDate={post.date}
-                  postTopic={post.topic}
-                  postId={post.id}
+                  postDate={postDate}
+                  postTopic={post.isRssPost ? "RSS Feed" : post.topic}
+                  postId={post.isRssPost ? post.guid : post.id}
+                  isRssPost={post.isRssPost}
+                  rssLink={post.isRssPost ? post.link : null}
                 />
               );
             })

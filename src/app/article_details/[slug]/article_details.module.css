@@ -96,9 +96,60 @@
 
 .socialLink {
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  gap: 10px;
+  margin: 10px 0;
+  gap: 5px;
+}
+
+.socialButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.socialButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Platform-specific hover effects */
+.socialButton:hover .facebookIcon {
+  color: #1877f2;
+  transform: scale(1.1);
+}
+
+.socialButton:hover .linkedIcon {
+  color: #0a66c2;
+  transform: scale(1.1);
+}
+
+.socialButton:hover .xIcon {
+  color: #1da1f2;
+  transform: scale(1.1);
+}
+
+/* Icon styles */
+.facebookIcon {
+  font-size: 14px;
+  color: #1877f2;
+  transition: all 0.3s ease;
+}
+
+.linkedIcon {
+  font-size: 14px;
+  color: #0a66c2;
+  transition: all 0.3s ease;
+}
+
+.xIcon {
+  font-size: 14px;
+  color: #000000;
+  transition: all 0.3s ease;
 }
 
 /* Media Queries */

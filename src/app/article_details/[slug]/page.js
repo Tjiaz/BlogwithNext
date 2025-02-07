@@ -27,6 +27,7 @@ export default function ArticleDetails() {
   const [error, setError] = useState(null);
   const [latestPosts, setLatestPosts] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isSharing, setIsSharing] = useState(false);
 
   // Get the page from query params
   const searchParams = useSearchParams();
@@ -70,6 +71,65 @@ export default function ArticleDetails() {
     }
   }, [slug]);
 
+  const shareToSocial = async (platform) => {
+    setIsSharing(true);
+    try {
+      const articleUrl = `${process.env.NEXT_PUBLIC_DOMAIN}/article_details/${article.id}`;
+
+      await fetch("/api/social-share", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: article.title,
+          link: articleUrl,
+          description: article.description,
+          platform: platform, // Add platform information
+        }),
+      });
+
+      // Fallback to Web Share API if social API fails
+      if (!response.ok) {
+        if (navigator.share) {
+          await navigator.share({
+            title: article.title,
+            text: article.description,
+            url: articleUrl,
+          });
+        } else {
+          // Fallback to opening platform-specific share URLs
+          let shareUrl;
+          switch (platform) {
+            case "facebook":
+              shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                articleUrl
+              )}`;
+              break;
+            case "twitter":
+              shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                article.title
+              )}&url=${encodeURIComponent(articleUrl)}`;
+              break;
+            case "linkedin":
+              shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+                articleUrl
+              )}`;
+              break;
+          }
+          if (shareUrl) {
+            window.open(shareUrl, "_blank", "width=600,height=400");
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to share:", error);
+      alert(`Failed to share to ${platform}. Please try again.`);
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   return error ? (
     <div>Error: {error}</div>
   ) : !article ? (
@@ -92,18 +152,29 @@ export default function ArticleDetails() {
             By <b>{article.author}</b> on {article.date}
           </p>
           <div className={styles.socialLink}>
-            <Link href="https://facebook.com/">
+            <button
+              onClick={() => shareToSocial("facebook")}
+              className={styles.socialButton}
+              disabled={isSharing}
+            >
               <MdFacebook className={styles.facebookIcon} />
-            </Link>
-            <Link href="https://linkedin.com/">
+            </button>
+
+            <button
+              onClick={() => shareToSocial("linkedin")}
+              className={styles.socialButton}
+              disabled={isSharing}
+            >
               <FaLinkedinIn className={styles.linkedIcon} />
-            </Link>
-            <Link href="https://youtube.com/">
-              <MdYoutubeSearchedFor className={styles.youtubeIcon} />
-            </Link>
-            <Link href="https://twitter.com/">
+            </button>
+
+            <button
+              onClick={() => shareToSocial("twitter")}
+              className={styles.socialButton}
+              disabled={isSharing}
+            >
               <BsTwitterX className={styles.xIcon} />
-            </Link>
+            </button>
           </div>
           <hr style={{ color: "#cccccc" }} />
           {typeof article.content === "string" ? (

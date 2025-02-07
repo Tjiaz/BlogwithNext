@@ -7,6 +7,10 @@ const nextConfig = {
       "i.ibb.co",
       "localhost",
       "wp-content.com",
+      "orionx.net",
+      "yager-research.ca",
+      "insideainews.com",
+      "analyticsindiamag.com",
     ],
   },
 

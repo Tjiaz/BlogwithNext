@@ -92,9 +92,9 @@ model Post {
 model Article { 
   id          String   @id @default(cuid()) @map("_id") 
   title       String
-  description String
+  description String?
   date        DateTime @default(now())
-  content     String
+  content     String?
   topic       String
   author      String
   userId      String
@@ -102,6 +102,10 @@ model Article {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   contents    Content[]
+  guid        String?  @unique 
+  link        String?  // Link to the original article
+  isRssPost   Boolean  @default(false) // Flag to identify RSS feed articles
+  img         String?  // Image URL for the article
 }
 
 
