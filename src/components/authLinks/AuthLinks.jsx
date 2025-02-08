@@ -75,14 +75,19 @@ const AuthLinks = () => {
           <div className={styles.line}></div>
           <div className={styles.line}></div>
         </div>
-        {showSearch && (
-          <input
-            type="text"
-            className={`${styles.searchInput} ${styles.showSearch}`}
-            placeholder="Search AzByteGems..."
-          />
-        )}
       </div>
+      {showSearch && (
+        <div className={styles.searchContainer}>
+          <div className={styles.inputWrapper}>
+            <input
+              type="text"
+              className={`${styles.searchInput2} ${styles.showSearch}`}
+              placeholder="Search AzByteGems..."
+            />
+            <MdSearch className={styles.searchIconInsideInput} />
+          </div>
+        </div>
+      )}
       {open && (
         <div
           className={`${styles.responsiveMenu} ${!open ? styles.hidden : ""}`}
