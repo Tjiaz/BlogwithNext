@@ -2,20 +2,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 60px;
+  min-height: 100vh; /* Full viewport height */
+  padding: 20px; /* Add padding for smaller screens */
+  box-sizing: border-box;
 }
 
 .wrapper {
   background-color: var(--softBg);
-  padding: 150px 200px;
+  padding: 50px; /* Default padding */
   display: flex;
   flex-direction: column;
-  gap: 50px;
+  gap: 30px; /* Reduced gap for smaller screens */
   border-radius: 10px;
+  width: 100%;
+  max-width: 500px; /* Limit maximum width for larger screens */
+  box-sizing: border-box;
 }
 
 .socialButton {
-  padding: 20px;
+  padding: 15px;
   border-radius: 5px;
   border: none;
   color: white;
@@ -24,6 +29,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 16px; /* Default font size */
 }
 
 .socialButton:first-child {
@@ -45,12 +51,15 @@
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
+  width: 100%; /* Full width */
 }
+
 .toggle {
   color: #eee;
   cursor: pointer;
   text-decoration: underline;
   text-align: center;
+  font-size: 14px; /* Smaller font size */
 }
 
 .toggle:hover {
@@ -69,6 +78,8 @@
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
+  width: 100%; /* Full width */
+  box-sizing: border-box;
 }
 
 .submitButton:hover {
@@ -94,24 +105,64 @@
 .error {
   color: red;
   text-align: center;
+  font-size: 14px; /* Smaller font size */
 }
 
 .success {
   color: green;
   text-align: center;
+  font-size: 14px; /* Smaller font size */
 }
+
+/* Media Queries for Responsiveness */
 @media screen and (max-width: 768px) {
   .wrapper {
-    padding: 50px 100px;
-  }
-}
-@media screen and (max-width: 640px) {
-  .wrapper {
-    padding: 30px;
+    padding: 30px; /* Reduced padding for medium screens */
+    gap: 20px; /* Reduced gap */
   }
 
   .socialButton {
-    font-weight: 400;
-    font-size: 14px;
+    padding: 12px;
+    font-size: 14px; /* Smaller font size */
+  }
+
+  .submitButton {
+    padding: 12px;
+    font-size: 14px; /* Smaller font size */
+  }
+
+  .input {
+    padding: 12px;
+    font-size: 14px; /* Smaller font size */
+  }
+
+  .toggle {
+    font-size: 13px; /* Smaller font size */
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .wrapper {
+    padding: 20px; /* Further reduced padding for small screens */
+    gap: 15px; /* Further reduced gap */
+  }
+
+  .socialButton {
+    padding: 10px;
+    font-size: 12px; /* Smaller font size */
+  }
+
+  .submitButton {
+    padding: 10px;
+    font-size: 12px; /* Smaller font size */
+  }
+
+  .input {
+    padding: 10px;
+    font-size: 12px; /* Smaller font size */
+  }
+
+  .toggle {
+    font-size: 12px; /* Smaller font size */
   }
 }
