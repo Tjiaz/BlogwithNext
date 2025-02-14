@@ -18,7 +18,6 @@ const ArticlePage = ({ params }) => {
       try {
         const response = await fetch(`/api/articles/${slug}`);
         const data = await response.json();
-       
 
         if (Array.isArray(data)) {
           setArticles(data); // If already an array, use it directly
@@ -52,7 +51,7 @@ const ArticlePage = ({ params }) => {
       } catch (error) {
         console.error("Failed to fetch top posts", error);
       } finally {
-        setLoadingTopPosts(false);
+        setLoading(false);
       }
     }
     fetchTopPosts();

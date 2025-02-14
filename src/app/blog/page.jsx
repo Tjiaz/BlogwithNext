@@ -1,11 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import styles from "./blogPage.module.css";
-
 import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
 import ToppostCard from "./ToppostCard";
+import {
+  FaFacebookF,
+  FaLinkedinIn,
+  FaRedditSquare,
+  FaTwitter,
+  FaYoutube,
+} from "react-icons/fa";
 
 const BlogPage = () => {
   const [loading, setLoading] = useState(true);
@@ -93,50 +99,20 @@ const BlogPage = () => {
           <h1 className={styles.head}>Top posts</h1>
 
           <div className={styles.socialmedialinks}>
-            <a href="#">
-              <Image
-                src="/facebook.png"
-                alt=""
-                width={24}
-                height={24}
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaFacebookF />
             </a>
-            <a href="#">
-              <Image
-                src="/twitter.png"
-                alt=""
-                width={24}
-                height={24}
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaTwitter />
             </a>
-            <a href="#">
-              <Image
-                src="/instagram.png"
-                alt=""
-                className={styles.socialmedia}
-                width={24}
-                height={24}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaLinkedinIn />
             </a>
-            <a href="#">
-              <Image
-                src="/youtube.png"
-                width={24}
-                height={24}
-                alt=""
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaYoutube />
             </a>
-            <a href="#">
-              <Image
-                src="/reddit.png"
-                width={24}
-                height={24}
-                alt=""
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaRedditSquare />
             </a>
           </div>
           <hr />
@@ -190,10 +166,14 @@ const BlogPage = () => {
               >
                 <h3>Top Posts of {yearData.year}</h3>
                 {yearData.articles.length > 0 ? (
-                  <ul>
+                  <ul className={styles.noListStyle}>
                     {yearData.articles.map((article) => (
-                      <li key={article.id} style={{ marginBottom: "1rem" }}>
-                        <h3>{article.title}</h3>
+                      <li
+                        key={article.id}
+                        style={{ marginBottom: "1rem" }}
+                        className={styles.yearlistItem}
+                      >
+                        <h4>{article.title}</h4>
                         <p>{article.description}</p>
                         <p>
                           <strong>Author:</strong> {article.author}
@@ -201,6 +181,9 @@ const BlogPage = () => {
                         <p>
                           <strong>Date:</strong>{" "}
                           {new Date(article.date).toLocaleDateString()}
+                        </p>
+                        <p>
+                          <strong>Topic:</strong> {article.topic}
                         </p>
                       </li>
                     ))}

@@ -5,7 +5,7 @@ const client = new MongoClient(uri);
 
 export async function GET(req) {
   const databaseName = "ARTICLES"; // Your MongoDB database name
-  const years = [2023, 2022, 2021, 2020]; // Define the years for which to fetch articles
+  const years = [2024, 2023]; // Define the years for which to fetch articles
   const limit = 5; // Number of top articles per year
 
   try {
@@ -28,6 +28,7 @@ export async function GET(req) {
     ];
 
     let results = {};
+    let seenArticles = new Set();
 
     // Loop through the years
     for (const year of years) {
@@ -36,33 +37,55 @@ export async function GET(req) {
       for (const { name: collectionName, topic } of collectionsToQuery) {
         const collection = client.db(databaseName).collection(collectionName);
 
-        // Fetch the top 5 articles for the given year sorted by date in descending order
+        // Fetch the top 5 articles for the given year using aggregation
         const articles = await collection
-          .find({
-            date: {
-              $gte: new Date(`${year}-01-01T00:00:00Z`),
-              $lte: new Date(`${year}-12-31T23:59:59Z`),
+          .aggregate([
+            {
+              $addFields: {
+                parsedDate: {
+                  $dateFromString: {
+                    dateString: "$date",
+                    format: "%b %d, %Y", // Matches the format "Feb 06, 2024"
+                  },
+                },
+              },
             },
-          })
-          .sort({ date: -1 }) // Sort by date, newest first
-          .limit(limit)
+            {
+              $match: {
+                parsedDate: {
+                  $gte: new Date(`${year}-01-01T00:00:00Z`),
+                  $lte: new Date(`${year}-12-31T23:59:59Z`),
+                },
+              },
+            },
+            {
+              $sort: { parsedDate: -1 },
+            },
+            {
+              $limit: limit,
+            },
+          ])
           .toArray();
 
-        // Add the articles to the year's results
-        if (articles.length > 0) {
-          yearResults.push(
-            ...articles.map((article) => ({
+        // Only add non-duplicate articles
+        articles.forEach((article) => {
+          const articleKey = `${article.title}-${article.date}`;
+          if (!seenArticles.has(articleKey)) {
+            seenArticles.add(articleKey);
+            yearResults.push({
               ...article,
               topic,
-            }))
-          );
-        }
+            });
+          }
+        });
       }
 
-      // Shuffle the results for the year
-      yearResults = yearResults.sort(() => Math.random() - 0.5);
+      // Sort the results for the year by date (newest first)
+      yearResults.sort(
+        (a, b) => new Date(b.parsedDate) - new Date(a.parsedDate)
+      );
 
-      // Take the top 5 results for the year if more than 5 articles are available
+      // Take the top 5 results for the year
       results[year] = yearResults.slice(0, limit);
     }
 

@@ -45,13 +45,29 @@
 }
 
 @media screen and (max-width: 1280px) {
-  .category {
-    width: 20%;
+  .recentContainer1 {
+    display: flex;
+    flex: 2.25;
+    gap: 10px;
+  }
+  .recentContainer2 {
+    display: flex;
+    flex: 1;
+    border-left: 1px solid #f2f2f2;
+    padding-left: 20px;
   }
 }
 @media screen and (max-width: 1024px) {
-  .category {
-    width: 25%;
+  .recentContainer1 {
+    display: flex;
+    flex: 2.25;
+    gap: 10px;
+  }
+  .recentContainer2 {
+    display: flex;
+    flex: 1;
+    border-left: 1px solid #f2f2f2;
+    padding-left: 20px;
   }
 }
 @media screen and (max-width: 768px) {

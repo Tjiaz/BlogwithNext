@@ -1,13 +1,46 @@
 .container {
-  margin-top: 30px;
+  margin-top: 90px;
+}
+
+.advertsContainer {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 1536px; /* Match your body max-width */
+  padding-top: 40px;
+  margin: 0 auto; /* Center the container */
 }
 
 .imageadvert {
-  height: 150px;
+  height: 100px;
   position: relative;
   width: 70vw;
+  max-width: 1000px; /* Set a maximum width for large screens */
   display: block;
   margin: 0 auto;
+}
+
+.advert {
+  width: 70vw;
+  max-width: 1000px; /* Match the imageadvert max-width */
+  font-size: small;
+  text-decoration: underline;
+  text-align: center;
+  padding-left: 0;
+  margin: 0 auto;
+}
+
+.advertImgContainer {
+  text-align: center;
+}
+
+.advertImg {
+  width: 85%;
+  height: auto;
+  margin: 0 auto;
+  display: block;
 }
 
 .post {
@@ -39,22 +72,6 @@
   margin-right: 20px;
 }
 
-.advertsContainer {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 100%;
-}
-
-.advert {
-  width: 70vw;
-  font-size: small;
-  text-decoration: underline;
-  text-align: center;
-  padding-left: 550px;
-}
-
 .textContainer1 {
   flex: 2.25;
   display: flex;
@@ -68,18 +85,9 @@
   flex-direction: column;
   gap: 20px;
 }
-.advertImgContainer {
-  text-align: center;
-}
+
 .head {
   text-transform: capitalize;
-}
-
-.advertImg {
-  width: 85%;
-  height: auto;
-  margin: 0 auto;
-  display: block;
 }
 
 .topPosts {
@@ -188,6 +196,34 @@
   }
 }
 
+@media screen and (min-width: 2560px) {
+  .imageadvert,
+  .advert {
+    width: 40vw; /* Even smaller width percentage on ultra-wide screens */
+    max-width: 700px; /* Even smaller maximum width */
+  }
+}
+/* Add media queries for different screen sizes */
+@media screen and (min-width: 1920px) {
+  .imageadvert,
+  .advert {
+    width: 50vw; /* Reduce width percentage on very large screens */
+    max-width: 800px; /* Further limit maximum width */
+  }
+}
+
+@media screen and (min-width: 1600px) {
+  .advertsContainer {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    max-width: 1400px; /* Set a maximum width */
+    margin: 0 auto; /* Center the container */
+  }
+}
+
 @media screen and (max-width: 1280px) {
   .title {
     font-size: 72px;
@@ -199,6 +235,21 @@
     font-size: 64px;
   }
   .imgContainer {
+    display: none;
+  }
+  .advertImg {
+    width: 55%;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+  }
+  .searchInput {
+    width: 50%;
+  }
+  .searchContainer {
+    display: none;
+  }
+  .signupContainer {
     display: none;
   }
 }
@@ -214,7 +265,20 @@
     font-size: small;
     text-decoration: underline;
     text-align: center;
-    padding-left: 200px;
+    padding-left: 0;
+  }
+  .textContainer2 {
+    display: none;
+  }
+
+  .author {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .badgeAndShare {
+    margin-top: 0;
   }
 }
 
@@ -225,10 +289,19 @@
   .textContainer2 {
     display: none;
   }
-}
 
-@media screen and (max-width: 768) {
-  .title {
-    font-size: 36px;
+  .advert {
+    width: 90vw;
+    font-size: smaller;
+    height: 50px; /* Small height for small screens */
+  }
+
+  .imageadvert {
+    height: 100px; /* Smaller height for small screens */
+  }
+  .shareButton {
+    width: 100%; /* Ensure full width on smaller screens */
+    max-width: 150px; /* Limit max width */
+    font-size: 10px;
   }
 }

@@ -5,6 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
 import profiles from "@/Data";
+import {
+  FaEnvelope,
+  FaFacebookF,
+  FaGithubSquare,
+  FaLinkedinIn,
+  FaRedditSquare,
+  FaTwitter,
+  FaYoutube,
+} from "react-icons/fa";
 
 const Page = () => {
   const [latestPosts, setLatestPosts] = useState([]);
@@ -22,8 +31,6 @@ const Page = () => {
         }
       } catch (error) {
         console.error("Failed to fetch articles", error);
-      } finally {
-        setLoading(false);
       }
     }
     fetchArticles();
@@ -44,58 +51,28 @@ const Page = () => {
           <h1 className={styles.head}>About AzByteGems</h1>
 
           <div className={styles.socialmedialinks}>
-            <a href="#">
-              <Image
-                src="/facebook.png"
-                alt=""
-                width={24}
-                height={24}
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaFacebookF />
             </a>
-            <a href="#">
-              <Image
-                src="/twitter.png"
-                alt=""
-                width={24}
-                height={24}
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaTwitter />
             </a>
-            <a href="#">
-              <Image
-                src="/instagram.png"
-                alt=""
-                width={24}
-                height={24}
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaLinkedinIn />
             </a>
-            <a href="#">
-              <Image
-                src="/youtube.png"
-                alt=""
-                width={24}
-                height={24}
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaYoutube />
             </a>
-            <a href="#">
-              <Image
-                src="/reddit.png"
-                alt=""
-                width={24}
-                height={24}
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaRedditSquare />
             </a>
           </div>
           <hr style={{ color: "#bbbbbb" }} />
           <h2 className={styles.lightText}>
-            <strong className={styles.boldText}>AzByteGems</strong> is a leading
-            global brand that specializes on{" "}
+            <strong className={styles.boldText}>AzByteGems</strong> an emerging
+            global brand that focuses on{" "}
             <strong className={styles.boldText}>
-              Data Science, Machine Learning, AI and Analytics.
+              Data Science, Machine Learning, AI, and Analytics.
             </strong>
             Our mission is to create a world where green, sustainable, and
             inclusive practices are valued and encouraged.
@@ -149,12 +126,7 @@ const Page = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Image
-                          src="/icons/linkedin.png"
-                          alt="LinkedIn"
-                          width={24}
-                          height={24}
-                        />
+                        <FaLinkedinIn />
                       </a>
                     )}
                     {profile.socialLinks.twitter && (
@@ -163,12 +135,7 @@ const Page = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Image
-                          src="/icons/twitter.png"
-                          alt="Twitter"
-                          width={24}
-                          height={24}
-                        />
+                        <FaTwitter />
                       </a>
                     )}
                     {profile.socialLinks.github && (
@@ -177,22 +144,12 @@ const Page = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Image
-                          src="/icons/github.png"
-                          alt="GitHub"
-                          width={24}
-                          height={24}
-                        />
+                        <FaGithubSquare />
                       </a>
                     )}
                     {profile.socialLinks.email && (
                       <a href={profile.socialLinks.email}>
-                        <Image
-                          src="/icons/email.png"
-                          alt="Email"
-                          width={24}
-                          height={24}
-                        />
+                        <FaEnvelope />
                       </a>
                     )}
                   </div>

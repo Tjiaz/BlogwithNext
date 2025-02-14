@@ -1,11 +1,12 @@
 .container {
-  margin-top: 30px;
+  margin-top: 90px;
 }
 
 .imageadvert {
-  height: 150px;
+  height: 100px;
   position: relative;
   width: 70vw;
+  max-width: 1000px; /* Set a maximum width for large screens */
   display: block;
   margin: 0 auto;
 }
@@ -27,6 +28,16 @@
   margin: 0;
 }
 
+.listItem {
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+}
+.listItem:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .postItem {
   display: flex;
   flex-direction: column;
@@ -45,14 +56,19 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
+  max-width: 1536px; /* Match your body max-width */
+  padding-top: 40px;
+  margin: 0 auto; /* Center the container */
 }
 
 .advert {
   width: 70vw;
+  max-width: 1000px; /* Match the imageadvert max-width */
   font-size: small;
   text-decoration: underline;
   text-align: center;
-  padding-left: 550px;
+  padding-left: 0;
+  margin: 0 auto;
 }
 
 .textContainer1 {
@@ -70,6 +86,39 @@
 }
 .advertImgContainer {
   text-align: center;
+}
+
+.socialmedialinks {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.socialmedia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: #0b73b1;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.socialmedia:hover {
+  background-color: #005f8d;
+}
+.lightText {
+  font-weight: 300; /* Light font weight */
+}
+.lightText:hover {
+  text-decoration: underline;
+}
+.boldText {
+  font-weight: 300; /* Bold font weight */
 }
 
 .head {
@@ -92,12 +141,12 @@
   padding: 0;
   margin: 0;
 }
-.listItem {
+.yearlistItem {
   border-bottom: 1px solid #ccc;
   margin-bottom: 10px;
   padding-bottom: 10px;
 }
-.listItem:hover {
+.yearlistItem:hover {
   text-decoration: underline;
   cursor: pointer;
 }
@@ -105,6 +154,10 @@
 .postTitle {
   font-size: 1.2em;
   margin: 0 0 10px 0;
+}
+.postTitle:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .postDesc {
@@ -173,13 +226,11 @@
   text-decoration: underline;
 }
 
-.socialmedia {
-  width: 30px;
-}
-
-/* .yearlyArticle {
+.yearlyArticle h3 {
   border-bottom: 0.5px solid grey;
-} */
+  text-align: center;
+  margin-top: 20px;
+}
 
 .lightText {
   font-weight: 300; /* Light font weight */

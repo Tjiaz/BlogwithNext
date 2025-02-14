@@ -47,6 +47,8 @@
   padding-bottom: 20px;
 }
 
+
+
 .postImage {
   margin-right: 20px;
 }
@@ -338,6 +340,21 @@
     font-size: 64px;
   }
   .imgContainer {
+    display: none;
+  }
+  .advertImg {
+    width: 55%;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+  }
+  .searchInput {
+    width: 50%;
+  }
+  .searchContainer {
+    display: none;
+  }
+  .signupContainer {
     display: none;
   }
 }

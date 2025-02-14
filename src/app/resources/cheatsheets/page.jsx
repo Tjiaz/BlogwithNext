@@ -5,6 +5,14 @@ import styles from "../resources.module.css";
 import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
+import {
+  FaFacebookF,
+  FaFilePdf,
+  FaLinkedinIn,
+  FaRedditSquare,
+  FaTwitter,
+  FaYoutube,
+} from "react-icons/fa";
 
 const Page = () => {
   const [latestPosts, setLatestPosts] = useState([]);
@@ -22,8 +30,6 @@ const Page = () => {
         }
       } catch (error) {
         console.error("Failed to fetch articles", error);
-      } finally {
-        setLoading(false);
       }
     }
     fetchArticles();
@@ -43,53 +49,78 @@ const Page = () => {
           <h1 className={styles.head}>Cheat Sheets</h1>
 
           <div className={styles.socialmedialinks}>
-            <a href="#">
-              <Image
-                src="/facebook.png"
-                alt=""
-                className={styles.socialmedia}
-                width={24}
-                height={24}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaFacebookF />
             </a>
-            <a href="#">
-              <Image
-                src="/twitter.png"
-                alt=""
-                width={24}
-                height={24}
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaTwitter />
             </a>
-            <a href="#">
-              <Image
-                src="/instagram.png"
-                alt=""
-                className={styles.socialmedia}
-                width={24}
-                height={24}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaLinkedinIn />
             </a>
-            <a href="#">
-              <Image
-                src="/youtube.png"
-                width={24}
-                height={24}
-                alt=""
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaYoutube />
             </a>
-            <a href="#">
-              <Image
-                src="/reddit.png"
-                width={24}
-                height={24}
-                alt=""
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaRedditSquare />
             </a>
           </div>
           <hr style={{ color: "#bbbbbb" }} />
+          <div className={styles.cheatsheetContainer}>
+            <div className={styles.cheatsheetGrid}>
+              <div className={styles.cheatsheetCard}>
+                <FaFilePdf size={40} />
+                <h3>Python Cheatsheet</h3>
+                <p>Complete Python programming reference guide</p>
+                <a
+                  href="/cheatsheets/python-cheatsheet.pdf"
+                  download
+                  className={styles.downloadBtn}
+                >
+                  Download PDF
+                </a>
+              </div>
+
+              <div className={styles.cheatsheetCard}>
+                <FaFilePdf size={40} />
+                <h3>SQL Cheatsheet</h3>
+                <p>Essential SQL commands and syntax</p>
+                <a
+                  href="/cheatsheets/sql-cheatsheet.pdf"
+                  download
+                  className={styles.downloadBtn}
+                >
+                  Download PDF
+                </a>
+              </div>
+
+              <div className={styles.cheatsheetCard}>
+                <FaFilePdf size={40} />
+                <h3>Git Cheatsheet</h3>
+                <p>Common Git commands and workflows</p>
+                <a
+                  href="/cheatsheets/git-cheat-sheet.pdf"
+                  download
+                  className={styles.downloadBtn}
+                >
+                  Download PDF
+                </a>
+              </div>
+
+              <div className={styles.cheatsheetCard}>
+                <FaFilePdf size={40} />
+                <h3>Grep Cheatsheet</h3>
+                <p>Key concepts and formulas for grep</p>
+                <a
+                  href="/cheatsheets/grep cheatsheet.pdf"
+                  download
+                  className={styles.downloadBtn}
+                >
+                  Download PDF
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
         <div className={styles.textContainer2}>
           <div className={styles.searchContainer}>
