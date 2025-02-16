@@ -7,8 +7,12 @@ import { signOut, useSession } from "next-auth/react";
 
 import { MdSearch } from "react-icons/md";
 import { RiArrowDropDownLine } from "react-icons/ri";
+import { BsRss } from "react-icons/bs";
+import { useRouter } from "next/navigation";
+import { topicFeeds } from "@/config/topicFeeds";
 
 const AuthLinks = () => {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
@@ -47,6 +51,35 @@ const AuthLinks = () => {
   // Close menu when a link is clicked
   const handleLinkClick = () => {
     closeAllMenus();
+  };
+
+  const handleRssClick = async (topic, feedUrl) => {
+    try {
+      const response = await fetch(
+        `/api/rssfeed/${encodeURIComponent(topic)}`,
+        
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch RSS feed");
+      }
+      const data = await response.json();
+      console.log("RSS Feed Data:", data);
+
+      // Ensure the topic is a string
+      if (typeof topic !== "string") {
+        throw new Error("Topic must be a string");
+      }
+
+      sessionStorage.setItem("rssData", JSON.stringify(data));
+
+      // Navigate to the new page with only the topic in the URL
+      router.push(`/rssfeed/${encodeURIComponent(topic)}`);
+      // Close the mobile menu after navigation
+      closeAllMenus();
+    } catch (error) {
+      console.error("Error fetching RSS feed:", error);
+    }
   };
 
   return (
@@ -127,33 +160,45 @@ const AuthLinks = () => {
           {activeMenu === "topics" && (
             <div className={styles.dropdownMenu}>
               {[
-                { name: "AI", path: "/articles/Artificial_intelligence" },
+                { name: "AI", path: "/articles/ai" },
                 { name: "Career Advice", path: "/articles/career_advice" },
                 { name: "Computer Vision", path: "/articles/computer_vision" },
-                { name: "Data Engineering", path: "/articles/data_engineer" },
+                {
+                  name: "Data Engineering",
+                  path: "/articles/data_engineering",
+                },
                 { name: "Data Science", path: "/articles/data_science" },
                 { name: "Language Models", path: "/articles/language_models" },
                 {
                   name: "Machine Learning",
                   path: "/articles/machine_learning",
                 },
-                { name: "MLOps", path: "/articles/machine_learning_ops" },
-                { name: "NLP", path: "/articles/NLP" },
+                { name: "MLOps", path: "/articles/mlops" },
+                { name: "NLP", path: "/articles/nlp" },
                 { name: "Programming", path: "/articles/programming" },
-                { name: "Python", path: "/articles/py" },
-                { name: "SQL", path: "/articles/SQL" },
+                { name: "Python", path: "/articles/python" },
+                { name: "SQL", path: "/articles/sql" },
               ].map((topic) => (
-                <Link
-                  key={topic.name}
-                  href={topic.path}
-                  className={styles.dropdownItem}
-                  onClick={handleLinkClick}
-                >
-                  {topic.name}
-                </Link>
+                <div key={topic.name} className={styles.mobileTopicItem}>
+                  <Link
+                    href={topic.path}
+                    className={styles.dropdownItem}
+                    onClick={handleLinkClick}
+                  >
+                    {topic.name}
+                  </Link>
+                  <button
+                    onClick={() => handleRssClick(topic.name)}
+                    className={styles.mobileRssButton}
+                    aria-label={`RSS feed for ${topic.name}`}
+                  >
+                    <BsRss />
+                  </button>
+                </div>
               ))}
             </div>
           )}
+
           {/* Datasets Link */}
           <Link
             href="/datasets"

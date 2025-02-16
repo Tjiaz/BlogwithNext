@@ -44,6 +44,13 @@
 import Parser from "rss-parser";
 import { PrismaClient } from "@prisma/client";
 
+// Force dynamic rendering
+export const dynamic = "force-dynamic";
+// Disable caching
+export const fetchCache = "force-no-store";
+// Set revalidation time (e.g., every 30 minutes)
+export const revalidate = 1800;
+
 const parser = new Parser();
 const prisma = new PrismaClient();
 
@@ -62,14 +69,7 @@ const RSS_FEEDS = [
 
 export async function GET() {
   try {
-    // First, get recent articles from database
-    const dbArticles = await prisma.article.findMany({
-      where: { isRssPost: true },
-      orderBy: { date: "desc" },
-      take: 50, // Limit to recent articles
-    });
-
-    // Then fetch latest from RSS feeds
+    // First fetch latest from RSS feeds
     const freshArticles = [];
     for (const feedUrl of RSS_FEEDS) {
       try {
@@ -93,30 +93,80 @@ export async function GET() {
       }
     }
 
-    // Combine and deduplicate articles
-    const allArticles = [...freshArticles, ...dbArticles];
-    const uniqueArticles = Array.from(
-      new Map(allArticles.map((article) => [article.guid, article])).values()
-    );
+    // Then, get recent articles from database
+    const dbArticles = await prisma.article.findMany({
+      where: { isRssPost: true },
+      orderBy: { date: "desc" },
+      take: 50, // Limit to recent articles
+    });
 
-    // Sort by date
-    uniqueArticles.sort((a, b) => {
-      const dateA = new Date(a.pubDate || a.date);
-      const dateB = new Date(b.pubDate || b.date);
+    // Transform database articles to match fresh articles format
+    const transformedDbArticles = dbArticles.map((article) => ({
+      ...article,
+      date: article.date.toISOString(),
+      pubDate: article.date.toISOString(),
+      isoDate: article.date.toISOString(),
+    }));
+
+    // Combine articles, preferring fresh ones over database ones
+    const guidMap = new Map();
+
+    // Add fresh articles first
+    freshArticles.forEach((article) => {
+      guidMap.set(article.guid, article);
+    });
+
+    // Add database articles only if not already present
+    transformedDbArticles.forEach((article) => {
+      if (!guidMap.has(article.guid)) {
+        guidMap.set(article.guid, article);
+      }
+    });
+
+    // Convert to array and sort
+    const sortedArticles = Array.from(guidMap.values()).sort((a, b) => {
+      const dateA = new Date(a.date || a.pubDate || a.isoDate);
+      const dateB = new Date(b.date || b.pubDate || b.isoDate);
       return dateB - dateA;
     });
 
-    return new Response(JSON.stringify(uniqueArticles), {
+    console.log(`Returning ${sortedArticles.length} articles`);
+    console.log("Sample article dates:", {
+      title: sortedArticles[0]?.title,
+      date: sortedArticles[0]?.date,
+      pubDate: sortedArticles[0]?.pubDate,
+      isoDate: sortedArticles[0]?.isoDate,
+    });
+
+    // Return with strict no-cache headers
+    return new Response(JSON.stringify(sortedArticles), {
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "no-store, max-age=0",
+        "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+        Pragma: "no-cache",
+        Expires: "0",
+        "Surrogate-Control": "no-store",
+        "Edge-Control": "no-store",
+        "Cache-Control": "no-store",
       },
     });
   } catch (error) {
     console.error("Error in RSS route:", error);
     return new Response(
-      JSON.stringify({ error: "Failed to fetch RSS feeds" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({
+        error: "Failed to fetch RSS feeds",
+        details: error.message,
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+        },
+      }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 }

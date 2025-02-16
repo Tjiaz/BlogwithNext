@@ -48,7 +48,9 @@ export default function RssFeedPage({ params }) {
       </div>
       <div className={styles.post}>
         <div className={styles.textContainer1}>
-          <h1>RSS Feed: {decodeURIComponent(params.topic)}</h1>
+          <h1 className={styles.pageTitle}>
+            RSS Feed: {decodeURIComponent(params.topic)}
+          </h1>
           <div style={{ display: "flex", width: "100%" }}>
             <div
               style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}

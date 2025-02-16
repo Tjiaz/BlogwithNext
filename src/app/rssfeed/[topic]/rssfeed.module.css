@@ -1,34 +1,46 @@
+/* rssfeed.module.css */
 .container {
   margin-top: 90px;
 }
+
 .advertsContainer {
   align-items: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  max-width: 1536px; /* Match your body max-width */
+  max-width: 1536px;
   padding-top: 40px;
-  margin: 0 auto; /* Center the container */
+  margin: 0 auto;
 }
 
 .imageadvert {
   height: 100px;
   position: relative;
   width: 70vw;
-  max-width: 1000px; /* Set a maximum width for large screens */
+  max-width: 1000px;
   display: block;
   margin: 0 auto;
 }
 
 .advert {
   width: 70vw;
-  max-width: 1000px; /* Match the imageadvert max-width */
+  max-width: 1000px;
   font-size: small;
   text-decoration: underline;
   text-align: center;
   padding-left: 0;
   margin: 0 auto;
+  font-style: italic;
+  font-weight: lighter;
+}
+
+.post {
+  margin: 30px 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 50px;
 }
 
 .textContainer1 {
@@ -46,15 +58,45 @@
   border-left: 0.5px solid #f2f2f2;
   padding-left: 20px;
 }
-.advertImgContainer {
-  text-align: center;
+
+.rsspost {
+  text-align: justify;
+  padding: 20px;
+  background-color: var(--bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.advertImg {
-  width: 85%;
-  height: auto;
-  margin: 0 auto;
+.noListStyle {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.listItem {
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+}
+
+.listItem a {
+  color: var(--textColor);
+  text-decoration: none;
+  font-size: 16px;
+  line-height: 1.5;
   display: block;
+  padding: 8px 0;
+}
+
+.pageTitle {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: var(--textColor);
+}
+
+.listItem a:hover {
+  color: #0b73b1;
+  text-decoration: underline;
 }
 
 .searchContainer {
@@ -79,59 +121,138 @@
   font-size: 24px;
   transform: translateY(-50%);
 }
-
-.button {
-  padding: 16px 20px;
-  border: none;
-  border-radius: 5px;
-  width: max-content;
-}
-
-.signupContainer {
-  position: relative;
-  width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.signupbutton {
-  background-color: #0b73b1;
-  color: #fff;
-  padding: 10px 20px;
-  border: none;
-  text-transform: uppercase;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.post {
-  margin: 30px 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 50px;
-  flex-wrap: wrap;
-}
-
-.topPosts {
-  text-align: justify;
-}
-
-.noListStyle {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-.listItem {
-  border-bottom: 1px solid #ccc;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-}
-.listItem:hover {
+.advertImgContainer {
+  text-align: center;
+  font-size: smaller;
+  font-weight: lighter;
+  font-style: italic;
   text-decoration: underline;
-  cursor: pointer;
 }
-.rsspost {
-  text-align: justify;
+
+.advertImg {
+  width: 85%;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Media Queries */
+@media screen and (min-width: 2560px) {
+  .imageadvert,
+  .advert {
+    width: 40vw;
+    max-width: 700px;
+  }
+}
+
+@media screen and (min-width: 1920px) {
+  .imageadvert,
+  .advert {
+    width: 50vw;
+    max-width: 800px;
+  }
+}
+
+@media screen and (min-width: 1600px) {
+  .advertsContainer {
+    max-width: 1400px;
+  }
+}
+
+@media screen and (max-width: 1280px) {
+  .post {
+    padding: 0 20px;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .searchContainer,
+  .signupContainer {
+    display: none;
+  }
+
+  .advertImg {
+    width: 55%;
+  }
+
+  .textContainer1 {
+    flex: 1;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .imageadvert {
+    width: 70vw;
+  }
+
+  .advert {
+    padding-left: 0;
+  }
+
+  .textContainer2 {
+    display: none;
+  }
+
+  .post {
+    flex-direction: column;
+    padding: 0 15px;
+  }
+
+  .rsspost {
+    padding: 15px;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .advert {
+    width: 90vw;
+    font-size: smaller;
+    height: 50px;
+  }
+
+  .imageadvert {
+    height: 100px;
+  }
+
+  .listItem a {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 430px) {
+  .post {
+    padding: 0 10px;
+  }
+
+  .rsspost {
+    padding: 10px;
+  }
+
+  .listItem {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+  }
+
+  .pageTitle {
+    font-size: 24px;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 375px) {
+  .imageadvert {
+    height: 80px;
+  }
+
+  .advert {
+    height: 40px;
+  }
+
+  .listItem a {
+    font-size: 13px;
+  }
+
+  .pageTitle {
+    font-size: 22px;
+  }
 }

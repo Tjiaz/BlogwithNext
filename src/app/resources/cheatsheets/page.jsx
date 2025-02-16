@@ -73,7 +73,7 @@ const Page = () => {
                 <h3>Python Cheatsheet</h3>
                 <p>Complete Python programming reference guide</p>
                 <a
-                  href="/cheatsheets/python-cheatsheet.pdf"
+                  href="/cheatsheets/python.pdf"
                   download
                   className={styles.downloadBtn}
                 >
@@ -83,10 +83,10 @@ const Page = () => {
 
               <div className={styles.cheatsheetCard}>
                 <FaFilePdf size={40} />
-                <h3>SQL Cheatsheet</h3>
-                <p>Essential SQL commands and syntax</p>
+                <h3>Bash Cheatsheet</h3>
+                <p>Essential Bash commands and syntax</p>
                 <a
-                  href="/cheatsheets/sql-cheatsheet.pdf"
+                  href="/cheatsheets/bash.pdf"
                   download
                   className={styles.downloadBtn}
                 >
@@ -99,7 +99,7 @@ const Page = () => {
                 <h3>Git Cheatsheet</h3>
                 <p>Common Git commands and workflows</p>
                 <a
-                  href="/cheatsheets/git-cheat-sheet.pdf"
+                  href="/cheatsheets/git.pdf"
                   download
                   className={styles.downloadBtn}
                 >
@@ -112,7 +112,7 @@ const Page = () => {
                 <h3>Grep Cheatsheet</h3>
                 <p>Key concepts and formulas for grep</p>
                 <a
-                  href="/cheatsheets/grep cheatsheet.pdf"
+                  href="/cheatsheets/grep.pdf"
                   download
                   className={styles.downloadBtn}
                 >

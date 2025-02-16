@@ -87,6 +87,79 @@
   background-color: var(--AuthBorder);
 }
 
+.rssLink {
+  margin-left: 10px;
+  color: #fcae7a; /* Classic RSS orange */
+  display: inline-flex;
+  align-items: center;
+}
+
+.rssLink:hover {
+  color: #e65c00; /* Darker orange on hover */
+  cursor: pointer;
+}
+
+.mobileTopicItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 0;
+  border-bottom: 1px solid #0b73b1;
+}
+
+.mobileRssButton {
+  background: none;
+  border: none;
+  color: #fcae7a;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+.mobileRssButton:hover {
+  color: #e65c00;
+}
+
+/* Ensure the container takes full width */
+.mobileTopicContainer {
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+/* Style the topic items specifically for mobile */
+.mobileTopicItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 0;
+  border-bottom: 1px solid #0b73b1;
+}
+
+@media screen and (max-width: 640px) {
+  .mobileTopicItem {
+    padding: 12px 0;
+  }
+
+  .mobileRssButton {
+    font-size: 20px; /* Larger for mobile */
+    padding: 10px;
+  }
+
+  .dropdownItem {
+    flex: 1; /* Take remaining space */
+    font-size: 16px; /* Larger font for mobile */
+  }
+
+  .dropdownMenu {
+    padding: 10px 20px;
+  }
+}
 .responsiveMenu {
   position: absolute;
   top: 90px;
@@ -189,8 +262,31 @@
     width: 100vw;
     max-width: 100%;
   }
+  .responsiveMenu {
+    padding-top: 10px;
+  }
+
+  .dropdownMenu {
+    padding: 0 20px;
+  }
+
+  .mobileTopicItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    width: 100%;
+  }
+
+  .mobileTopicItem .dropdownItem {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding: 0;
+    flex: 1;
+  }
+  .mobileRssButton {
+    font-size: 18px;
+    padding: 8px;
+    margin-left: 10px;
+  }
 }
-
-/* @media screen and (max-width: 540px) { 
-
-} */
