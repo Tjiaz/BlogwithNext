@@ -76,6 +76,9 @@
 }
 .advertImgContainer {
   text-align: center;
+  font-size: smaller;
+  font-weight: lighter;
+  text-decoration: underline;
 }
 
 .advertImg {

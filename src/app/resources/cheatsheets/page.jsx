@@ -131,13 +131,13 @@ const Page = () => {
             />
             <MdSearch className={styles.searchIcon} />
           </div>
-          <div className={styles.advertImageContainer}>
+          <div className={styles.advertImgContainer}>
             <Image
               src="/ads2.gif"
               alt="advert"
               width={100}
               height={100}
-              className={styles.advertImage}
+              className={styles.advertImg}
             />
             <Link href="/">Adverts</Link>
           </div>
@@ -167,16 +167,7 @@ const Page = () => {
               )}
             </ol>
           </div>
-          <div className={styles.advertImageContainer}>
-            <Image
-              src="/dummy_Image.png"
-              alt="advert"
-              width={100}
-              height={100}
-              className={styles.advertImage}
-            />
-            <Link href="/">Adverts</Link>
-          </div>
+
           <div className={styles.signupContainer}>
             <input
               type="text"
