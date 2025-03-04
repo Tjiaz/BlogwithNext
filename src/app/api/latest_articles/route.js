@@ -5,70 +5,43 @@ const client = new MongoClient(uri);
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  const page = parseInt(searchParams.get("page"), 8) || 1;
+  const page = parseInt(searchParams.get("page"), 10) || 1;
   const limit = 8;
   const skip = (page - 1) * limit;
   const databaseName = "ARTICLES";
 
   try {
     await client.connect();
-    const collectionsToQuery = [
-      {
-        name: "Artificial_intelligence_articles",
-        topic: "Artificial Intelligence",
-      },
-      { name: "NLP_articles", topic: "Natural Language Processing" },
-      { name: "SQL_articles", topic: "SQL" },
-      { name: "career_advice_articles", topic: "Career Advice" },
-      { name: "computer_vision_articles", topic: "Computer Vision" },
-      { name: "data_engineering_articles", topic: "Data Engineering" },
-      { name: "data_science_articles", topic: "Data Science" },
-      { name: "language_model_articles", topic: "Language Models" },
-      { name: "machine_learning_articles", topic: "Machine Learning" },
-      { name: "machine_learning_ops_articles", topic: "Machine Learning Ops" },
-      { name: "programming_articles", topic: "Programming" },
-    ];
+    const collection = client.db(databaseName).collection("Topic");
+
+    // Fetch all articles from the Topic collection
+    const topics = await collection.find().toArray();
+
+    if (!Array.isArray(topics)) {
+      throw new Error("Expected an array of topics");
+    }
 
     let results = [];
     let seenArticles = new Set();
 
-    for (const { name: collectionName, topic } of collectionsToQuery) {
-      const collection = client.db(databaseName).collection(collectionName);
+    // Combine articles from all topics
+    topics.forEach((topic) => {
+      if (Array.isArray(topic.articles)) {
+        topic.articles.forEach((article) => {
+          const articleKey = `${article.title}-${article.date}`;
+          if (!seenArticles.has(articleKey)) {
+            seenArticles.add(articleKey);
+            results.push({
+              ...article,
+              topic: topic.name,
+            });
+          }
+        });
+      }
+    });
 
-      // Fetch articles with parsed dates
-      const articles = await collection
-        .aggregate([
-          {
-            $addFields: {
-              parsedDate: {
-                $dateFromString: {
-                  dateString: "$date",
-                  format: "%b %d, %Y",
-                },
-              },
-            },
-          },
-          {
-            $sort: { parsedDate: -1 },
-          },
-        ])
-        .toArray();
-
-      // Only add non-duplicate articles
-      articles.forEach((article) => {
-        const articleKey = `${article.title}-${article.date}`;
-        if (!seenArticles.has(articleKey)) {
-          seenArticles.add(articleKey);
-          results.push({
-            ...article,
-            topic,
-          });
-        }
-      });
-    }
-
-    // Sort all combined articles by parsed date
-    results.sort((a, b) => new Date(b.parsedDate) - new Date(a.parsedDate));
+    // Sort all combined articles by date
+    results.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     // Apply pagination after deduplication
     const paginatedArticles = results.slice(skip, skip + limit);

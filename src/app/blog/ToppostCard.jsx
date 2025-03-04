@@ -3,7 +3,7 @@ import styles from "./blogPage.module.css";
 import Image from "next/image";
 import Link from "next/link";
 
-const ToppostCard = ({ postTitle }) => {
+const ToppostCard = ({ postTitle, onShare }) => {
   return (
     <div className={styles.articleCard}>
       <div className={styles.postContent}>

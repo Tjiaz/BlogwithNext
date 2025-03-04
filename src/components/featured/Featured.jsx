@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import styles from "./featured.module.css";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,19 +8,22 @@ import FeaturedCard from "./FeaturedCard";
 import Pagination from "../pagination/Pagination";
 import { useSearchParams } from "next/navigation";
 import SubscribeModal from "../subscribeModal/SubscribeModal";
+import LoadingPlaceholder from "./LoadingPlaceholder";
 
 const POSTS_PER_PAGE = 8;
 
 const Featured = () => {
-  const [latestPosts, setLatestPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [topPosts, setTopPosts] = useState([]);
-  const [rssPosts, setRssPosts] = useState([]);
-  const [loadingTopPosts, setLoadingTopPosts] = useState(true);
+  const [state, setState] = useState({
+    latestPosts: [],
+    topPosts: [],
+    rssPosts: [],
+    loading: true,
+  });
+
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Get the page from query params
   const searchParams = useSearchParams();
@@ -36,15 +39,31 @@ const Featured = () => {
     }
   }, []);
 
-  useEffect(() => {
-    async function fetchArticles() {
-      try {
-        const mongoResponse = await fetch(`/api/latest_articles?page=${page}`);
-        const rssResponse = await fetch("/api/rss");
+  const extractImageFromContent = (content) => {
+    try {
+      if (!content || typeof content !== "string") return null;
+      const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
+      return imgMatch ? imgMatch[1] : null;
+    } catch (error) {
+      console.error("Error extracting image from content:", error);
+      return null;
+    }
+  };
 
-        const [mongoData, rssData] = await Promise.all([
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        const [mongoResponse, rssResponse, topPostsResponse] =
+          await Promise.all([
+            fetch(`/api/latest_articles?page=${page}`),
+            fetch("/api/rss"),
+            fetch(`/api/topArticles?page=1`),
+          ]);
+
+        const [mongoData, rssData, topPostsData] = await Promise.all([
           mongoResponse.json(),
           rssResponse.json(),
+          topPostsResponse.json(),
         ]);
 
         const getFirstImageFromContent = (content) => {
@@ -53,26 +72,22 @@ const Featured = () => {
           return imgMatch ? imgMatch[1] : null;
         };
 
-        const transformedRssData = rssData.map((item) => {
-          const imageFromContent = getFirstImageFromContent(item.content);
-          console.log("Image from content:", imageFromContent); // Log the extracted image URL
-          return {
-            ...item,
-            id: item.guid,
-            title: item.title?.trim(),
-            description: item.contentSnippet || item.description || "",
-            date: item.isoDate || item.pubDate,
-            author: item.author?.trim().replace(/\n/g, "") || "RSS Feed",
-            link: item.link?.trim(),
-            topic: "RSS Feed",
-            img:
-              item.enclosure?.url ||
-              item.image ||
-              imageFromContent ||
-              "/azbyte.jpeg", // Use image from content if available
-            isRssPost: true,
-          };
-        });
+        const transformedRssData = rssData.map((item) => ({
+          ...item,
+          id: item.guid,
+          title: item.title?.trim(),
+          description: item.contentSnippet || item.description || "",
+          date: item.isoDate || item.pubDate,
+          author: item.author?.trim().replace(/\n/g, "") || "RSS Feed",
+          link: item.link?.trim(),
+          topic: "RSS Feed",
+          img:
+            item.enclosure?.url ||
+            item.image ||
+            getFirstImageFromContent(item.content) ||
+            "/azbyte.jpeg",
+          isRssPost: true,
+        }));
 
         // Create a Set to track unique articles by ID
         const uniquePosts = new Set();
@@ -102,62 +117,30 @@ const Featured = () => {
         const endIndex = startIndex + POSTS_PER_PAGE;
         const paginatedPosts = combinedPosts.slice(startIndex, endIndex);
 
-        setLatestPosts(paginatedPosts);
-        setRssPosts(transformedRssData); // Store RSS posts separately if needed
+        setState({
+          latestPosts: paginatedPosts,
+          topPosts: topPostsData.slice(0, 7),
+          rssPosts: transformedRssData,
+          loading: false,
+        });
       } catch (error) {
-        console.error("Failed to fetch articles:", error);
-        setLatestPosts([]);
-        setRssPosts([]);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching data:", error);
+        setState((prev) => ({ ...prev, loading: false }));
       }
-    }
-    fetchArticles();
+    };
+
+    fetchAllData();
   }, [page]);
 
-  const extractImageFromContent = (content) => {
-    try {
-      // Check if content exists and is a string
-      if (!content || typeof content !== "string") return null;
-
-      const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
-      return imgMatch ? imgMatch[1] : null;
-    } catch (error) {
-      console.error("Error extracting image from content:", error);
-      return null;
-    }
-  };
-
-  useEffect(() => {
-    async function fetchTopPosts() {
-      try {
-        const response = await fetch(`/api/topArticles?page=1`);
-        const data = await response.json();
-
-        if (Array.isArray(data)) {
-          setTopPosts(data.slice(0, 7)); // Limit to 5 articles
-        } else {
-          console.error("Unexpected data format", data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch top posts", error);
-      } finally {
-        setLoadingTopPosts(false);
-      }
-    }
-    fetchTopPosts();
-  }, []); // Empty dependency array to run once on component mount
-
-  if (loading || loadingTopPosts) {
+  if (state.loading) {
     return <div className={styles.spinner}></div>;
   }
 
   const hasPrev = page > 1;
-  const hasNext = latestPosts.length >= POSTS_PER_PAGE;
+  const hasNext = state.latestPosts.length >= POSTS_PER_PAGE;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const response = await fetch("/api/subscribe", {
         method: "POST",
@@ -177,22 +160,10 @@ const Featured = () => {
     }
   };
 
-  // First, ensure both arrays exist and are actually arrays
-  // const combinedPosts = () => {
-  //   const mongoPosts = Array.isArray(latestPosts) ? latestPosts : [];
-  //   const rss = Array.isArray(rssPosts) ? rssPosts : [];
-
-  //   return [...mongoPosts, ...rss].sort((a, b) => {
-  //     const dateA = new Date(a.date || a.pubDate);
-  //     const dateB = new Date(b.date || b.pubDate);
-  //     return dateB - dateA;
-  //   });
-  // };
-
-  // Then use it in your filter
-  const filteredPosts = latestPosts.filter((post) =>
+  const filteredPosts = state.latestPosts.filter((post) =>
     post?.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
   return (
     <div className={styles.container}>
       <div className={styles.advertsContainer}>
@@ -205,56 +176,47 @@ const Featured = () => {
       </div>
       <div className={styles.post}>
         <div className={styles.textContainer1}>
-          <h2>Current Posts</h2>
+          <h2>Latest Posts</h2>
           <div style={{ display: "flex", width: "100%" }}>
             <div
               style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
             ></div>
             <div style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}></div>
           </div>
+          <Suspense fallback={<LoadingPlaceholder count={8} />}>
+            {filteredPosts && filteredPosts.length > 0 ? (
+              filteredPosts.map((post) => {
+                const imageToUse = post.isRssPost
+                  ? post.img || "/azbyte.jpeg"
+                  : post.filtered_images && post.filtered_images.length > 0
+                  ? post.filtered_images[0]
+                  : post.content && extractImageFromContent(post.content)
+                  ? extractImageFromContent(post.content)
+                  : "/azbyte.jpeg";
 
-          {filteredPosts && filteredPosts.length > 0 ? (
-            filteredPosts.map((post) => {
-              // Determine which image to use
-              const imageToUse = post.isRssPost
-                ? post.img || "/azbyte.jpeg" // RSS posts
-                : post.filtered_images && post.filtered_images.length > 0
-                ? post.filtered_images[0]
-                : post.content && extractImageFromContent(post.content)
-                ? extractImageFromContent(post.content)
-                : "/azbyte.jpeg";
+                const postDate = post.isRssPost
+                  ? post.isoDate || post.pubDate || post.date
+                  : post.date;
 
-              // Log the post date information
-              console.log("Post date info:", {
-                title: post.title,
-                isoDate: post.isoDate,
-                pubDate: post.pubDate,
-                date: post.date,
-              });
-
-              // Choose the most appropriate date
-              const postDate = post.isRssPost
-                ? post.isoDate || post.pubDate || post.date
-                : post.date;
-
-              return (
-                <FeaturedCard
-                  key={post.isRssPost ? post.guid : post._id}
-                  postImg={imageToUse}
-                  postTitle={post.title}
-                  postDesc={post.isRssPost ? post.description : post.desc}
-                  postAuthor={post.author}
-                  postDate={postDate}
-                  postTopic={post.isRssPost ? "RSS Feed" : post.topic}
-                  postId={post.isRssPost ? post.guid : post.id}
-                  isRssPost={post.isRssPost}
-                  rssLink={post.isRssPost ? post.link : null}
-                />
-              );
-            })
-          ) : (
-            <div>No articles found.</div>
-          )}
+                return (
+                  <FeaturedCard
+                    key={post.isRssPost ? post.guid : post._id}
+                    postImg={imageToUse}
+                    postTitle={post.title}
+                    postDesc={post.isRssPost ? post.description : post.desc}
+                    postAuthor={post.author}
+                    postDate={postDate}
+                    postTopic={post.isRssPost ? "RSS Feed" : post.topic}
+                    postId={post.isRssPost ? post.guid : post.id}
+                    isRssPost={post.isRssPost}
+                    rssLink={post.isRssPost ? post.link : null}
+                  />
+                );
+              })
+            ) : (
+              <div>No articles found.</div>
+            )}
+          </Suspense>
 
           <Pagination page={page} hasPrev={hasPrev} hasNext={hasNext} />
         </div>
@@ -265,6 +227,8 @@ const Featured = () => {
               type="text"
               className={styles.searchInput}
               placeholder="Search AzByteGems..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
             <MdSearch className={styles.searchIcon} />
           </div>
@@ -276,7 +240,9 @@ const Featured = () => {
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Google-bigquery</Link>
+            <Link className={styles.ads_name} href="/">
+              Google-bigquery
+            </Link>
           </div>
           <div>
             <h3>Top Posts</h3>
@@ -291,8 +257,8 @@ const Featured = () => {
           </div>
           <div className={styles.topPosts}>
             <ol className={styles.noListStyle}>
-              {topPosts && topPosts.length > 0 ? (
-                topPosts.map((post) => (
+              {state.topPosts && state.topPosts.length > 0 ? (
+                state.topPosts.map((post) => (
                   <li key={post.id} className={styles.listItem}>
                     <Link href={`/article_details/${post.id}`}>
                       {post.title}
@@ -312,7 +278,9 @@ const Featured = () => {
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Google-bigquery</Link>
+            <Link className={styles.ads_name} href="/">
+              Google-bigquery
+            </Link>
           </div>
           <div className={styles.signupContainer}>
             <form onSubmit={handleSubmit}>
@@ -326,7 +294,6 @@ const Featured = () => {
               />
               <button
                 type="submit"
-                href="/"
                 style={{
                   width: "100%",
                   padding: "10px",
@@ -338,7 +305,6 @@ const Featured = () => {
                   letterSpacing: "0.5px",
                   textTransform: "uppercase",
                 }}
-                // className={styles.signupbutton}
               >
                 sign up
               </button>
@@ -370,7 +336,6 @@ const Featured = () => {
         </div>
       </div>
       <div>
-        {/* Modal */}
         <SubscribeModal show={showModal} onClose={() => setShowModal(false)} />
       </div>
     </div>

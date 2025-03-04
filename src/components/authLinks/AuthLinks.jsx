@@ -10,6 +10,7 @@ import { RiArrowDropDownLine } from "react-icons/ri";
 import { BsRss } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 import { topicFeeds } from "@/config/topicFeeds";
+import { isAdminEmail } from "@/config/admin";
 
 const AuthLinks = () => {
   const router = useRouter();
@@ -18,9 +19,14 @@ const AuthLinks = () => {
   const [activeMenu, setActiveMenu] = useState(null);
   const { data: session, status } = useSession();
 
+  // Check if user's email is in the admin list
+
   // Add this console.log to debug
   console.log("Session status:", status);
   console.log("Session data:", session);
+
+  // Use the hardcoded array for testing
+  const isAdmin = session?.user?.email && isAdminEmail(session.user.email);
 
   // Close menus and reset state
   const closeAllMenus = () => {
@@ -55,10 +61,7 @@ const AuthLinks = () => {
 
   const handleRssClick = async (topic, feedUrl) => {
     try {
-      const response = await fetch(
-        `/api/rssfeed/${encodeURIComponent(topic)}`,
-        
-      );
+      const response = await fetch(`/api/rssfeed/${encodeURIComponent(topic)}`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch RSS feed");
@@ -93,6 +96,20 @@ const AuthLinks = () => {
           <Link href="/write" className={styles.link}>
             Write
           </Link>
+          {isAdmin && (
+            <button
+              className={`${styles.link} ${styles.adminLink}`}
+              onClick={(e) => {
+                e.preventDefault();
+                console.log("Newsletter button clicked");
+                console.log("isAdmin status:", isAdmin);
+                console.log("Current session:", session);
+                router.push("/admin/newsletter");
+              }}
+            >
+              Newsletter
+            </button>
+          )}
           <span className={styles.link} onClick={signOut}>
             Logout
           </span>
@@ -260,6 +277,14 @@ const AuthLinks = () => {
               >
                 Write
               </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin/newsletter"
+                  className={`${styles.link} ${styles.adminLink}`}
+                >
+                  Newsletter
+                </Link>
+              )}
               <span
                 className={styles.menuLink}
                 onClick={() => {

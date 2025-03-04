@@ -10,22 +10,7 @@ export async function GET(req) {
 
   try {
     await client.connect();
-    const collectionsToQuery = [
-      {
-        name: "Artificial_intelligence_articles",
-        topic: "Artificial Intelligence",
-      },
-      { name: "NLP_articles", topic: "Natural Language Processing" },
-      { name: "SQL_articles", topic: "SQL" },
-      { name: "career_advice_articles", topic: "Career Advice" },
-      { name: "computer_vision_articles", topic: "Computer Vision" },
-      { name: "data_engineer_articles", topic: "Data Engineering" },
-      { name: "data_science_articles", topic: "Data Science" },
-      { name: "language_model_articles", topic: "Language Models" },
-      { name: "machine_learning_articles", topic: "Machine Learning" },
-      { name: "machine_learning_ops_articles", topic: "MLOps" },
-      { name: "programming_articles", topic: "Programming" },
-    ];
+    const collection = client.db(databaseName).collection("Topic");
 
     let results = {};
     let seenArticles = new Set();
@@ -34,58 +19,40 @@ export async function GET(req) {
     for (const year of years) {
       let yearResults = [];
 
-      for (const { name: collectionName, topic } of collectionsToQuery) {
-        const collection = client.db(databaseName).collection(collectionName);
+      // Fetch all articles from the Topic collection
+      const topics = await collection.find().toArray();
 
-        // Fetch the top 5 articles for the given year using aggregation
-        const articles = await collection
-          .aggregate([
-            {
-              $addFields: {
-                parsedDate: {
-                  $dateFromString: {
-                    dateString: "$date",
-                    format: "%b %d, %Y", // Matches the format "Feb 06, 2024"
-                  },
-                },
-              },
-            },
-            {
-              $match: {
-                parsedDate: {
-                  $gte: new Date(`${year}-01-01T00:00:00Z`),
-                  $lte: new Date(`${year}-12-31T23:59:59Z`),
-                },
-              },
-            },
-            {
-              $sort: { parsedDate: -1 },
-            },
-            {
-              $limit: limit,
-            },
-          ])
-          .toArray();
+      topics.forEach((topic) => {
+        if (topic.articles && topic.articles.length > 0) {
+          // Fetch the top articles for the given year using aggregation
+          const articles = topic.articles.filter((article) => {
+            const articleDate = new Date(article.date);
+            return articleDate.getFullYear() === year;
+          });
 
-        // Only add non-duplicate articles
-        articles.forEach((article) => {
-          const articleKey = `${article.title}-${article.date}`;
-          if (!seenArticles.has(articleKey)) {
-            seenArticles.add(articleKey);
-            yearResults.push({
-              ...article,
-              topic,
-            });
-          }
-        });
-      }
+          // Sort articles by date in descending order (newest first)
+          const sortedArticles = articles.sort(
+            (a, b) => new Date(b.date) - new Date(a.date)
+          );
+
+          // Only add non-duplicate articles
+          sortedArticles.slice(0, limit).forEach((article) => {
+            const articleKey = `${article.title}-${article.date}`;
+            if (!seenArticles.has(articleKey)) {
+              seenArticles.add(articleKey);
+              yearResults.push({
+                ...article,
+                topic: topic.name,
+              });
+            }
+          });
+        }
+      });
 
       // Sort the results for the year by date (newest first)
-      yearResults.sort(
-        (a, b) => new Date(b.parsedDate) - new Date(a.parsedDate)
-      );
+      yearResults.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-      // Take the top 5 results for the year
+      // Take the top results for the year
       results[year] = yearResults.slice(0, limit);
     }
 
@@ -101,7 +68,7 @@ export async function GET(req) {
           date: article.date,
           content: article.content,
           topic: article.topic,
-          id: article._id,
+          id: article._id.toString(),
         })) || [], // If no articles for the year, return an empty array
     }));
 

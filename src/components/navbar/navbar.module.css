@@ -30,6 +30,10 @@
 
 .social_icons {
   color: #0b73b1;
+  transition: color 0.3s ease;
+}
+.social_icons:hover {
+  color: #2991ce;
 }
 
 .join_newsletter_button {
@@ -72,6 +76,11 @@
   gap: 5px;
   text-decoration: none;
   color: inherit;
+  transition: color 0.3s ease;
+}
+
+.link:hover {
+  color: #2991ce;
 }
 
 .dropdown {
@@ -88,34 +97,24 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 10px;
   z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dropdownColumn {
   display: flex;
   flex-direction: column;
   padding: 0 20px;
-}
-
-/* .dropdownItem {
-  padding: 5px 0;
-  text-decoration: none;
-  color: var(--textColor);
-  white-space: nowrap;
-  border-bottom: 1px solid #2991ce;
-  margin-bottom: 5px;
-  font-size: small;
-} */
-
-.rssLink {
-  margin-left: 10px;
-  color: #fcae7a; /* Classic RSS orange */
-  display: inline-flex;
-  align-items: center;
-}
-
-.rssLink:hover {
-  color: #e65c00; /* Darker orange on hover */
-  cursor: pointer;
 }
 
 .dropdownItem {
@@ -133,6 +132,18 @@
 
 .dropdownItem:hover {
   text-decoration: underline;
+}
+.rssLink {
+  margin-left: 10px;
+  color: #fcae7a; /* Classic RSS orange */
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.rssLink:hover {
+  color: #e65c00; /* Darker orange on hover */
+  cursor: pointer;
 }
 
 .themeToggleContainer {

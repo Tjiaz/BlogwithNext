@@ -12,6 +12,7 @@ import {
   FaTwitter,
   FaYoutube,
 } from "react-icons/fa";
+import ShareButtons from "@/components/share_buttons/ShareButtons";
 
 const BlogPage = () => {
   const [loading, setLoading] = useState(true);
@@ -80,6 +81,41 @@ const BlogPage = () => {
     fetchYearlyArticles();
   }, []);
 
+  // Function to create share URLs
+  const createShareUrl = (post, platform) => {
+    const baseUrl = "https://azbytegems.com"; // Replace with your domain
+    const postUrl = `${baseUrl}/article_details/${post.id}`;
+    const title = encodeURIComponent(post.title);
+    const description = encodeURIComponent(post.description || "");
+
+    switch (platform) {
+      case "twitter":
+        return `https://twitter.com/intent/tweet?text=${title}&url=${encodeURIComponent(
+          postUrl
+        )}&via=azbytegems`;
+      case "facebook":
+        return `https://www.facebook.com/dialog/share?app_id=2707427479445138&href=${encodeURIComponent(
+          postUrl
+        )}&quote=${title}`;
+      case "linkedin":
+        return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+          postUrl
+        )}`;
+      case "reddit":
+        return `https://reddit.com/submit?url=${encodeURIComponent(
+          postUrl
+        )}&title=${title}`;
+      default:
+        return postUrl;
+    }
+  };
+
+  // Function to handle social sharing
+  const handleShare = (post, platform) => {
+    const shareUrl = createShareUrl(post, platform);
+    window.open(shareUrl, "_blank", "width=600,height=400");
+  };
+
   return loading ? (
     <div className={styles.spinner}></div>
   ) : !topPosts ? (
@@ -99,10 +135,20 @@ const BlogPage = () => {
           <h1 className={styles.head}>Top posts</h1>
 
           <div className={styles.socialmedialinks}>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.facebook.com/profile.php?id=61572544476793"
+              className={`${styles.socialmedia} ${styles.facebook}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <FaFacebookF />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://x.com/azbytegems"
+              className={`${styles.socialmedia} ${styles.twitter}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <FaTwitter />
             </a>
             <a href="#" className={styles.socialmedia}>
@@ -135,7 +181,10 @@ const BlogPage = () => {
                         {post.title}
                       </Link>
                     }
+                    post={post}
                   />
+
+                  <ShareButtons post={post} isTopPostPage={false} />
                 </div>
               ))
             ) : (
@@ -185,6 +234,7 @@ const BlogPage = () => {
                         <p>
                           <strong>Topic:</strong> {article.topic}
                         </p>
+                        <ShareButtons isTopPostPage={true} />
                       </li>
                     ))}
                   </ul>

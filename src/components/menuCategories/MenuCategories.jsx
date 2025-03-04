@@ -6,38 +6,38 @@ const MenuCategories = () => {
   return (
     <div className={styles.categoryList}>
       <Link
-        href="/blog?cat=style"
-        className={`${styles.categoryItem}${styles.style}`}
+        href="/blog?cat=data"
+        className={`${styles.categoryItem} ${styles.data}`}
       >
         Data Science
       </Link>
       <Link
-        href="/blog?cat=travel"
-        className={`${styles.categoryItem}${styles.travel}`}
+        href="/blog?cat=nlp"
+        className={`${styles.categoryItem} ${styles.nlp}`}
       >
         NLP
       </Link>
       <Link
-        href="/blog?cat=fashion"
-        className={`${styles.categoryItem}${styles.fashion}`}
+        href="/blog?cat=sql"
+        className={`${styles.categoryItem} ${styles.sql}`}
       >
         SQL
       </Link>
       <Link
-        href="/blog?cat=culture"
-        className={`${styles.categoryItem}${styles.culture}`}
+        href="/blog?cat=python"
+        className={`${styles.categoryItem} ${styles.python}`}
       >
         Python
       </Link>
       <Link
         href="/blog?cat=coding"
-        className={`${styles.categoryItem}${styles.coding}`}
+        className={`${styles.categoryItem} ${styles.coding}`}
       >
         Coding
       </Link>
       <Link
-        href="/blog?cat=food"
-        className={`${styles.categoryItem}${styles.food}`}
+        href="/blog?cat=ai"
+        className={`${styles.categoryItem} ${styles.ai}`}
       >
         AI
       </Link>

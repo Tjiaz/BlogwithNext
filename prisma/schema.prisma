@@ -51,7 +51,7 @@ model User {
   sessions      Session[]
   Post          Post[]
   articles      Article[]
- 
+  isAdmin       Boolean  @default(false) 
 
 }
 
@@ -89,6 +89,13 @@ model Post {
 }
 
 
+model Topic { 
+  id          String   @id @default(cuid()) @map("_id") 
+  title       String   @unique
+  description String?
+  article     TopicArticle[]
+}
+
 model Article { 
   id          String   @id @default(cuid()) @map("_id") 
   title       String
@@ -106,10 +113,20 @@ model Article {
   link        String?  // Link to the original article
   isRssPost   Boolean  @default(false) // Flag to identify RSS feed articles
   img         String?  // Image URL for the article
+  filtered_images String? //
+  Topic       TopicArticle[]
 }
 
 
+model TopicArticle{ 
+  id        String   @id @default(cuid()) @map("_id") 
+  topicId   String
+  articleId String
+  topic     Topic    @relation(fields: [topicId], references: [id])
+  article    Article   @relation(fields: [articleId], references: [id])
 
+  @@unique([topicId, articleId])
+}
 
 model Content { 
   id        String   @id @default(cuid()) @map("_id") 
@@ -117,4 +134,20 @@ model Content {
   paragraphs String[] // Array of paragraphs
   articleId String    @map("_articleId") 
   article   Article   @relation(fields: [articleId], references: [id])
+}
+
+model Subscriber {
+  id        String   @id @default(cuid()) @map("_id") 
+  email     String   @unique
+  createdAt DateTime @default(now())
+  active    Boolean  @default(true)
+}
+
+model LinkedinAuth {
+  id            String   @id @default(cuid()) @map("_id") 
+  organizationId String  @unique
+  accessToken   String
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

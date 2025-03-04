@@ -1,6 +1,7 @@
 .container {
-  margin-top: 30px;
+  margin-top: 90px;
   padding: 0 20px;
+  background-color: #f9f9f9;
 }
 
 .imageadvert {
@@ -70,33 +71,47 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
+  max-width: 1536px;
+  margin: 0 auto;
+  padding: 20px 0;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .advert {
-  width: 100%;
-  max-width: 70vw;
-  font-size: small;
-  text-decoration: underline;
+  width: 70vw;
+  max-width: 1000px;
+  font-size: 14px;
+  color: #0b73b1;
   text-align: center;
-  padding-left: 0;
-  margin: 0 auto;
+  margin-top: 10px;
+  text-decoration: none;
+}
+
+.advert:hover {
+  text-decoration: underline;
 }
 
 .advertImgContainer {
   text-align: center;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .advertImg {
-  width: 100%;
-  max-width: 85%;
+  width: 85%;
   height: auto;
-  margin: 0 auto;
-  display: block;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
 
 .socialLink {
   display: flex;
-  margin: 10px 0;
+  align-items: center;
   gap: 5px;
 }
 
@@ -107,9 +122,15 @@
   padding: 8px;
   border-radius: 50%;
   transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+}
+
+.socialButton:hover {
+  background: #f0f0f0;
+}
+.sectionImage {
+  width: 50%;
+  height: auto;
+  margin-bottom: 20px;
 }
 
 .socialButton:disabled {
@@ -117,39 +138,121 @@
   cursor: not-allowed;
 }
 
-/* Platform-specific hover effects */
-.socialButton:hover .facebookIcon {
-  color: #1877f2;
-  transform: scale(1.1);
-}
-
-.socialButton:hover .linkedIcon {
-  color: #0a66c2;
-  transform: scale(1.1);
-}
-
-.socialButton:hover .xIcon {
-  color: #1da1f2;
-  transform: scale(1.1);
-}
-
-/* Icon styles */
 .facebookIcon {
-  font-size: 14px;
   color: #1877f2;
-  transition: all 0.3s ease;
 }
 
 .linkedIcon {
-  font-size: 14px;
   color: #0a66c2;
-  transition: all 0.3s ease;
 }
 
 .xIcon {
-  font-size: 14px;
+  color: #000;
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 12px 0;
+}
+
+.meta {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.author {
+  font-weight: bold;
+  color: #333;
+}
+
+.date {
+  color: #888;
+}
+
+.sectionHeading {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
   color: #000000;
+}
+.searchContainer {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 40px 10px 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.searchIcon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  cursor: pointer;
+}
+
+.advertImgContainer {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.advertImg {
+  width: 100%;
+  height: auto;
+}
+
+.latestPosts {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.latestPostsTitle {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #0b73b1;
+}
+
+.latestPostsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.postItem {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  color: #333;
+  text-decoration: none;
   transition: all 0.3s ease;
+}
+
+.postItem:hover {
+  background: #f0f0f0;
+  color: #0b73b1;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #0b73b1;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 50px auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Media Queries */
@@ -194,12 +297,10 @@
 }
 
 .paragraphs {
-  font-size: 18px; /* Adjust font size for readability */
-  line-height: 1.8; /* Increase line height for better spacing */
-  margin-bottom: 24px; /* Add space between paragraphs */
-  color: #333; /* Set a readable text color */
-  text-align: justify; /* Justify text for a cleaner look */
-  font-family: "Georgia", serif; /* Use a serif font for better readability */
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #333;
+  margin-bottom: 24px;
 }
 
 @media (max-width: 480px) {

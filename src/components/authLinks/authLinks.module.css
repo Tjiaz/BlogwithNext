@@ -290,3 +290,52 @@
     margin-left: 10px;
   }
 }
+
+.link[href="/admin/newsletter"] {
+  background-color: #0b73b1;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.link[href="/admin/newsletter"]:hover {
+  background-color: #085a8c;
+}
+
+.menuLink[href="/admin/newsletter"] {
+  color: #0b73b1;
+  font-weight: bold;
+}
+
+.menuLink[href="/admin/newsletter"]:hover {
+  background-color: #0b73b1;
+  color: white;
+}
+
+/* authLinks.module.css */
+.adminLink {
+  background-color: #0b73b1;
+  color: white !important;
+  padding: 5px 10px;
+  border-radius: 4px;
+  margin: 0 10px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.adminLink:hover {
+  background-color: #085a8c;
+}
+
+.adminMenuLink {
+  color: #0b73b1 !important;
+  font-weight: bold;
+}
+
+.adminMenuLink:hover {
+  background-color: #0b73b1;
+  color: white !important;
+}
+
+/* Add any other existing styles */

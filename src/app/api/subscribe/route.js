@@ -1,7 +1,6 @@
+// app/api/subscribe/route.js
 import { MongoClient } from "mongodb";
 
-
-// Ensure the DATABASE_URL environment variable is set
 if (!process.env.DATABASE_URL) {
   throw new Error("Please add your MongoDB connection string to .env file");
 }
@@ -9,19 +8,30 @@ if (!process.env.DATABASE_URL) {
 const client = new MongoClient(process.env.DATABASE_URL);
 
 async function connectToDatabase() {
-  if (!client.topology || !client.topology.isConnected()) {
-    await client.connect();
+  try {
+    if (!client.topology || !client.topology.isConnected()) {
+      console.log("Connecting to database...");
+      await client.connect();
+      console.log("Connected to database successfully");
+    }
+    return client.db("ARTICLES");
+  } catch (error) {
+    console.error("Database connection error:", error);
+    throw error;
   }
-  return client.db("ARTICLES");
 }
 
 export async function POST(req) {
   try {
-    const body = await req.json(); // Parse the request body
+    console.log("Received subscription request");
+    const body = await req.json();
     const { email } = body;
+
+    console.log("Email received:", email);
 
     // Validate email
     if (!email || !email.includes("@")) {
+      console.log("Invalid email:", email);
       return new Response(JSON.stringify({ error: "Invalid email address" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
@@ -31,8 +41,30 @@ export async function POST(req) {
     // Connect to the database
     const db = await connectToDatabase();
 
+    // Check if email already exists
+    const existingSubscriber = await db
+      .collection("subscriptions")
+      .findOne({ email });
+
+    if (existingSubscriber) {
+      console.log("Email already subscribed:", email);
+      return new Response(
+        JSON.stringify({ message: "You're already subscribed!" }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
     // Insert email into the subscriptions collection
-    await db.collection("subscriptions").insertOne({ email });
+    const result = await db.collection("subscriptions").insertOne({
+      email,
+      subscribedAt: new Date(),
+      active: true,
+    });
+
+    console.log("Subscription saved:", result);
 
     // Return a success response
     return new Response(
@@ -52,14 +84,4 @@ export async function POST(req) {
       }
     );
   }
-}
-
-export async function GET(req) {
-  return new Response(
-    JSON.stringify({ message: "This route only supports POST requests" }),
-    {
-      status: 405,
-      headers: { "Content-Type": "application/json" },
-    }
-  );
 }

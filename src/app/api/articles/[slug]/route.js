@@ -33,7 +33,8 @@ async function connectToDatabase() {
 export async function GET(req, { params }) {
   const { slug } = params;
   const databaseName = "ARTICLES";
-  const collectionName = `${slug}_articles`;
+  const collectionName = "Topic";
+  // const collectionName = `${slug}_articles`;
 
   console.log("Received slug:", slug);
 
@@ -47,18 +48,10 @@ export async function GET(req, { params }) {
     const collection = db.collection(collectionName);
     console.log(`Fetching from collection: ${collectionName}`);
 
-    const articles = await collection.find().toArray();
-    console.log("Fetched articles:", articles);
+    const topic = await collection.findOne({ name: `${slug}_articles` });
+    console.log("Fetched topic:", topic);
 
-    // Convert _id to string explicitly
-    const articlesWithStringId = articles.map((article) => ({
-      ...article,
-      _id: article._id.toString(),
-    }));
-
-    console.log("Articles with string _id:", articlesWithStringId);
-
-    if (!articlesWithStringId || articlesWithStringId.length === 0) {
+    if (!topic || !topic.articles || topic.articles.length === 0) {
       console.error("No articles found.");
       return new Response(JSON.stringify({ error: "Articles Not Found" }), {
         status: 404,
@@ -67,6 +60,14 @@ export async function GET(req, { params }) {
         },
       });
     }
+
+    // Convert _id to string explicitly
+    const articlesWithStringId = topic.articles.map((article) => ({
+      ...article,
+      _id: article._id.toString(),
+    }));
+
+    console.log("Articles with string _id:", articlesWithStringId);
 
     return new Response(JSON.stringify(articlesWithStringId), {
       status: 200,

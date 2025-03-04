@@ -18,6 +18,12 @@ const FeaturedCard = ({
 }) => {
   const [isSharingTwitter, setIsSharingTwitter] = useState(false);
   const [isSharingFacebook, setIsSharingFacebook] = useState(false);
+  const [isSharingLinkedIn, setIsSharingLinkedIn] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  const generateState = () => {
+    return crypto.randomUUID();
+  };
 
   const shareToTwitter = async () => {
     setIsSharingTwitter(true);
@@ -92,6 +98,55 @@ const FeaturedCard = ({
       alert("Failed to share to Facebook. Please try again.");
     } finally {
       setIsSharingFacebook(false);
+    }
+  };
+  const shareToLinkedIn = async () => {
+    setIsSharingLinkedIn(true);
+    try {
+      const state = generateState();
+      localStorage.setItem("linkedin_oauth_state", state);
+
+      const redirectUri = encodeURIComponent(
+        process.env.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI
+      );
+      const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
+      const scope = "r_liteprofile%20r_emailaddress%20w_member_social";
+      const authorizationUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}&scope=${scope}`;
+
+      window.location.href = authorizationUrl;
+
+      const articleUrl = isRssPost
+        ? rssLink
+        : `${
+            process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
+          }/article_details/${postId}`;
+
+      const response = await fetch("/api/social_share", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: postTitle,
+          link: articleUrl,
+          description: postDesc,
+          platform: "linkedin", // Match the pattern of other platforms
+        }),
+      });
+
+      const data = await response.json();
+      console.log("LinkedIn share response:", data);
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to share to LinkedIn");
+      }
+
+      alert("Successfully shared to LinkedIn!");
+    } catch (error) {
+      console.error("LinkedIn share error:", error);
+      alert("Failed to share to LinkedIn. Please try again.");
+    } finally {
+      setIsSharingLinkedIn(false);
     }
   };
 
@@ -202,17 +257,19 @@ const FeaturedCard = ({
   return (
     <div className={styles.articleCard}>
       <div className={styles.postImage}>
+        {!imageLoaded && <div className={styles.imagePlaceholder} />}
         <SafeImage
           src={postImg}
           alt={postTitle}
-          width={100}
-          height={100}
+          fill
           className={styles.image}
+          onLoad={() => setImageLoaded(true)}
+          loading="lazy"
         />
       </div>
       <div className={styles.postContent}>
         <PostLink>
-          <h4>{postTitle}</h4>
+          <h4 className={styles.postTitle}>{postTitle}</h4>
         </PostLink>
         <p className={styles.postDesc}>{postDesc}</p>
         <div className={styles.author}>
@@ -253,6 +310,13 @@ const FeaturedCard = ({
                 className={`${styles.shareButton} ${styles.facebookButton}`}
               >
                 {isSharingFacebook ? "..." : "Share to FB"}
+              </button>
+              <button
+                onClick={shareToLinkedIn}
+                disabled={isSharingLinkedIn}
+                className={`${styles.shareButton} ${styles.linkedinButton}`}
+              >
+                {isSharingLinkedIn ? "..." : "Share to LI"}
               </button>
             </div>
           </div>

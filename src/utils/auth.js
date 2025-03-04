@@ -1,17 +1,16 @@
+// src/utils/auth.js
 import FacebookProvider from "next-auth/providers/facebook";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "./connect";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-// import { getServerSession } from "next-auth";
 import { compare } from "bcryptjs";
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     // OAuth authentication providers...
-
     FacebookProvider({
       clientId: process.env.FACEBOOK_ID,
       clientSecret: process.env.FACEBOOK_SECRET,
@@ -87,16 +86,12 @@ export const authOptions = {
 
       if (session?.user) {
         session.user.id = token.id || null;
-        // session.user.email = token.email || null;
       }
 
       console.log("Session Callback - Session after:", session);
       return session;
     },
   },
-
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
 };
-
-// export const getAuthSession = () => getServerSession(authOptions);

@@ -1,16 +1,17 @@
 // app/api/revalidate/route.js
 export async function GET(request) {
   try {
-    // Force revalidation of the RSS feed
-    const response = await fetch(
-      `${process.env.VERCEL_URL || "http://localhost:3000"}/api/rss`,
-      {
-        cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache",
-        },
-      }
-    );
+    const baseUrl =
+      process.env.NODE_ENV === "production"
+        ? "https://azbytegems.com"
+        : "http://localhost:3000";
+
+    const response = await fetch(`${baseUrl}/api/rss`, {
+      cache: "no-store",
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    });
 
     if (!response.ok) {
       throw new Error("Failed to revalidate RSS feed");

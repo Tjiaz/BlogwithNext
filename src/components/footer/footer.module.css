@@ -21,23 +21,35 @@
   gap: 10px;
 }
 
+.logo img {
+  width: 174px;
+  height: 52px;
+}
+
 .date {
-  font-weight: 200;
-  font-size: medium;
+  font-weight: 300;
+  font-size: 14px;
+  color: #666;
 }
 .currentYear {
-  font-weight: 300;
+  font-weight: 400;
+  color: #333;
 }
 
 .social {
   display: flex;
-  flex: 1;
-  gap: 12px;
-  align-items: center;
+  gap: 15px;
+  margin-top: 10px;
 }
 
 .social_icons {
-  color: #282f32;
+  color: #666;
+  font-size: 20px;
+  transition: color 0.3s ease;
+}
+
+.social_icons:hover {
+  color: #0b73b1;
 }
 .icons {
   margin-top: 10px;
@@ -49,18 +61,32 @@
   flex: 1;
   display: flex;
   justify-content: flex-end;
-  gap: 90px;
+  gap: 100px;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  font-weight: 300;
+  gap: 12px;
 }
 
 .listTitle {
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.link {
+  font-weight: 300;
+  font-size: 14px;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.link:hover {
+  color: #0b73b1;
 }
 
 @media screen and (max-width: 1024px) {

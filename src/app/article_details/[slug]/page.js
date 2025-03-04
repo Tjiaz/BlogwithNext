@@ -84,6 +84,7 @@ export default function ArticleDetails() {
         body: JSON.stringify({
           title: article.title,
           link: articleUrl,
+          author: article.author,
           description: article.description,
           platform: platform, // Add platform information
         }),
@@ -94,6 +95,7 @@ export default function ArticleDetails() {
         if (navigator.share) {
           await navigator.share({
             title: article.title,
+            text: article.author,
             text: article.description,
             url: articleUrl,
           });
@@ -147,9 +149,9 @@ export default function ArticleDetails() {
       <div className={styles.articleInfo}>
         <div className={styles.textContainer1}>
           <h1>{article.title}</h1>
-          <i>{article.description}</i>
-          <p>
-            By <b>{article.author}</b> on {article.date}
+          <p className={styles.meta}>
+            By <span className={styles.author}>{article.author}</span> on{" "}
+            <span className={styles.date}>{article.date}</span>
           </p>
           <div className={styles.socialLink}>
             <button
@@ -176,7 +178,7 @@ export default function ArticleDetails() {
               <BsTwitterX className={styles.xIcon} />
             </button>
           </div>
-          <hr style={{ color: "#cccccc" }} />
+          <hr className={styles.divider} />
           {typeof article.content === "string" ? (
             // For string content (HTML)
             <div
@@ -196,6 +198,7 @@ export default function ArticleDetails() {
                     layout="responsive"
                     width={700}
                     height={475}
+                    className={styles.sectionImage}
                   />
                 ) : (
                   <Image
@@ -206,7 +209,7 @@ export default function ArticleDetails() {
                   />
                 )}
 
-                <h2>{section.heading}</h2>
+                <h2 className={styles.sectionHeading}>{section.heading}</h2>
                 {section.paragraphs.map((para, i) => (
                   <p key={i} className={styles.paragraphs}>
                     {para}
@@ -215,12 +218,6 @@ export default function ArticleDetails() {
               </div>
             ))
           )}
-          <p>
-            <strong>Author:</strong> {article.author}
-          </p>
-          <p>
-            <strong>Date:</strong> {article.date}
-          </p>
         </div>
         <div className={styles.textContainer2}>
           <div className={styles.searchContainer}>
@@ -234,37 +231,28 @@ export default function ArticleDetails() {
           <div className={styles.advertImgContainer}>
             <Image
               src="/ads2.gif"
-              alt="advert"
-              width={100}
-              height={100}
+              alt="Advert"
+              width={300}
+              height={250}
               className={styles.advertImg}
             />
-            <Link href="/">Adverts</Link>
           </div>
-          <div>
-            <h3>Latest Posts</h3>
-            <div
-              style={{ display: "flex", width: "100%", marginBottom: "20px" }}
-            >
-              <div
-                style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
-              ></div>
-              <div
-                style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}
-              ></div>
-            </div>
-            <div className={styles.topPosts}>
-              <ol className={styles.noListStyle}>
-                {latestPosts && latestPosts.length > 0 ? (
-                  latestPosts.map((post) => (
-                    <li key={post._id} className={styles.listItem}>
-                      <Link href={`/post/${post._id}`}>{post.title}</Link>
-                    </li>
-                  ))
-                ) : (
-                  <li>No top posts found.</li>
-                )}
-              </ol>
+          <div className={styles.latestPosts}>
+            <h3 className={styles.latestPostsTitle}>Latest Posts</h3>
+            <div className={styles.latestPostsList}>
+              {latestPosts?.length > 0 ? (
+                latestPosts.map((post) => (
+                  <Link
+                    href={`/post/${post._id}`}
+                    key={post._id}
+                    className={styles.postItem}
+                  >
+                    {post.title}
+                  </Link>
+                ))
+              ) : (
+                <p>No posts found.</p>
+              )}
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 .items {
-  flex-direction: column;
   display: flex;
-  gap: 30px;
+  flex-direction: column;
+  gap: 20px;
   margin-bottom: 40px;
   margin-top: 20px;
 }
@@ -10,66 +10,66 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  border-bottom: 1px solid #f2f2f2;
-  padding-bottom: 5px;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
-.textContainer {
-  flex: 5;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .imageContainer {
   flex: 1;
   position: relative;
   aspect-ratio: 1/1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #e0e0e0;
 }
 
-.topic {
-  font-size: 14px;
-  font-weight: 500;
-  text-align: left;
+.image {
+  object-fit: cover;
 }
 
-.postTitle {
-  font-size: 12px;
-  font-weight: 250;
-  color: var(--softTextColor);
-}
-
-.detail {
+.textContainer {
+  flex: 5;
   display: flex;
-  flex-direction: row;
-  gap: 12px;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .category {
-  padding: 3px 8px;
-  border-radius: 10px;
+  padding: 5px 10px;
+  border-radius: 15px;
   font-size: 12px;
+  font-weight: 500;
   width: max-content;
+  color: #fff;
+  background-color: #0b73b1; /* Default background color */
 }
 
 .category.career_advice {
-  background-color: #57c4ff31;
+  background-color: #57c4ff;
 }
 
 .category.data_engineering {
-  background-color: #da85c731;
+  background-color: #da85c7;
 }
 
 .category.data_science {
-  background-color: #7fb88133;
+  background-color: #7fb881;
 }
 
 .category.sql {
-  background-color: #ff795736;
+  background-color: #ff7957;
 }
 
 .category.language_models {
-  background-color: #ffb04f45;
+  background-color: #ffb04f;
 }
 
 .category.machine_learning {
@@ -85,32 +85,90 @@
 }
 
 .category.default {
-  background-color: #cccccc33;
-  color: #fff;
+  background-color: #cccccc;
+  color: #333;
 }
 
-.date {
-  color: grey;
+.postTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
 }
 
 .detail {
+  display: flex;
+  gap: 10px;
   font-size: 12px;
+  color: #666;
 }
 
-.image {
-  border-radius: 50%;
-  border: 3px solid lightgrey;
-  object-fit: cover;
+.username {
+  font-weight: 500;
+}
+
+.date {
+  color: #999;
+}
+
+/* Responsive Breakpoints */
+
+@media screen and (max-width: 1024px) {
+  .item {
+    padding: 10px;
+    gap: 15px;
+  }
+
+  .postTitle {
+    font-size: 13px;
+  }
+
+  .category {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .detail {
+    font-size: 11px;
+  }
 }
 
 @media screen and (max-width: 768px) {
   .item {
-    display: none;
+    display: flex; /* Show on mobile */
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .postTitle {
+    font-size: 12px;
+  }
+
+  .category {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .detail {
+    font-size: 10px;
   }
 }
 
 @media screen and (max-width: 640px) {
   .item {
-    display: none;
+    padding: 6px;
+    gap: 8px;
+  }
+
+  .postTitle {
+    font-size: 11px;
+  }
+
+  .category {
+    font-size: 9px;
+    padding: 2px 5px;
+  }
+
+  .detail {
+    font-size: 9px;
   }
 }

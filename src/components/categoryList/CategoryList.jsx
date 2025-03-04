@@ -11,7 +11,7 @@ import MenuPostCard from "../menuPosts/MenuPostCard";
 const CategoryList = () => {
   const [moreRecentPosts, setMoreRecentPosts] = useState([]);
   const [menuPosts, setMenuPosts] = useState([]);
-  const [loading, setLoading] = useState(true); // Added loading state
+  const [loading, setLoading] = useState(true);
   const searchParam = useSearchParams();
   const moreParam = searchParam.get("page");
   const page = parseInt(moreParam) || 1;
@@ -21,16 +21,15 @@ const CategoryList = () => {
       try {
         const response = await fetch(`/api/moreRecent_articles?page=${page}`);
         const data = await response.json();
-        console.log("Fetched data:", data);
         if (Array.isArray(data)) {
-          setMoreRecentPosts(data); // If already an array, use it directly
+          setMoreRecentPosts(data);
         } else {
           console.error("Unexpected data format", data);
         }
       } catch (error) {
         console.error("Failed to fetch more recent articles", error);
       } finally {
-        setLoading(false); // Ensure loading state is updated
+        setLoading(false);
       }
     }
     fetchRecentPosts();
@@ -41,17 +40,15 @@ const CategoryList = () => {
       try {
         const response = await fetch(`/api/categories?page=${page}`);
         const data = await response.json();
-        console.log("Fetched data:", data);
-
         if (Array.isArray(data)) {
-          setMenuPosts(data); // If already an array, use it directly
+          setMenuPosts(data);
         } else {
           console.error("Unexpected data format", data);
         }
       } catch (error) {
         console.error("Failed to fetch articles", error);
       } finally {
-        setLoading(false); // Ensure loading state is updated
+        setLoading(false);
       }
     }
     fetchMenuArticles();
@@ -62,7 +59,9 @@ const CategoryList = () => {
       <div className={styles.recentContainer1}>
         <div className={styles.category}>
           <h3 className={styles.title}>More Recent Posts</h3>
-          {moreRecentPosts.length > 0 ? (
+          {loading ? (
+            <p>Loading...</p>
+          ) : moreRecentPosts.length > 0 ? (
             moreRecentPosts.map((item) => (
               <CatCard
                 key={item.id}
@@ -81,7 +80,9 @@ const CategoryList = () => {
       <div className={styles.recentContainer2}>
         <div className={styles.menuContainer}>
           <h2>Most Popular Articles</h2>
-          {menuPosts.length > 0 ? (
+          {loading ? (
+            <p>Loading...</p>
+          ) : menuPosts.length > 0 ? (
             menuPosts.map((post) => (
               <MenuPostCard
                 key={post._id}
