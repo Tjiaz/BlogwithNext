@@ -1,4 +1,5 @@
 // pages/linkedin-test.js
+"use client";
 import { useState } from "react";
 
 export default function LinkedInTest() {
