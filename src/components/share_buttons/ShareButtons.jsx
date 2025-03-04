@@ -1,6 +1,6 @@
 // components/ShareButtons.jsx
 import { FaTwitter, FaFacebookF } from "react-icons/fa";
-import styles from "./ShareButtons.module.css";
+import styles from "./shareButtons.module.css";
 
 const ShareButtons = ({ post, isTopPostPage = false }) => {
   const baseUrl = "https://azbytegems.com";
