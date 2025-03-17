@@ -4,16 +4,22 @@ import axios from "axios";
 
 export async function GET(request) {
   try {
+    // Safely parse the URL
+    const url = new URL(request.url, `https://${request.headers.get("host")}`);
+
+    console.log("Full Request URL:", url.toString());
     console.log("Callback Environment Debug:", {
       clientId: process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID,
-      clientSecret: process.env.LINKEDIN_CLIENT_SECRET ? "Present" : "Missing",
+      clientSecretPresent: process.env.LINKEDIN_CLIENT_SECRET
+        ? "Present"
+        : "Missing",
       nodeEnv: process.env.NODE_ENV,
+      host: request.headers.get("host"),
     });
 
-    const { searchParams } = new URL(request.url);
-    const code = searchParams.get("code");
-    const state = searchParams.get("state");
-    const error = searchParams.get("error");
+    const code = url.searchParams.get("code");
+    const state = url.searchParams.get("state");
+    const error = url.searchParams.get("error");
 
     // Extensive logging
     console.log("Callback Received Parameters:", {
@@ -77,8 +83,10 @@ export async function GET(request) {
 
       const { access_token, expires_in } = tokenResponse.data;
 
-      // Redirect back to the main page with the token
-      const redirectUrl = new URL(process.env.NEXT_PUBLIC_DOMAIN);
+      // Construct redirect URL more safely
+      const redirectUrl = new URL(
+        process.env.NEXT_PUBLIC_DOMAIN || "https://yourdomain.com"
+      );
       redirectUrl.searchParams.set("linkedin_success", "true");
       redirectUrl.searchParams.set("access_token", access_token);
       redirectUrl.searchParams.set("expires_in", expires_in.toString());
@@ -92,7 +100,9 @@ export async function GET(request) {
       });
 
       // Redirect with error details
-      const redirectUrl = new URL(process.env.NEXT_PUBLIC_DOMAIN);
+      const redirectUrl = new URL(
+        process.env.NEXT_PUBLIC_DOMAIN || "https://yourdomain.com"
+      );
       redirectUrl.searchParams.set(
         "linkedin_error",
         encodeURIComponent(
@@ -109,7 +119,9 @@ export async function GET(request) {
     });
 
     // Redirect with general error
-    const redirectUrl = new URL(process.env.NEXT_PUBLIC_DOMAIN);
+    const redirectUrl = new URL(
+      process.env.NEXT_PUBLIC_DOMAIN || "https://yourdomain.com"
+    );
     redirectUrl.searchParams.set(
       "linkedin_error",
       encodeURIComponent(error.message)
