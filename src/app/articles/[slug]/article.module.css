@@ -1,5 +1,7 @@
 .container {
   margin-top: 90px;
+  padding: 20px;
+  background-color: var(--softBg);
 }
 
 .advertsContainer {
@@ -8,9 +10,12 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  max-width: 1536px; /* Match your body max-width */
-  padding-top: 40px;
-  margin: 0 auto; /* Center the container */
+  max-width: 1536px;
+  margin: 0 auto;
+  padding: 20px 0;
+  background-color: var(--cardBg);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .imageadvert {
@@ -48,6 +53,9 @@
   display: flex;
   align-content: center;
   gap: 50px;
+}
+.paragraph {
+  color: var(--softTextColor);
 }
 
 .topPosts {

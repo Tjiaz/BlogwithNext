@@ -21,4 +21,16 @@
   .container {
     display: none;
   }
+  .title {
+    font-size: 1.3em;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .container {
+    display: none;
+  }
+  .title {
+    font-size: 1.2em;
+  }
 }

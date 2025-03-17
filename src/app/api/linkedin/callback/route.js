@@ -1,57 +1,120 @@
-// src/app/api/linkedin/callback/route.js
+// app/api/linkedin/callback/route.js
 import { NextResponse } from "next/server";
 import axios from "axios";
 
-// Hypothetical function to get session data
-import { getSessionData } from "@/utils/session";
-
 export async function GET(request) {
   try {
+    console.log("Callback Environment Debug:", {
+      clientId: process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID,
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET ? "Present" : "Missing",
+      nodeEnv: process.env.NODE_ENV,
+    });
+
     const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");
     const state = searchParams.get("state");
+    const error = searchParams.get("error");
 
+    // Extensive logging
+    console.log("Callback Received Parameters:", {
+      code: code ? "Present" : "Missing",
+      state: state ? "Present" : "Missing",
+      error: error || "No error",
+    });
+
+    // Validate inputs
     if (!code) {
-      return NextResponse.json(
-        { error: "Authorization code missing" },
-        { status: 400 }
+      console.error("No authorization code received");
+      return NextResponse.redirect(
+        new URL(`${process.env.NEXT_PUBLIC_DOMAIN}?linkedin_error=no_code`)
       );
     }
 
-    // Retrieve the stored state from your session or other server-side storage
-    const storedState = await getSessionData("linkedin_oauth_state");
+    // Determine redirect URI
+    const redirectUri =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000/api/linkedin/callback"
+        : `${process.env.NEXT_PUBLIC_DOMAIN}/api/linkedin/callback`;
 
-    if (state !== storedState) {
-      return NextResponse.json(
-        { error: "Invalid state parameter" },
-        { status: 403 }
+    // Validate client credentials
+    const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
+    const clientSecret = process.env.LINKEDIN_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      console.error("Missing LinkedIn Credentials", {
+        clientIdPresent: !!clientId,
+        clientSecretPresent: !!clientSecret,
+      });
+      return NextResponse.redirect(
+        new URL(
+          `${process.env.NEXT_PUBLIC_DOMAIN}?linkedin_error=missing_credentials`
+        )
       );
     }
 
     // Exchange code for access token
-    const tokenResponse = await axios({
-      method: "POST",
-      url: "https://www.linkedin.com/oauth/v2/accessToken",
-      params: {
-        grant_type: "authorization_code",
-        code,
-        client_id: process.env.LINKEDIN_CLIENT_ID,
-        client_secret: process.env.LINKEDIN_CLIENT_SECRET,
-        redirect_uri: process.env.NEXT_PUBLIC_DOMAIN + "/api/linkedin/callback",
-      },
-    });
+    try {
+      const tokenResponse = await axios({
+        method: "POST",
+        url: "https://www.linkedin.com/oauth/v2/accessToken",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        data: new URLSearchParams({
+          grant_type: "authorization_code",
+          code: code,
+          client_id: clientId.trim(), // Ensure no whitespace
+          client_secret: clientSecret.trim(),
+          redirect_uri: redirectUri,
+        }).toString(),
+      });
 
-    const { access_token, expires_in } = tokenResponse.data;
+      console.log("Token Exchange Debug:", {
+        status: tokenResponse.status,
+        accessTokenPresent: !!tokenResponse.data.access_token,
+        expiresIn: tokenResponse.data.expires_in,
+      });
 
-    // Store the token (implement your storage solution)
-    // For now, we'll just return it
-    return NextResponse.json({
-      success: true,
-      access_token,
-      expires_in,
-    });
+      const { access_token, expires_in } = tokenResponse.data;
+
+      // Redirect back to the main page with the token
+      const redirectUrl = new URL(process.env.NEXT_PUBLIC_DOMAIN);
+      redirectUrl.searchParams.set("linkedin_success", "true");
+      redirectUrl.searchParams.set("access_token", access_token);
+      redirectUrl.searchParams.set("expires_in", expires_in.toString());
+
+      return NextResponse.redirect(redirectUrl);
+    } catch (tokenError) {
+      console.error("Token Exchange Detailed Error:", {
+        message: tokenError.message,
+        response: tokenError.response?.data,
+        status: tokenError.response?.status,
+      });
+
+      // Redirect with error details
+      const redirectUrl = new URL(process.env.NEXT_PUBLIC_DOMAIN);
+      redirectUrl.searchParams.set(
+        "linkedin_error",
+        encodeURIComponent(
+          tokenError.response?.data?.error || tokenError.message
+        )
+      );
+
+      return NextResponse.redirect(redirectUrl);
+    }
   } catch (error) {
-    console.error("LinkedIn callback error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Overall LinkedIn Callback Error:", {
+      message: error.message,
+      stack: error.stack,
+    });
+
+    // Redirect with general error
+    const redirectUrl = new URL(process.env.NEXT_PUBLIC_DOMAIN);
+    redirectUrl.searchParams.set(
+      "linkedin_error",
+      encodeURIComponent(error.message)
+    );
+
+    return NextResponse.redirect(redirectUrl);
   }
 }

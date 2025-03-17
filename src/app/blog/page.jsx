@@ -13,6 +13,9 @@ import {
   FaYoutube,
 } from "react-icons/fa";
 import ShareButtons from "@/components/share_buttons/ShareButtons";
+import Head from "next/head";
+
+
 
 const BlogPage = () => {
   const [loading, setLoading] = useState(true);
@@ -83,7 +86,7 @@ const BlogPage = () => {
 
   // Function to create share URLs
   const createShareUrl = (post, platform) => {
-    const baseUrl = "https://azbytegems.com"; // Replace with your domain
+    const baseUrl = "https://azbytegems.com";
     const postUrl = `${baseUrl}/article_details/${post.id}`;
     const title = encodeURIComponent(post.title);
     const description = encodeURIComponent(post.description || "");
@@ -96,7 +99,7 @@ const BlogPage = () => {
       case "facebook":
         return `https://www.facebook.com/dialog/share?app_id=2707427479445138&href=${encodeURIComponent(
           postUrl
-        )}&quote=${title}`;
+        )}`;
       case "linkedin":
         return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
           postUrl
@@ -151,7 +154,7 @@ const BlogPage = () => {
             >
               <FaTwitter />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a href="#" className={`${styles.socialmedia} ${styles.linkedin}`}>
               <FaLinkedinIn />
             </a>
             <a href="#" className={styles.socialmedia}>

@@ -2,17 +2,17 @@
 import { TwitterApi } from "twitter-api-v2";
 import axios from "axios";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/utils/auth";
+import { cookies } from "next/headers";
 
 export async function POST(req) {
   try {
-    const { title, link, description, platform } = await req.json();
+    const { title, link, description, platform, image } = await req.json();
     console.log("Received share request:", {
       title,
       link,
       description,
       platform,
+      image, // Optional image URL
     });
 
     if (platform === "twitter") {
@@ -39,92 +39,39 @@ export async function POST(req) {
       const tweet = await twitterClient.v2.tweet(tweetText);
       console.log("Tweet posted successfully:", tweet);
 
-      return new Response(
-        JSON.stringify({
-          success: true,
-          platform: "twitter",
-          tweetId: tweet.data.id,
-        }),
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return NextResponse.json({
+        success: true,
+        platform: "twitter",
+        tweetId: tweet.data.id,
+      });
     }
 
     if (platform === "facebook") {
-      console.log("Attempting Facebook share...");
+      // Construct a more comprehensive Facebook sharing URL
+      const shareUrl = `https://www.facebook.com/dialog/share?app_id=${
+        process.env.FACEBOOK_APP_ID
+      }&href=${encodeURIComponent(link)}&quote=${encodeURIComponent(title)}`;
 
-      const pageId = process.env.FACEBOOK_PAGE_ID;
-      const accessToken = process.env.FACEBOOK_ACCESS_TOKEN;
+      // Optional: Add Open Graph meta tags for better sharing
+      const ogMetaTags = `
+        <meta property="og:url" content="${link}" />
+        <meta property="og:title" content="${title}" />
+        <meta property="og:description" content="${description || ""}" />
+        <meta property="og:site_name" content="AzByteGems" />
+      `;
 
-      if (!pageId || !accessToken) {
-        throw new Error("Missing Facebook credentials");
-      }
-
-      // Create the post content
-      const postData = {
-        message: `${title}\n\n${description || ""}`,
-        link: link,
-        access_token: accessToken,
-      };
-
-      console.log("Facebook post data:", {
-        pageId,
-        hasToken: !!accessToken,
-        postContent: postData,
+      return NextResponse.json({
+        success: true,
+        platform: "facebook",
+        shareUrl: shareUrl,
+        ogMetaTags: ogMetaTags,
       });
-
-      try {
-        const response = await axios({
-          method: "post",
-          url: `https://graph.facebook.com/v18.0/${pageId}/feed`,
-          data: postData,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        console.log("Facebook API response:", response.data);
-
-        if (!response.data.id) {
-          throw new Error("No post ID returned from Facebook");
-        }
-
-        return new Response(
-          JSON.stringify({
-            success: true,
-            platform: "facebook",
-            postId: response.data.id,
-          }),
-          {
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-      } catch (fbError) {
-        console.error("Facebook API error details:", {
-          status: fbError.response?.status,
-          data: fbError.response?.data,
-          message: fbError.message,
-        });
-
-        throw new Error(
-          fbError.response?.data?.error?.message || "Failed to post to Facebook"
-        );
-      }
     }
 
     if (platform === "linkedin") {
-      console.log("Attempting LinkedIn share...");
-
-      const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
-      const organizationId = process.env.LINKEDIN_ORGANIZATION_ID;
-
-      if (!accessToken || !organizationId) {
-        throw new Error("Missing LinkedIn credentials");
-      }
-
+      const accessToken = req.headers.get("linkedin-access-token");
       const shareContent = {
-        author: `urn:li:organization:${organizationId}`,
+        author: `urn:li:person:${process.env.LINKEDIN_ORGANIZATION_ID}`,
         lifecycleState: "PUBLISHED",
         specificContent: {
           "com.linkedin.ugc.ShareContent": {
@@ -136,12 +83,8 @@ export async function POST(req) {
               {
                 status: "READY",
                 originalUrl: link,
-                title: {
-                  text: title,
-                },
-                description: {
-                  text: description || "",
-                },
+                title: { text: title },
+                description: { text: description || "" },
               },
             ],
           },
@@ -152,17 +95,20 @@ export async function POST(req) {
       };
 
       try {
-        const response = await axios({
-          method: "POST",
-          url: "https://api.linkedin.com/v2/ugcPosts",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-            "X-Restli-Protocol-Version": "2.0.0",
-            "LinkedIn-Version": "202304",
-          },
-          data: shareContent,
-        });
+        const response = await axios.post(
+          "https://api.linkedin.com/v2/ugcPosts",
+          shareContent,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+              "X-Restli-Protocol-Version": "2.0.0",
+              "LinkedIn-Version": "202304",
+            },
+          }
+        );
+
+        console.log("LinkedIn API response:", response.data);
 
         return NextResponse.json({
           success: true,
@@ -170,10 +116,8 @@ export async function POST(req) {
           postId: response.data.id,
         });
       } catch (error) {
-        console.error("LinkedIn API error:", error.response?.data || error);
-        throw new Error(
-          error.response?.data?.message || "Failed to post to LinkedIn"
-        );
+        console.error("LinkedIn share error:", error.response?.data || error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
       }
     }
 

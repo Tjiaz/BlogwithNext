@@ -79,7 +79,7 @@ const CategoryList = () => {
       </div>
       <div className={styles.recentContainer2}>
         <div className={styles.menuContainer}>
-          <h2>Most Popular Articles</h2>
+          <h2 className={styles.title}>Most Popular Articles</h2>
           {loading ? (
             <p>Loading...</p>
           ) : menuPosts.length > 0 ? (

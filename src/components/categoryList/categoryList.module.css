@@ -97,14 +97,15 @@
   display: flex;
   gap: 20px;
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: var(--softBg);
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .recentContainer1 {
   flex: 2.25;
-  background-color: #fff;
+  background-color: var(--cardBg);
+  color: var(--textColor);
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -112,23 +113,29 @@
 
 .recentContainer2 {
   flex: 1;
-  background-color: #fff;
+  background-color: var(--cardBg);
+  color: var(--textColor);
+
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.category {
+  color: var(--textColor);
+}
+
 .title {
   font-size: 1.5em;
   margin-bottom: 20px;
-  color: #333;
+  color: var(--textColor);
   text-decoration: underline;
 }
 
 .subtitle {
   font-size: 1.2em;
   margin: 20px 0;
-  color: #333;
+  color: var(--textColor);
 }
 
 .moreCard {
@@ -148,7 +155,7 @@
 }
 
 .listItem a {
-  color: #0b73b1;
+  color: var(--textColor);
   text-decoration: none;
   font-size: 1em;
 }
@@ -218,17 +225,4 @@
   .listItem a {
     font-size: 0.8em;
   }
-
-@media screen and (max-width: 375px) { 
-
-  
-}
-
-
-
-
-
-
-
-
 }

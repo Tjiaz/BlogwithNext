@@ -12,7 +12,8 @@
   gap: 20px;
   padding: 15px;
   border-radius: 8px;
-  background-color: #fff;
+  background-color: var(--cardBg);
+  color: var(--textColor);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
@@ -48,8 +49,8 @@
   font-size: 12px;
   font-weight: 500;
   width: max-content;
-  color: #fff;
-  background-color: #0b73b1; /* Default background color */
+  background-color: var(--cardBg);
+  color: var(--textColor);
 }
 
 .category.career_advice {
@@ -92,14 +93,14 @@
 .postTitle {
   font-size: 14px;
   font-weight: 600;
-  color: #333;
+  color: var(--textColor);
 }
 
 .detail {
   display: flex;
   gap: 10px;
   font-size: 12px;
-  color: #666;
+  color: var(--textColor);
 }
 
 .username {
@@ -107,7 +108,7 @@
 }
 
 .date {
-  color: #999;
+  color: var(--textColor);
 }
 
 /* Responsive Breakpoints */

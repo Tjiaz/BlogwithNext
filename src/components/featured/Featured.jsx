@@ -176,7 +176,7 @@ const Featured = () => {
       </div>
       <div className={styles.post}>
         <div className={styles.textContainer1}>
-          <h2>Latest Posts</h2>
+          <h2 className={styles.latestPostsTitle}>Latest Posts</h2>
           <div style={{ display: "flex", width: "100%" }}>
             <div
               style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}

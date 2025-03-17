@@ -4,6 +4,24 @@ import styles from "./featured.module.css";
 import Image from "next/image";
 import Link from "next/link";
 import { RiRssFill } from "react-icons/ri";
+import toast from "react-hot-toast";
+
+const useLinkedInShare = (isProcessingLinkedIn, setIsProcessingLinkedIn) => {
+  useEffect(() => {
+    const handleLinkedInCallback = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const linkedinSuccess = params.get("linkedin_success");
+      const accessToken = params.get("access_token");
+      const error = params.get("error");
+
+      if (linkedinSuccess === "true" && accessToken && !isProcessingLinkedIn) {
+        setIsProcessingLinkedIn(true);
+      }
+    };
+
+    handleLinkedInCallback();
+  }, [isProcessingLinkedIn, setIsProcessingLinkedIn]);
+};
 
 const FeaturedCard = ({
   postImg,
@@ -20,10 +38,59 @@ const FeaturedCard = ({
   const [isSharingFacebook, setIsSharingFacebook] = useState(false);
   const [isSharingLinkedIn, setIsSharingLinkedIn] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isProcessingLinkedIn, setIsProcessingLinkedIn] = useState(false);
 
-  const generateState = () => {
-    return crypto.randomUUID();
-  };
+  useEffect(() => {
+    const handleLinkedInCallback = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const linkedinSuccess = params.get("linkedin_success");
+      const accessToken = params.get("access_token");
+      const error = params.get("error");
+
+      if (linkedinSuccess === "true" && accessToken) {
+        try {
+          const storedData = localStorage.getItem("linkedin_share_data");
+          if (!storedData) {
+            throw new Error("No share data found");
+          }
+
+          const shareData = JSON.parse(storedData);
+
+          const response = await fetch("/api/social_share", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "linkedin-access-token": accessToken,
+            },
+            body: JSON.stringify({
+              ...shareData,
+              platform: "linkedin",
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            toast.success("Successfully shared to LinkedIn!");
+          } else {
+            throw new Error(data.error || "Failed to share to LinkedIn");
+          }
+        } catch (error) {
+          console.error("LinkedIn share error:", error);
+          toast.error(`Failed to share to LinkedIn: ${error.message}`);
+        } finally {
+          localStorage.removeItem("linkedin_share_data");
+          window.history.replaceState({}, "", window.location.pathname);
+        }
+      } else if (error) {
+        toast.error(`LinkedIn Error: ${error}`);
+        localStorage.removeItem("linkedin_share_data");
+        window.history.replaceState({}, "", window.location.pathname);
+      }
+    };
+
+    handleLinkedInCallback();
+  }, []);
 
   const shareToTwitter = async () => {
     setIsSharingTwitter(true);
@@ -54,7 +121,7 @@ const FeaturedCard = ({
         throw new Error(data.error || "Failed to share to Twitter");
       }
 
-      alert("Successfully shared to Twitter!");
+      toast.success("Successfully shared to Twitter!");
     } catch (error) {
       console.error("Twitter share error:", error);
       alert("Failed to share to Twitter. Please try again.");
@@ -81,7 +148,7 @@ const FeaturedCard = ({
           title: postTitle,
           link: articleUrl,
           description: postDesc,
-          platform: "facebook", // Pass as string, not object
+          platform: "facebook",
         }),
       });
 
@@ -92,63 +159,78 @@ const FeaturedCard = ({
         throw new Error(data.error || "Failed to share to Facebook");
       }
 
-      alert("Successfully shared to Facebook!");
+      // Ensure shareUrl is present and open the sharing dialog
+      if (data.shareUrl) {
+        // Optional: Inject Open Graph meta tags dynamically
+        if (data.ogMetaTags) {
+          const tempDiv = document.createElement("div");
+          tempDiv.innerHTML = data.ogMetaTags;
+          tempDiv.querySelectorAll("meta").forEach((meta) => {
+            document.head.appendChild(meta);
+          });
+        }
+
+        // Open Facebook sharing dialog
+        const popup = window.open(
+          data.shareUrl,
+          "facebook-share-dialog",
+          "width=626,height=436"
+        );
+
+        // Check if popup was blocked
+        if (!popup || popup.closed || typeof popup.closed == "undefined") {
+          // Fallback method if popup is blocked
+          window.location.href = data.shareUrl;
+        } else {
+          // Focus on the popup
+          popup.focus();
+        }
+
+        toast.success("Opening Facebook sharing dialog");
+      } else {
+        throw new Error("No sharing URL generated");
+      }
     } catch (error) {
       console.error("Facebook share error:", error);
-      alert("Failed to share to Facebook. Please try again.");
+      toast.error(`Failed to share to Facebook: ${error.message}`);
     } finally {
       setIsSharingFacebook(false);
     }
   };
+
   const shareToLinkedIn = async () => {
     setIsSharingLinkedIn(true);
     try {
-      const state = generateState();
-      localStorage.setItem("linkedin_oauth_state", state);
+      // Store the share data before redirect
+      const shareData = {
+        title: postTitle,
+        link: isRssPost
+          ? rssLink
+          : `${window.location.origin}/article_details/${postId}`,
+        description: postDesc,
+      };
+      localStorage.setItem("linkedin_share_data", JSON.stringify(shareData));
+      console.log("Stored share data:", shareData);
 
-      const redirectUri = encodeURIComponent(
-        process.env.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI
-      );
-      const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
-      const scope = "r_liteprofile%20r_emailaddress%20w_member_social";
-      const authorizationUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}&scope=${scope}`;
-
-      window.location.href = authorizationUrl;
-
-      const articleUrl = isRssPost
-        ? rssLink
-        : `${
-            process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
-          }/article_details/${postId}`;
-
-      const response = await fetch("/api/social_share", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: postTitle,
-          link: articleUrl,
-          description: postDesc,
-          platform: "linkedin", // Match the pattern of other platforms
-        }),
-      });
-
+      // Get auth URL
+      const response = await fetch("/api/linkedin/get-auth-url");
       const data = await response.json();
-      console.log("LinkedIn share response:", data);
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to share to LinkedIn");
+      if (data.error) {
+        throw new Error(data.error);
       }
 
-      alert("Successfully shared to LinkedIn!");
+      // Redirect to LinkedIn auth
+      window.location.href = data.authUrl;
     } catch (error) {
       console.error("LinkedIn share error:", error);
-      alert("Failed to share to LinkedIn. Please try again.");
+      toast.error("Failed to initialize LinkedIn sharing: " + error.message);
     } finally {
       setIsSharingLinkedIn(false);
     }
   };
+
+  useLinkedInShare(isProcessingLinkedIn, setIsProcessingLinkedIn);
 
   // Format the date
   const formatDate = (dateString) => {

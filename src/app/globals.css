@@ -31,15 +31,17 @@ a {
 .dark {
   --bg: #0f172a;
   --textColor: #ddd;
-  --siftBg: #1f273a;
+  --softBg: #1f273a;
   --softTextColor: #a6a6a6;
+  --cardBg: #1e293b;
 }
 
 .light {
   --bg: white;
   --textColor: var(--textColor);
-  --sodtBg: #f0f0f0;
+  --softBg: #f0f0f0;
   --softTextColor: #626262;
+  --cardBg: #fff;
 }
 
 .container {
