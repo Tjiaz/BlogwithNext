@@ -12,6 +12,21 @@ import LoadingPlaceholder from "./LoadingPlaceholder";
 
 const POSTS_PER_PAGE = 8;
 
+const extractImageFromContent = (content) => {
+  try {
+    if (!content || typeof content !== "string") return null;
+    const imgMatches = content.match(/<img[^>]+src="([^">]+)"/);
+    if (imgMatches && imgMatches[1]) {
+      return imgMatches[1];
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error extracting image from content:", error);
+    return null;
+  }
+};
+
 const Featured = () => {
   const [state, setState] = useState({
     latestPosts: [],
@@ -38,17 +53,6 @@ const Featured = () => {
       localStorage.setItem("hasVisited", "true");
     }
   }, []);
-
-  const extractImageFromContent = (content) => {
-    try {
-      if (!content || typeof content !== "string") return null;
-      const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
-      return imgMatch ? imgMatch[1] : null;
-    } catch (error) {
-      console.error("Error extracting image from content:", error);
-      return null;
-    }
-  };
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -177,7 +181,7 @@ const Featured = () => {
       <div className={styles.post}>
         <div className={styles.textContainer1}>
           <h2 className={styles.latestPostsTitle}>Latest Posts</h2>
-          <div style={{ display: "flex", width: "100%" }}>
+          <div style={{ display: "flex", width: "100%", marginBottom: "20px" }}>
             <div
               style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
             ></div>

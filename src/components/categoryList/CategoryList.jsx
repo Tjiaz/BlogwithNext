@@ -66,7 +66,7 @@ const CategoryList = () => {
               <CatCard
                 key={item.id}
                 postTitle={
-                  <Link href={`/article_details/${item.id}`} postId={item.id}>
+                  <Link href={`/article_details/${item.id}`} postId={item.id} >
                     {item.title}
                   </Link>
                 }

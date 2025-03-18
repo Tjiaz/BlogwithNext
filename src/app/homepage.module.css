@@ -1,4 +1,6 @@
-.content {
-  display: flex;
-  gap: 50px;
+@media screen and (max-width: 768px) {
+  .container {
+    padding: 0; /* Remove any additional padding */
+    margin: 0; /* Remove any additional margin */
+  }
 }

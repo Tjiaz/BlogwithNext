@@ -23,6 +23,57 @@ const useLinkedInShare = (isProcessingLinkedIn, setIsProcessingLinkedIn) => {
   }, [isProcessingLinkedIn, setIsProcessingLinkedIn]);
 };
 
+const SafeImage = ({ src, alt, ...props }) => {
+  const [imgSrc, setImgSrc] = useState(src);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    // Validate image URL
+    const validateAndSetImage = async (src) => {
+      try {
+        // Skip validation for default image
+        if (!src || src === "/azbyte.jpeg") return;
+
+        const response = await fetch(src, {
+          method: "HEAD",
+          mode: "cors",
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+        if (!response.ok) {
+          console.warn(`Image validation failed: ${src}`);
+          setImgSrc("/azbyte.jpeg");
+          setError(true);
+        }
+      } catch (error) {
+        console.error("Image Validation Error:", {
+          url: src,
+          error: error.message,
+        });
+        setImgSrc("/azbyte.jpeg");
+        setError(true);
+      }
+    };
+    validateAndSetImage();
+  }, [src]);
+
+  return (
+    <Image
+      src={imgSrc || "/azbyte.jpeg"}
+      alt={alt}
+      fill
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      className={styles.image}
+      onError={() => {
+        setImgSrc("/azbyte.jpeg");
+        setError(true);
+      }}
+      {...props}
+    />
+  );
+};
+
 const FeaturedCard = ({
   postImg,
   postDesc,
@@ -271,50 +322,6 @@ const FeaturedCard = ({
     }
   };
 
-  // Image handling component with error boundary
-  const SafeImage = ({ src, alt, ...props }) => {
-    const [imgSrc, setImgSrc] = useState(src);
-    const [error, setError] = useState(false);
-
-    useEffect(() => {
-      // Validate image URL
-      const validateImage = async (url) => {
-        try {
-          const response = await fetch(url, { method: "HEAD" });
-          if (
-            !response.ok ||
-            !response.headers.get("content-type")?.includes("image")
-          ) {
-            throw new Error("Invalid image");
-          }
-        } catch {
-          setImgSrc("/azbyte.jpeg");
-          setError(true);
-        }
-      };
-
-      if (src && src !== "/azbyte.jpeg") {
-        validateImage(src);
-      }
-    }, [src]);
-
-    if (error || !imgSrc) {
-      return <Image src="/azbyte.jpeg" alt={alt} {...props} />;
-    }
-
-    return (
-      <Image
-        src={imgSrc}
-        alt={alt}
-        {...props}
-        onError={() => {
-          setImgSrc("/azbyte.jpeg");
-          setError(true);
-        }}
-      />
-    );
-  };
-
   // Determine the link based on post type
   const PostLink = ({ children }) => {
     if (isRssPost) {
@@ -339,14 +346,12 @@ const FeaturedCard = ({
   return (
     <div className={styles.articleCard}>
       <div className={styles.postImage}>
-        {!imageLoaded && <div className={styles.imagePlaceholder} />}
         <SafeImage
-          src={postImg}
+          src={postImg || "/azbyte.jpeg"}
           alt={postTitle}
-          fill
-          className={styles.image}
-          onLoad={() => setImageLoaded(true)}
-          loading="lazy"
+          priority={false}
+          placeholder="blur"
+          blurDataURL="/azbyte.jpeg"
         />
       </div>
       <div className={styles.postContent}>

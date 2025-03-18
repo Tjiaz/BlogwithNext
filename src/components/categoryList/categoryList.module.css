@@ -1,103 +1,8 @@
-/* .container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.title {
-  margin: 10px 0px;
-  text-decoration: underline;
-}
-
-.moreCard {
-  display: flex;
-  margin: 0 auto;
-  border-bottom: 1px solid #f2f2f2;
-}
-
-.morePost {
-  margin: 40px 0;
-}
-.recentContainer1 {
-  display: flex;
-  flex: 2.25;
-  gap: 20px;
-}
-.recentContainer2 {
-  display: flex;
-  flex: 1;
-  border-left: 1px solid #f2f2f2;
-  padding-left: 20px;
-}
-.menuCardContainer {
-  display: flex;
-  flex: 1;
-}
-.listStyle {
-  margin: 10px 0;
-}
-.listItem {
-  padding-bottom: 10px;
-}
-.listItem:hover {
-  text-decoration: underline;
-}
-
-@media screen and (max-width: 1280px) {
-  .recentContainer1 {
-    display: flex;
-    flex: 2.25;
-    gap: 10px;
-  }
-  .recentContainer2 {
-    display: flex;
-    flex: 1;
-    border-left: 1px solid #f2f2f2;
-    padding-left: 20px;
-  }
-}
-@media screen and (max-width: 1024px) {
-  .recentContainer1 {
-    display: flex;
-    flex: 2.25;
-    gap: 10px;
-  }
-  .recentContainer2 {
-    display: flex;
-    flex: 1;
-    border-left: 1px solid #f2f2f2;
-    padding-left: 20px;
-  }
-}
-@media screen and (max-width: 768px) {
-  .category {
-    width: 25%;
-  }
-}
-@media screen and (max-width: 768px) {
-  .category {
-    width: 45%;
-  }
-  .recentContainer2 {
-    display: none;
-  }
-}
-@media screen and (max-width: 640px) {
-  .category {
-    width: 100%;
-    margin: 0 12px;
-  }
-  .recentContainer2 {
-    display: none;
-  }
-} */
-
 .container {
   display: flex;
   gap: 20px;
   padding: 20px;
-  background-color: var(--softBg);
+
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -126,8 +31,9 @@
 }
 
 .title {
-  font-size: 1.5em;
-  margin-bottom: 20px;
+  font-size: 1.75rem;
+  line-height: 1.4;
+  margin-bottom: 15px;
   color: var(--textColor);
   text-decoration: underline;
 }
@@ -193,14 +99,17 @@
 @media screen and (max-width: 768px) {
   .title {
     font-size: 1.3em;
+    font-weight: 400;
   }
-
+  .link {
+    font-size: 1.25em;
+  }
   .subtitle {
-    font-size: 1.1em;
+    font-size: 1.35em;
   }
 
   .listItem a {
-    font-size: 0.9em;
+    font-size: 1em;
   }
 }
 
@@ -215,11 +124,11 @@
   }
 
   .title {
-    font-size: 1.2em;
+    font-size: 1.3em;
   }
 
   .subtitle {
-    font-size: 1em;
+    font-size: 1.2em;
   }
 
   .listItem a {
