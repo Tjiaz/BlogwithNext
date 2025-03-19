@@ -31,7 +31,7 @@ export async function GET() {
     for (const feedUrl of RSS_FEEDS) {
       try {
         const feed = await parser.parseURL(feedUrl);
-        console.log(feed);
+
         const articles = feed.items.map((item) => ({
           title: item.title?.trim(),
           description: item.contentSnippet || item.description,
@@ -85,14 +85,6 @@ export async function GET() {
       const dateA = new Date(a.date || a.pubDate || a.isoDate);
       const dateB = new Date(b.date || b.pubDate || b.isoDate);
       return dateB - dateA;
-    });
-
-    console.log(`Returning ${sortedArticles.length} articles`);
-    console.log("Sample article dates:", {
-      title: sortedArticles[0]?.title,
-      date: sortedArticles[0]?.date,
-      pubDate: sortedArticles[0]?.pubDate,
-      isoDate: sortedArticles[0]?.isoDate,
     });
 
     // Return with strict no-cache headers

@@ -5,7 +5,6 @@ const client = new MongoClient(uri);
 
 export async function GET(req, { params }) {
   const articleSlug = params.slug;
-  console.log("Article slug:", JSON.stringify(articleSlug, null, 2));
 
   if (!articleSlug) {
     return new Response(JSON.stringify({ message: "No articleID provided" }), {
@@ -15,13 +14,11 @@ export async function GET(req, { params }) {
 
   try {
     await client.connect();
-    console.log("Connected to MongoDB successfully.");
 
     const collection = client.db("ARTICLES").collection("Topic");
     const topic = await collection.findOne({
       "articles._id": new ObjectId(articleSlug),
     });
-    console.log("Fetched topic:", topic);
 
     if (!topic || !topic.articles || topic.articles.length === 0) {
       console.error("No articles found.");

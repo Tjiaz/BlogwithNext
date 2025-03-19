@@ -36,20 +36,14 @@ export async function GET(req, { params }) {
   const collectionName = "Topic";
   // const collectionName = `${slug}_articles`;
 
-  console.log("Received slug:", slug);
-
   try {
     const client = await connectToDatabase();
-    console.log("Connected to MongoDB successfully.");
 
     const db = client.db(databaseName);
-    console.log(`Using database: ${databaseName}`);
 
     const collection = db.collection(collectionName);
-    console.log(`Fetching from collection: ${collectionName}`);
 
     const topic = await collection.findOne({ name: `${slug}_articles` });
-    console.log("Fetched topic:", topic);
 
     if (!topic || !topic.articles || topic.articles.length === 0) {
       console.error("No articles found.");

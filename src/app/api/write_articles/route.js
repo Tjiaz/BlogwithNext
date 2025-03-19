@@ -2,23 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
 import prisma from "@/utils/connect";
 import { authOptions } from "@/utils/auth";
-import { MongoClient } from "mongodb";
-
-// Map to ensure consistent collection names
-const TOPIC_COLLECTION_MAP = {
-  nlp: "NLP_articles",
-  ai: "Artificial_intelligence_articles",
-  career_advice: "career_advice_articles",
-  computer_vision: "computer_vision_articles",
-  data_engineer: "data_engineer_articles",
-  data_science: "data_science_articles",
-  language_model: "language_model_articles",
-  machine_learning: "machine_learning_articles",
-  machine_learning_ops: "machine_learning_ops_articles",
-  programming: "programming_articles",
-  python: "py_articles",
-  sql: "SQL_articles",
-};
+import { MongoClient, ObjectId } from "mongodb";
 
 export async function POST(req) {
   try {
@@ -41,13 +25,6 @@ export async function POST(req) {
       );
     }
 
-    // Get the correct collection name from the map
-    const collectionName = TOPIC_COLLECTION_MAP[topic.toLowerCase()];
-
-    if (!collectionName) {
-      return NextResponse.json({ message: "Invalid topic" }, { status: 400 });
-    }
-
     // Find the user
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
@@ -64,10 +41,23 @@ export async function POST(req) {
     try {
       await mongoClient.connect();
       const db = mongoClient.db("ARTICLES");
-      const collection = db.collection(collectionName);
+      const topicsCollection = db.collection("Topic");
+
+      // Find the topic document
+      const topicDocument = await topicsCollection.findOne({
+        name: `${topic.toLowerCase()}_articles`,
+      });
+
+      if (!topicDocument) {
+        return NextResponse.json(
+          { message: "Topic not found" },
+          { status: 404 }
+        );
+      }
 
       // Create the new article document
       const articleDocument = {
+        _id: new ObjectId(),
         title,
         description,
         content,
@@ -77,12 +67,25 @@ export async function POST(req) {
           year: "numeric",
         }),
         author: session.user.email,
-        filtered_images: [], // Add if you have images
+        filtered_images: [],
         createdAt: new Date(),
+        content: [
+          {
+            heading: title,
+            paragraphs: [description],
+          },
+        ],
       };
 
-      // Insert the article into the appropriate collection
-      const result = await collection.insertOne(articleDocument);
+      // Update the topic document by pushing the new article
+      const result = await topicsCollection.updateOne(
+        { _id: topicDocument._id },
+        {
+          $push: {
+            articles: articleDocument,
+          },
+        }
+      );
 
       // Also create the article in Prisma (if you still want to maintain this)
       const prismaArticle = await prisma.article.create({
@@ -101,7 +104,7 @@ export async function POST(req) {
       return NextResponse.json(
         {
           message: "Article published successfully",
-          mongoId: result.insertedId,
+          mongoId: articleDocument._id,
           prismaId: prismaArticle.id,
         },
         { status: 201 }
