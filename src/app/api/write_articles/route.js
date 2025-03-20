@@ -61,11 +61,7 @@ export async function POST(req) {
         title,
         description,
         content,
-        date: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
+        date: new Date().toISOString(),
         author: session.user.email,
         filtered_images: [],
         createdAt: new Date(),
@@ -95,7 +91,7 @@ export async function POST(req) {
           content:
             typeof content === "object" ? JSON.stringify(content) : content,
           topic: topic.toLowerCase(),
-          date: new Date(),
+          date: new Date().toISOString(),
           author: session.user.email,
           userId: user.id,
         },

@@ -154,7 +154,7 @@ const Write = () => {
           <option value="computer_vision">Computer Vision</option>
           <option value="data_engineer">Data Engineering</option>
           <option value="data_science">Data Science</option>
-          <option value="language_model">Language Models</option>
+          <option value="language_models">Language Models</option>
           <option value="machine_learning">Machine Learning</option>
           <option value="machine_learning_ops">MLOps</option>
           <option value="nlp">NLP</option>

@@ -16,7 +16,7 @@ if (!process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID) {
 }
 
 export const metadata = {
-  title: "AzByteGems Blog App",
+  title: "AzByteGems:Empowering Innovation with Data and Technology",
   description: "Ease Path in Tech!",
 };
 

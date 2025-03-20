@@ -1,7 +1,6 @@
 .container {
   margin-top: 90px;
   padding: 20px;
-  background-color: var(--softBg);
 }
 
 .advertsContainer {
@@ -13,7 +12,7 @@
   max-width: 1536px;
   margin: 0 auto;
   padding: 20px 0;
-  background-color: var(--cardBg);
+
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -22,19 +21,22 @@
   height: 100px;
   position: relative;
   width: 70vw;
-  max-width: 1000px; /* Set a maximum width for large screens */
+  max-width: 1000px;
   display: block;
   margin: 0 auto;
 }
 
 .advert {
   width: 70vw;
-  max-width: 1000px; /* Match the imageadvert max-width */
-  font-size: small;
-  text-decoration: underline;
+  max-width: 1000px;
+  font-size: 14px;
+  color: #0b73b1;
   text-align: center;
-  padding-left: 0;
-  margin: 0 auto;
+  margin-top: 10px;
+  text-decoration: none;
+}
+.advert:hover {
+  text-decoration: underline;
 }
 
 .advertImgContainer {

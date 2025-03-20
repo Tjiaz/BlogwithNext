@@ -1,7 +1,6 @@
 .container {
   margin-top: 90px;
   padding: 20px;
-  background-color: var(--softBg);
 }
 
 .advertsContainer {
@@ -11,11 +10,11 @@
   justify-content: center;
   width: 100%;
   max-width: 1536px;
+
   margin: 0 auto;
   padding: 20px 0;
-  background-color: var(--cardBg);
-  border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
 }
 .imageadvert {
   height: 100px;
@@ -41,7 +40,6 @@
 
 .textContainer1,
 .textContainer2 {
-  background-color: var(--softBg);
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);

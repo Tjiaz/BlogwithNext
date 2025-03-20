@@ -1,88 +1,42 @@
-// import { MongoClient } from "mongodb";
-
-// const uri = process.env.DATABASE_URL;
-// const client = new MongoClient(uri);
-
-// export async function GET(req) {
-//   const { searchParams } = new URL(req.url);
-//   const page = parseInt(searchParams.get("page"), 10) || 1;
-//   const limit = 8;
-//   const skip = (page - 1) * limit;
-//   const databaseName = "ARTICLES";
-
-//   try {
-//     await client.connect();
-//     const collection = client.db(databaseName).collection("Topic");
-
-//     // Fetch all articles from the Topic collection
-//     const topics = await collection.find().toArray();
-
-//     if (!Array.isArray(topics)) {
-//       throw new Error("Expected an array of topics");
-//     }
-//     console.log("=== DEBUGGING ARTICLE RETRIEVAL ===");
-//     console.log(`Total Topics Found: ${topics.length}`);
-
-//     let results = [];
-//     let seenArticles = new Set();
-
-//     // Combine articles from all topics
-//     topics.forEach((topic) => {
-//       if (Array.isArray(topic.articles)) {
-//         console.log("Articles in this topic:", topic.articles.length);
-//         topic.articles.forEach((article) => {
-//           const articleKey = `${article.title}-${article.date}`;
-//           if (!seenArticles.has(articleKey)) {
-//             seenArticles.add(articleKey);
-
-//             results.push({
-//               ...article,
-//               topic: topic.name,
-//             });
-//           }
-//         });
-//       }
-//     });
-
-//     // Sort all combined articles by date
-//     results.sort((a, b) => {
-//       const dateA = new Date(a.date);
-//       const dateB = new Date(b.date);
-
-//       return dateB - dateA;
-//     });
-
-//     // Apply pagination after deduplication
-//     const paginatedArticles = results.slice(skip, skip + limit);
-
-//     // Process the results
-//     const processedResults = paginatedArticles.map((article) => ({
-//       filtered_images: article.filtered_images,
-//       title: article.title,
-//       description: article.description,
-//       author: article.author,
-//       date: article.date,
-//       content: article.content,
-//       topic: article.topic,
-//       id: article._id.toString(),
-//     }));
-
-//     return new Response(JSON.stringify(processedResults), { status: 200 });
-//   } catch (error) {
-//     console.error("Error fetching articles:", error);
-//     return new Response(
-//       JSON.stringify({ message: "Error fetching articles" }),
-//       { status: 500 }
-//     );
-//   } finally {
-//     await client.close();
-//   }
-// }
-
-import { MongoClient, ObjectId } from "mongodb";
+import { MongoClient } from "mongodb";
 
 const uri = process.env.DATABASE_URL;
 const client = new MongoClient(uri);
+
+// Helper function to extract images from content
+const extractImagesFromContent = (content) => {
+  const images = [];
+
+  if (Array.isArray(content)) {
+    content.forEach((section) => {
+      if (section.paragraphs && Array.isArray(section.paragraphs)) {
+        section.paragraphs.forEach((paragraph) => {
+          // Use regex to find image URLs
+          const imageRegex = /!$$.*?$$$$(.*?)$$/g; // Markdown image syntax
+          const htmlImageRegex = /<img[^>]+src="?([^"\s]+)"?\s*\/?>]/gi; // HTML image tag
+
+          let match;
+
+          // Check Markdown image syntax
+          while ((match = imageRegex.exec(paragraph)) !== null) {
+            if (match[1] && !images.includes(match[1])) {
+              images.push(match[1]);
+            }
+          }
+
+          // Check HTML image tag
+          while ((match = htmlImageRegex.exec(paragraph)) !== null) {
+            if (match[1] && !images.includes(match[1])) {
+              images.push(match[1]);
+            }
+          }
+        });
+      }
+    });
+  }
+
+  return images;
+};
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -95,109 +49,92 @@ export async function GET(req) {
     await client.connect();
     const collection = client.db(databaseName).collection("Topic");
 
-    // Find the specific topic where you added the new article
-    const topicToInvestigate = await collection.findOne({
-      name: "python_articles", // Replace with the exact topic name
-    });
+    // Fetch all articles from the Topic collection
+    const topics = await collection.find().toArray();
 
-    if (topicToInvestigate) {
-      console.log("\n=== DETAILED INVESTIGATION OF PYTHON ARTICLES ===");
-      console.log(
-        `Total Articles in Python Topic: ${
-          topicToInvestigate.articles?.length || 0
-        }`
-      );
+    if (!Array.isArray(topics)) {
+      throw new Error("Expected an array of topics");
+    }
+    console.log("=== DEBUGGING ARTICLE RETRIEVAL ===");
+    console.log(`Total Topics Found: ${topics.length}`);
 
-      // Detailed logging of the most recent articles
-      if (topicToInvestigate.articles) {
-        const recentArticles = topicToInvestigate.articles
-          .sort(
-            (a, b) =>
-              new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
-          )
-          .slice(0, 5); // Get the 5 most recent articles
+    let results = [];
+    let seenArticles = new Set();
 
-        recentArticles.forEach((article, index) => {
-          console.log(`\nRecent Article ${index + 1}:`);
-          console.log(`Title: ${article.title}`);
-          console.log(`Date: ${article.date}`);
-          console.log(`Created At: ${article.createdAt}`);
-          console.log(`Author: ${article.author}`);
-          console.log(`Description: ${article.description}`);
+    // Combine articles from all topics
+    topics.forEach((topic) => {
+      if (Array.isArray(topic.articles)) {
+        console.log("Articles in this topic:", topic.articles.length);
+        topic.articles.forEach((article) => {
+          const articleKey = `${article.title}-${article.date}`;
+          if (!seenArticles.has(articleKey)) {
+            seenArticles.add(articleKey);
 
-          // Check content structure
-          console.log("Content Structure:");
-          console.log(JSON.stringify(article.content, null, 2));
-
-          // Check ID
-          if (article._id) {
-            console.log(`Article ID: ${article._id}`);
-            console.log(`Article ID Type: ${typeof article._id}`);
-          } else {
-            console.log("WARNING: No _id found for this article");
+            results.push({
+              ...article,
+              topic: topic.name,
+            });
+            // Log the article details
+            console.log(`Article: ${article.title}, Date: ${article.date}`);
           }
         });
       }
-    }
-
-    // Original aggregation logic
-    const aggregatedResults = await collection
-      .aggregate([
-        { $unwind: "$articles" },
-        { $sort: { "articles.createdAt": -1 } },
-        {
-          $project: {
-            title: "$articles.title",
-            description: "$articles.description",
-            date: "$articles.date",
-            author: "$articles.author",
-            content: "$articles.content",
-            topic: "$name",
-            articleId: "$articles._id",
-            createdAt: "$articles.createdAt",
-          },
-        },
-      ])
-      .toArray();
-
-    console.log("\n=== AGGREGATED RESULTS ===");
-    console.log(`Total Aggregated Articles: ${aggregatedResults.length}`);
-
-    // Process and return results
-    const processedResults = aggregatedResults.map((article) => ({
-      title: article.title,
-      description: article.description,
-      date: article.date,
-      author: article.author,
-      content: article.content,
-      topic: article.topic.replace("_articles", ""),
-      id: article.articleId ? article.articleId.toString() : null,
-      filtered_images: [], // Add if you have image processing
-      createdAt: article.createdAt,
-    }));
-
-    console.log("\n=== PROCESSED RESULTS ===");
-    processedResults.slice(0, 5).forEach((result, index) => {
-      console.log(`Result ${index + 1}:`);
-      console.log(JSON.stringify(result, null, 2));
+    });
+    // Log the sorted results
+    console.log("=== SORTED ARTICLES ===");
+    results.forEach((article) => {
+      console.log(`Article: ${article.title}, Date: ${article.date}`);
     });
 
-    return new Response(JSON.stringify(processedResults), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
+    const parseDate = (dateString) => {
+      return new date(
+        dateString.replace(/(\w{3}) (\d{2}),(\d{4})/, "$2 $1 $3")
+      );
+    };
+    // Sort all combined articles by date
+    results.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+
+      return dateB - dateA;
     });
+
+    // Apply pagination after deduplication
+    const paginatedArticles = results.slice(skip, skip + limit);
+
+    // Log the paginated results
+    console.log("=== PAGINATED ARTICLES ===");
+    paginatedArticles.forEach((article) => {
+      console.log(`Article: ${article.title}, Date: ${article.date}`);
+    });
+
+    // Process the results
+    const processedResults = paginatedArticles.map((article) => {
+      // Extract images from content if filtered_images is empty
+      const extractedImages =
+        article.filtered_images && article.filtered_images.length > 0
+          ? article.filtered_images
+          : extractImagesFromContent(article.content);
+
+      return {
+        ...article,
+        filtered_images: extractedImages,
+        title: article.title,
+        description: article.description,
+        author: article.author,
+        date: article.date,
+        content: article.content,
+        topic: article.topic,
+        id: article._id.toString(),
+      };
+    });
+
+    return new Response(JSON.stringify(processedResults), { status: 200 });
   } catch (error) {
-    console.error("CRITICAL ERROR in article retrieval:", error);
+    console.error("Error fetching articles:", error);
     return new Response(
-      JSON.stringify({
-        message: "Comprehensive error in fetching articles",
-        errorDetails: error.message,
-        stack: error.stack,
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
+      JSON.stringify({ message: "Error fetching articles" }),
+      { status: 500 }
     );
   } finally {
     await client.close();
