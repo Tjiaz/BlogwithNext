@@ -11,6 +11,8 @@ const nextConfig = {
       "yager-research.ca",
       "insideainews.com",
       "analyticsindiamag.com",
+      "your-wordpress-domain.com",
+      "azbytegems.com",
     ],
   },
 

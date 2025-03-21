@@ -252,7 +252,13 @@
 
   .searchIcon {
     display: block;
+    margin-right: 10px;
   }
+
+  .adminLink {
+    display: none !important;
+  }
+
   .link {
     display: none;
   }
@@ -338,4 +344,38 @@
   color: white !important;
 }
 
-/* Add any other existing styles */
+@media screen and (max-width: 430px) {
+  .searchIcon {
+    display: block;
+    margin-right: 5px;
+    font-size: 24px; /* Slightly smaller icon */
+  }
+
+  .topContainer {
+    align-items: center;
+  }
+}
+
+@media screen and (max-width: 375px) {
+  .searchIcon {
+    display: block;
+    margin-right: 0;
+    font-size: 22px; /* Even smaller icon */
+  }
+
+  .topContainer {
+    justify-content: center;
+    gap: 10px; /* Add some space between elements */
+  }
+}
+
+@media screen and (max-width: 344px) {
+  .searchIcon {
+    font-size: 20px;
+  }
+
+  .topContainer {
+    justify-content: space-between;
+    width: 100%;
+  }
+}

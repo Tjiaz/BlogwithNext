@@ -101,9 +101,7 @@ const AuthLinks = () => {
               className={`${styles.link} ${styles.adminLink}`}
               onClick={(e) => {
                 e.preventDefault();
-                console.log("Newsletter button clicked");
-                console.log("isAdmin status:", isAdmin);
-                console.log("Current session:", session);
+
                 router.push("/admin/newsletter");
               }}
             >
@@ -278,10 +276,7 @@ const AuthLinks = () => {
                 Write
               </Link>
               {isAdmin && (
-                <Link
-                  href="/admin/newsletter"
-                  className={`${styles.link} ${styles.adminLink}`}
-                >
+                <Link href="/admin/newsletter" className={styles.menuLink}>
                   Newsletter
                 </Link>
               )}

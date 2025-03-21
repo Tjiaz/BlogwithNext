@@ -298,7 +298,7 @@
   }
 }
 
-@media screen and (max-width: 360px) {
+@media screen and (max-width: 375px) {
   .navbarContent {
     max-width: 100vw;
     padding: 10px 15px;

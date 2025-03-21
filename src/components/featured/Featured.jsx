@@ -14,10 +14,34 @@ const POSTS_PER_PAGE = 8;
 
 const extractImageFromContent = (content) => {
   try {
-    if (!content || typeof content !== "string") return null;
-    const imgMatches = content.match(/<img[^>]+src="([^">]+)"/);
-    if (imgMatches && imgMatches[1]) {
-      return imgMatches[1];
+    if (!content) return null;
+
+    // Multiple strategies to extract image
+    const strategies = [
+      // Markdown image syntax
+      () => {
+        const markdownMatch = content.match(/!$$.*?$$$$(.*?)$$/);
+        return markdownMatch ? markdownMatch[1] : null;
+      },
+      // HTML img tag
+      () => {
+        const htmlMatch = content.match(/<img[^>]+src="([^">]+)"/);
+        return htmlMatch ? htmlMatch[1] : null;
+      },
+      // WordPress specific path handling
+      () => {
+        const wpMatch = content.match(
+          /\/wp-content\/uploads\/[^"'\s]+\.(jpg|jpeg|png|gif)/
+        );
+        return wpMatch
+          ? `https://your-wordpress-domain.com${wpMatch[0]}`
+          : null;
+      },
+    ];
+
+    for (let strategy of strategies) {
+      const result = strategy();
+      if (result) return result;
     }
 
     return null;
@@ -180,7 +204,7 @@ const Featured = () => {
       </div>
       <div className={styles.post}>
         <div className={styles.textContainer1}>
-          <h2 className={styles.latestPostsTitle}>Latest Posts</h2>
+          <h2 className={styles.latestPostsTitle}>Latest Articles</h2>
           <div style={{ display: "flex", width: "100%", marginBottom: "20px" }}>
             <div
               style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}

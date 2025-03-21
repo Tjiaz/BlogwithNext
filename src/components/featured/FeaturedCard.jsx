@@ -30,6 +30,7 @@ const SafeImage = ({ src, alt, ...props }) => {
   useEffect(() => {
     // Validate image URL
     const validateAndSetImage = async (src) => {
+      console.log("Image source:", src);
       try {
         // Skip validation for default image
         if (!src || src === "/azbyte.jpeg") return;
@@ -65,6 +66,7 @@ const SafeImage = ({ src, alt, ...props }) => {
       fill
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       className={styles.image}
+      style={{ objectFit: "cover" }}
       onError={() => {
         setImgSrc("/azbyte.jpeg");
         setError(true);
