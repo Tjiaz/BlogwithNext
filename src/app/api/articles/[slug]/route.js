@@ -43,7 +43,9 @@ export async function GET(req, { params }) {
 
     const collection = db.collection(collectionName);
 
-    const topic = await collection.findOne({ name: `${slug}_articles` });
+    const topic = await collection.findOne({
+      $or: [{ name: `${slug}_articles` }, { title: `${slug}_articles` }],
+    });
 
     if (!topic || !topic.articles || topic.articles.length === 0) {
       console.error("No articles found.");
@@ -55,20 +57,37 @@ export async function GET(req, { params }) {
       });
     }
 
+    // Ensure articles exist
+    const articles = topic.articles || [];
+
     // Convert _id to string explicitly
     const articlesWithStringId = topic.articles.map((article) => ({
       ...article,
-      _id: article._id.toString(),
+      _id: article._id ? article._id.toString() : null,
     }));
 
     console.log("Articles with string _id:", articlesWithStringId);
 
-    return new Response(JSON.stringify(articlesWithStringId), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
+    // Sort articles by date (newest first)
+    const sortedArticles = articlesWithStringId.sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
     });
+
+    console.log("Articles with string _id:", sortedArticles);
+
+    return new Response(
+      JSON.stringify({
+        articles: sortedArticles,
+        articleCount: articles.length,
+        topicTitle: topic.title || topic.name,
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error fetching articles:", error);
     return new Response(JSON.stringify({ error: "Failed to fetch articles" }), {

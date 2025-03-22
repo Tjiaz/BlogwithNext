@@ -14,34 +14,37 @@ const POSTS_PER_PAGE = 8;
 
 const extractImageFromContent = (content) => {
   try {
-    if (!content) return null;
-
-    // Multiple strategies to extract image
-    const strategies = [
-      // Markdown image syntax
-      () => {
-        const markdownMatch = content.match(/!$$.*?$$$$(.*?)$$/);
-        return markdownMatch ? markdownMatch[1] : null;
-      },
-      // HTML img tag
-      () => {
-        const htmlMatch = content.match(/<img[^>]+src="([^">]+)"/);
-        return htmlMatch ? htmlMatch[1] : null;
-      },
-      // WordPress specific path handling
-      () => {
-        const wpMatch = content.match(
-          /\/wp-content\/uploads\/[^"'\s]+\.(jpg|jpeg|png|gif)/
-        );
-        return wpMatch
-          ? `https://your-wordpress-domain.com${wpMatch[0]}`
-          : null;
-      },
+    // If content is a string or array
+    const imageRegexes = [
+      /!$$.*?$$$$(.*?)$$/, // Custom Markdown syntax
+      /!$$.*?$$$$(.*?)$$/, // Standard Markdown image syntax
+      /<img[^>]+src="([^">]+)"/, // HTML img tag
+      /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/, // Direct image URLs
     ];
 
-    for (let strategy of strategies) {
-      const result = strategy();
-      if (result) return result;
+    // Handle different content types
+    const contentString =
+      typeof content === "string"
+        ? content
+        : Array.isArray(content)
+        ? content
+            .map((section) =>
+              section.paragraphs ? section.paragraphs.join(" ") : ""
+            )
+            .join(" ")
+        : "";
+
+    for (let regex of imageRegexes) {
+      const match = contentString.match(regex);
+      if (match && match[1]) {
+        // Normalize the URL
+        const normalizedUrl = match[1].startsWith("/")
+          ? `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${
+              match[1]
+            }`
+          : match[1];
+        return normalizedUrl;
+      }
     }
 
     return null;
@@ -218,7 +221,7 @@ const Featured = () => {
                   ? post.img || "/azbyte.jpeg"
                   : post.filtered_images && post.filtered_images.length > 0
                   ? post.filtered_images[0]
-                  : post.content && extractImageFromContent(post.content)
+                  : extractImageFromContent(post.content)
                   ? extractImageFromContent(post.content)
                   : "/azbyte.jpeg";
 
@@ -231,7 +234,11 @@ const Featured = () => {
                     key={post.isRssPost ? post.guid : post._id}
                     postImg={imageToUse}
                     postTitle={post.title}
-                    postDesc={post.isRssPost ? post.description : post.desc}
+                    postDesc={
+                      post.description ||
+                      post.desc ||
+                      "No description available"
+                    }
                     postAuthor={post.author}
                     postDate={postDate}
                     postTopic={post.isRssPost ? "RSS Feed" : post.topic}

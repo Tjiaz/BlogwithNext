@@ -3,32 +3,47 @@ import { MongoClient } from "mongodb";
 const uri = process.env.DATABASE_URL;
 const client = new MongoClient(uri);
 
-// Helper function to extract images from content
 const extractImagesFromContent = (content) => {
   const images = [];
 
-  if (Array.isArray(content)) {
+  // Helper function to extract images from a string
+  const extractImagesFromString = (str) => {
+    // Regex for various image formats
+    const imageRegexes = [
+      /!$$.*?$$$$(.*?)$$/g, // Custom Markdown syntax
+      /!$$.*?$$$$(.*?)$$/g, // Standard Markdown image syntax
+      /<img[^>]+src="?([^"\s]+)"?\s*\/?>]/gi, // HTML image tag
+      /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/gi, // Direct image URLs
+    ];
+
+    imageRegexes.forEach((regex) => {
+      let match;
+      while ((match = regex.exec(str)) !== null) {
+        if (match[1]) {
+          // Normalize the image URL
+          const normalizedUrl = match[1].startsWith("/")
+            ? `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${
+                match[1]
+              }`
+            : match[1];
+
+          if (!images.includes(normalizedUrl)) {
+            images.push(normalizedUrl);
+          }
+        }
+      }
+    });
+  };
+
+  // Handle different content structures
+  if (typeof content === "string") {
+    extractImagesFromString(content);
+  } else if (Array.isArray(content)) {
     content.forEach((section) => {
       if (section.paragraphs && Array.isArray(section.paragraphs)) {
         section.paragraphs.forEach((paragraph) => {
-          // Use regex to find image URLs
-          const imageRegex = /!$$.*?$$$$(.*?)$$/g; // Markdown image syntax
-          const htmlImageRegex = /<img[^>]+src="?([^"\s]+)"?\s*\/?>]/gi; // HTML image tag
-
-          let match;
-
-          // Check Markdown image syntax
-          while ((match = imageRegex.exec(paragraph)) !== null) {
-            if (match[1] && !images.includes(match[1])) {
-              images.push(match[1]);
-            }
-          }
-
-          // Check HTML image tag
-          while ((match = htmlImageRegex.exec(paragraph)) !== null) {
-            if (match[1] && !images.includes(match[1])) {
-              images.push(match[1]);
-            }
+          if (typeof paragraph === "string") {
+            extractImagesFromString(paragraph);
           }
         });
       }

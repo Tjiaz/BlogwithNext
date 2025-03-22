@@ -4,6 +4,69 @@ import prisma from "@/utils/connect";
 import { authOptions } from "@/utils/auth";
 import { MongoClient, ObjectId } from "mongodb";
 
+// Helper function to extract images from content
+const extractImagesFromContent = (content) => {
+  const images = [];
+
+  // Helper function to extract images from a string
+  const extractImagesFromString = (str) => {
+    // Regex for various image formats
+    const imageRegexes = [
+      /!$$.*?$$$$(.*?)$$/g, // Markdown image syntax
+      /<img[^>]+src="?([^"\s]+)"?\s*\/?>]/gi, // HTML image tag
+      /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/gi, // Direct image URLs
+    ];
+
+    imageRegexes.forEach((regex) => {
+      let match;
+      while ((match = regex.exec(str)) !== null) {
+        if (match[1] && !images.includes(match[1])) {
+          images.push(match[1]);
+        }
+      }
+    });
+  };
+
+  // Handle different content structures
+  if (typeof content === "string") {
+    extractImagesFromString(content);
+  } else if (Array.isArray(content)) {
+    content.forEach((section) => {
+      if (section.paragraphs && Array.isArray(section.paragraphs)) {
+        section.paragraphs.forEach((paragraph) => {
+          if (typeof paragraph === "string") {
+            extractImagesFromString(paragraph);
+          }
+        });
+      }
+    });
+  }
+
+  return images;
+};
+
+// Helper function to validate and normalize image URLs
+const normalizeImageUrls = (images) => {
+  return images
+    .map((img) => {
+      // Remove any relative paths or resolve them
+      if (img.startsWith("/")) {
+        return `${
+          process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"
+        }${img}`;
+      }
+
+      // Ensure it's a valid URL
+      try {
+        new URL(img);
+        return img;
+      } catch {
+        return null;
+      }
+    })
+    .filter((img) => img !== null);
+};
+
 export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
@@ -35,6 +98,16 @@ export async function POST(req) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
+    // Extract and normalize images
+    const extractedImages = extractImagesFromContent(content);
+    const normalizedImages = extractedImages.map((img) =>
+      img.startsWith("/")
+        ? `${
+            process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"
+          }${img}`
+        : img
+    );
+
     // Connect to MongoDB
     const mongoClient = new MongoClient(process.env.DATABASE_URL);
 
@@ -43,16 +116,25 @@ export async function POST(req) {
       const db = mongoClient.db("ARTICLES");
       const topicsCollection = db.collection("Topic");
 
-      // Find the topic document
+      // Find the topic document (try both name and title)
       const topicDocument = await topicsCollection.findOne({
-        name: `${topic.toLowerCase()}_articles`,
+        $or: [
+          { name: `${topic.toLowerCase()}_articles` },
+          { title: `${topic.toLowerCase()}_articles` },
+        ],
       });
 
       if (!topicDocument) {
-        return NextResponse.json(
-          { message: "Topic not found" },
-          { status: 404 }
-        );
+        // If topic doesn't exist, create it
+        const newTopicResult = await topicsCollection.insertOne({
+          name: `${topic.toLowerCase()}_articles`,
+          title: `${topic.toLowerCase()}_articles`,
+          articles: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
+        console.log("New topic created:", newTopicResult);
       }
 
       // Create the new article document
@@ -63,27 +145,43 @@ export async function POST(req) {
         content,
         date: new Date().toISOString(),
         author: session.user.email,
-        filtered_images: [],
+        filtered_images: normalizedImages,
         createdAt: new Date(),
         content: [
           {
             heading: title,
-            paragraphs: [description],
+            paragraphs: [description, ...normalizedImages],
           },
         ],
       };
 
-      // Update the topic document by pushing the new article
-      const result = await topicsCollection.updateOne(
-        { _id: topicDocument._id },
+      // Update the topic by pushing the new article
+      const updateResult = await topicsCollection.updateOne(
         {
-          $push: {
-            articles: articleDocument,
-          },
+          $or: [
+            { name: `${topic.toLowerCase()}_articles` },
+            { title: `${topic.toLowerCase()}_articles` },
+          ],
+        },
+        {
+          $push: { articles: articleDocument },
+          $set: { updatedAt: new Date() },
         }
       );
 
-      // Also create the article in Prisma (if you still want to maintain this)
+      console.log("Topic update result:", updateResult);
+
+      // Verify the update
+      const updatedTopic = await topicsCollection.findOne({
+        $or: [
+          { name: `${topic.toLowerCase()}_articles` },
+          { title: `${topic.toLowerCase()}_articles` },
+        ],
+      });
+
+      console.log("Updated topic:", updatedTopic);
+
+      // Also create the article in Prisma
       const prismaArticle = await prisma.article.create({
         data: {
           title,
@@ -94,6 +192,9 @@ export async function POST(req) {
           date: new Date().toISOString(),
           author: session.user.email,
           userId: user.id,
+          filtered_images: normalizedImages
+            ? JSON.stringify(normalizedImages)
+            : null,
         },
       });
 
@@ -102,6 +203,8 @@ export async function POST(req) {
           message: "Article published successfully",
           mongoId: articleDocument._id,
           prismaId: prismaArticle.id,
+          extractedImages: normalizedImages,
+          topicUpdateResult: updateResult,
         },
         { status: 201 }
       );

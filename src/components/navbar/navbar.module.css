@@ -178,8 +178,8 @@
 
 @media screen and (max-width: 1024px) {
   .navbarContent {
-    max-width: 768px;
-    padding: 10px 20px;
+    max-width: 1024px;
+    padding: 10px;
   }
 
   .social {

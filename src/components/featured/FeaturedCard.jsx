@@ -30,22 +30,50 @@ const SafeImage = ({ src, alt, ...props }) => {
   useEffect(() => {
     // Validate image URL
     const validateAndSetImage = async (src) => {
-      console.log("Image source:", src);
-      try {
-        // Skip validation for default image
-        if (!src || src === "/azbyte.jpeg") return;
+      console.log("Validating image source:", src);
 
-        const response = await fetch(src, {
+      // Skip validation for default image or empty source
+      if (!src || src === "/azbyte.jpeg") {
+        setImgSrc("/azbyte.jpeg");
+        return;
+      }
+
+      try {
+        // Normalize URL
+        const resolvedUrl = src.startsWith("/")
+          ? `${
+              process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"
+            }${src}`
+          : src.startsWith("http")
+          ? src
+          : `${
+              process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"
+            }/${src}`;
+
+        console.log("Resolved URL:", resolvedUrl);
+
+        const response = await fetch(resolvedUrl, {
           method: "HEAD",
           mode: "cors",
           headers: {
             "Access-Control-Allow-Origin": "*",
           },
         });
+
         if (!response.ok) {
           console.warn(`Image validation failed: ${src}`);
           setImgSrc("/azbyte.jpeg");
           setError(true);
+        } else {
+          // Check content type
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.startsWith("image/")) {
+            setImgSrc(resolvedUrl);
+          } else {
+            console.warn(`Invalid content type: ${contentType}`);
+            setImgSrc("/azbyte.jpeg");
+            setError(true);
+          }
         }
       } catch (error) {
         console.error("Image Validation Error:", {

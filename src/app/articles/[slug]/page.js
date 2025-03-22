@@ -10,6 +10,8 @@ const ArticlePage = ({ params }) => {
   const { slug } = params; // Destructure slug from params
 
   const [articles, setArticles] = useState([]);
+  const [articleCount, setArticleCount] = useState(0);
+  const [topicTitle, setTopicTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [topPosts, setTopPosts] = useState([]);
 
@@ -19,10 +21,10 @@ const ArticlePage = ({ params }) => {
         const response = await fetch(`/api/articles/${slug}`);
         const data = await response.json();
 
-        if (Array.isArray(data)) {
-          setArticles(data); // If already an array, use it directly
-        } else if (typeof data === "object") {
-          setArticles([data]);
+        if (data.articles) {
+          setArticles(data.articles);
+          setArticleCount(data.articleCount);
+          setTopicTitle(data.topicTitle.replace("_articles", ""));
         } else {
           console.error("Unexpected data format", data);
         }
@@ -75,7 +77,19 @@ const ArticlePage = ({ params }) => {
       </div>
       <div className={styles.post}>
         <div className={styles.textContainer1}>
-          <h2 className={styles.head}>{slug}</h2>
+          <h2 className={styles.head}>
+            {topicTitle}
+            <span
+              style={{
+                marginLeft: "10px",
+                fontSize: "0.7em",
+                color: "#0B73B1",
+                fontWeight: "normal",
+              }}
+            >
+              ({articleCount} {articleCount === 1 ? "Article" : "Articles"})
+            </span>
+          </h2>
           <div style={{ display: "flex", width: "100%" }}>
             <div
               style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}

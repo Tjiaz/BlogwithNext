@@ -35,12 +35,15 @@ const Write = () => {
     try {
       // Normalize the topic name
       const normalizedTopic = topic.trim().toLowerCase().replace(/\s+/g, "_");
+      // Extract images from content
+      const extractedImages = extractImageFromContent(content);
 
       const articleData = {
         title: title.trim(),
         description: description.trim(),
         content: content,
         topic: normalizedTopic,
+      
       };
 
       console.log("Submitting article data:", articleData); // Debug log
@@ -69,6 +72,28 @@ const Write = () => {
       alert(error.message || "Failed to publish article");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const extractImageFromContent = (content) => {
+    try {
+      // Fallback to content image extraction
+      const imageRegexes = [
+        /!$$.*?$$$$(.*?)$$/, // Your custom Markdown syntax
+        /!$$.*?$$$$(.*?)$$/, // Standard Markdown image syntax
+        /<img[^>]+src="([^">]+)"/, // HTML img tag
+        /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/, // Direct image URLs
+      ];
+
+      for (let regex of imageRegexes) {
+        const match = content.match(regex);
+        if (match && match[1]) return match[1];
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error extracting image from content:", error);
+      return null;
     }
   };
 
