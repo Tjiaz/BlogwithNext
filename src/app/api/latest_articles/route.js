@@ -4,32 +4,31 @@ const uri = process.env.DATABASE_URL;
 const client = new MongoClient(uri);
 
 const extractImagesFromContent = (content) => {
-  const images = [];
+  const images = new Set(); // Use a Set to avoid duplicates
 
   // Helper function to extract images from a string
   const extractImagesFromString = (str) => {
-    // Regex for various image formats
+    if (typeof str !== "string") return;
+
+    // More comprehensive image extraction regexes
     const imageRegexes = [
-      /!$$.*?$$$$(.*?)$$/g, // Custom Markdown syntax
-      /!$$.*?$$$$(.*?)$$/g, // Standard Markdown image syntax
-      /<img[^>]+src="?([^"\s]+)"?\s*\/?>]/gi, // HTML image tag
-      /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/gi, // Direct image URLs
+      /https?:\/\/[^\s]+?\.(?:jpg|jpeg|gif|png|webp|svg)/gi, // Direct image URLs
+      /<img[^>]+src=["']([^"']+)["']/gi, // HTML img tags
+      /!$$.*?$$$$(https?:\/\/[^\s]+?\.(?:jpg|jpeg|gif|png|webp|svg))$$/gi, // Markdown image syntax
     ];
 
     imageRegexes.forEach((regex) => {
       let match;
       while ((match = regex.exec(str)) !== null) {
         if (match[1]) {
-          // Normalize the image URL
+          // Normalize the URL
           const normalizedUrl = match[1].startsWith("/")
             ? `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${
                 match[1]
               }`
             : match[1];
 
-          if (!images.includes(normalizedUrl)) {
-            images.push(normalizedUrl);
-          }
+          images.add(normalizedUrl);
         }
       }
     });
@@ -40,7 +39,9 @@ const extractImagesFromContent = (content) => {
     extractImagesFromString(content);
   } else if (Array.isArray(content)) {
     content.forEach((section) => {
-      if (section.paragraphs && Array.isArray(section.paragraphs)) {
+      if (typeof section === "string") {
+        extractImagesFromString(section);
+      } else if (section && section.paragraphs) {
         section.paragraphs.forEach((paragraph) => {
           if (typeof paragraph === "string") {
             extractImagesFromString(paragraph);
@@ -50,7 +51,7 @@ const extractImagesFromContent = (content) => {
     });
   }
 
-  return images;
+  return Array.from(images);
 };
 
 export async function GET(req) {
@@ -70,8 +71,6 @@ export async function GET(req) {
     if (!Array.isArray(topics)) {
       throw new Error("Expected an array of topics");
     }
-    console.log("=== DEBUGGING ARTICLE RETRIEVAL ===");
-    console.log(`Total Topics Found: ${topics.length}`);
 
     let results = [];
     let seenArticles = new Set();
@@ -95,8 +94,7 @@ export async function GET(req) {
         });
       }
     });
-    // Log the sorted results
-    console.log("=== SORTED ARTICLES ===");
+
     results.forEach((article) => {
       console.log(`Article: ${article.title}, Date: ${article.date}`);
     });
@@ -117,8 +115,6 @@ export async function GET(req) {
     // Apply pagination after deduplication
     const paginatedArticles = results.slice(skip, skip + limit);
 
-    // Log the paginated results
-    console.log("=== PAGINATED ARTICLES ===");
     paginatedArticles.forEach((article) => {
       console.log(`Article: ${article.title}, Date: ${article.date}`);
     });

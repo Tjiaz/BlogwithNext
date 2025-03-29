@@ -28,69 +28,54 @@ const SafeImage = ({ src, alt, ...props }) => {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    // Validate image URL
-    const validateAndSetImage = async (src) => {
-      console.log("Validating image source:", src);
+    // If no src is provided, set to default
+    if (!src) {
+      setImgSrc("/azbyte.jpeg");
+      return;
+    }
 
-      // Skip validation for default image or empty source
-      if (!src || src === "/azbyte.jpeg") {
-        setImgSrc("/azbyte.jpeg");
-        return;
+    // Normalize the URL
+    const normalizeUrl = (url) => {
+      // If it's an absolute URL, return as is
+      if (url.startsWith("http://") || url.startsWith("https://")) {
+        return url;
       }
 
+      // If it's a relative URL, prepend the site URL
+      return `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${
+        url.startsWith("/") ? url : "/" + url
+      }`;
+    };
+
+    // Try to validate the image
+    const validateImage = async () => {
       try {
-        // Normalize URL
-        const resolvedUrl = src.startsWith("/")
-          ? `${
-              process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"
-            }${src}`
-          : src.startsWith("http")
-          ? src
-          : `${
-              process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"
-            }/${src}`;
+        const normalizedSrc = normalizeUrl(src);
 
-        console.log("Resolved URL:", resolvedUrl);
-
-        const response = await fetch(resolvedUrl, {
-          method: "HEAD",
-          mode: "cors",
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-          },
-        });
-
-        if (!response.ok) {
-          console.warn(`Image validation failed: ${src}`);
+        // Create an image element to check if it loads
+        const img = document.createElement("img");
+        img.onload = () => {
+          setImgSrc(normalizedSrc);
+        };
+        img.onerror = () => {
+          console.warn(`Image failed to load: ${normalizedSrc}`);
           setImgSrc("/azbyte.jpeg");
           setError(true);
-        } else {
-          // Check content type
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.startsWith("image/")) {
-            setImgSrc(resolvedUrl);
-          } else {
-            console.warn(`Invalid content type: ${contentType}`);
-            setImgSrc("/azbyte.jpeg");
-            setError(true);
-          }
-        }
+        };
+        img.src = normalizedSrc;
       } catch (error) {
-        console.error("Image Validation Error:", {
-          url: src,
-          error: error.message,
-        });
+        console.error("Image validation error:", error);
         setImgSrc("/azbyte.jpeg");
         setError(true);
       }
     };
-    validateAndSetImage();
-  }, [src]);
 
+    validateImage();
+  }, [src]);
   return (
     <Image
       src={imgSrc || "/azbyte.jpeg"}
-      alt={alt}
+      alt={alt || "Article image"}
       fill
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       className={styles.image}
@@ -220,57 +205,18 @@ const FeaturedCard = ({
             process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
           }/article_details/${postId}`;
 
-      const response = await fetch("/api/social_share", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: postTitle,
-          link: articleUrl,
-          description: postDesc,
-          platform: "facebook",
-        }),
-      });
+      const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+        articleUrl
+      )}&quote=${encodeURIComponent(postTitle)}`;
 
-      const data = await response.json();
-      console.log("Facebook share response:", data);
+      // Open Facebook share dialog
+      window.open(
+        facebookShareUrl,
+        "facebook-share-dialog",
+        "width=626,height=436"
+      );
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to share to Facebook");
-      }
-
-      // Ensure shareUrl is present and open the sharing dialog
-      if (data.shareUrl) {
-        // Optional: Inject Open Graph meta tags dynamically
-        if (data.ogMetaTags) {
-          const tempDiv = document.createElement("div");
-          tempDiv.innerHTML = data.ogMetaTags;
-          tempDiv.querySelectorAll("meta").forEach((meta) => {
-            document.head.appendChild(meta);
-          });
-        }
-
-        // Open Facebook sharing dialog
-        const popup = window.open(
-          data.shareUrl,
-          "facebook-share-dialog",
-          "width=626,height=436"
-        );
-
-        // Check if popup was blocked
-        if (!popup || popup.closed || typeof popup.closed == "undefined") {
-          // Fallback method if popup is blocked
-          window.location.href = data.shareUrl;
-        } else {
-          // Focus on the popup
-          popup.focus();
-        }
-
-        toast.success("Opening Facebook sharing dialog");
-      } else {
-        throw new Error("No sharing URL generated");
-      }
+      toast.success("Opening Facebook sharing dialog");
     } catch (error) {
       console.error("Facebook share error:", error);
       toast.error(`Failed to share to Facebook: ${error.message}`);
@@ -280,32 +226,29 @@ const FeaturedCard = ({
   };
 
   const shareToLinkedIn = async () => {
-    setIsSharingLinkedIn(true);
     try {
-      // Store the share data before redirect
-      const shareData = {
-        title: postTitle,
-        link: isRssPost
-          ? rssLink
-          : `${window.location.origin}/article_details/${postId}`,
-        description: postDesc,
-      };
-      localStorage.setItem("linkedin_share_data", JSON.stringify(shareData));
-      console.log("Stored share data:", shareData);
+      const articleUrl = isRssPost
+        ? rssLink
+        : `${
+            process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
+          }/article_details/${postId}`;
 
-      // Get auth URL
-      const response = await fetch("/api/linkedin/get-auth-url");
-      const data = await response.json();
+      // Create LinkedIn share URL
+      const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+        articleUrl
+      )}`;
 
-      if (data.error) {
-        throw new Error(data.error);
-      }
+      // Open LinkedIn share dialog
+      window.open(
+        linkedInShareUrl,
+        "linkedin-share-dialog",
+        "width=626,height=436"
+      );
 
-      // Redirect to LinkedIn auth
-      window.location.href = data.authUrl;
+      toast.success("Opening LinkedIn sharing dialog");
     } catch (error) {
       console.error("LinkedIn share error:", error);
-      toast.error("Failed to initialize LinkedIn sharing: " + error.message);
+      toast.error(`Failed to share to LinkedIn: ${error.message}`);
     } finally {
       setIsSharingLinkedIn(false);
     }
@@ -316,11 +259,7 @@ const FeaturedCard = ({
   // Format the date
   const formatDate = (dateString) => {
     try {
-      // Log the incoming date string for debugging
-      console.log("Formatting date:", dateString);
-
       if (!dateString) {
-        console.log("No date provided");
         return "No date";
       }
 

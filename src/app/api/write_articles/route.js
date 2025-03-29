@@ -142,18 +142,15 @@ export async function POST(req) {
         _id: new ObjectId(),
         title,
         description,
-        content,
+        content: content,
         date: new Date().toISOString(),
         author: session.user.email,
         filtered_images: normalizedImages,
         createdAt: new Date(),
-        content: [
-          {
-            heading: title,
-            paragraphs: [description, ...normalizedImages],
-          },
-        ],
       };
+
+      console.log("Full content being stored:", content);
+      console.log("Article document being created:", articleDocument);
 
       // Update the topic by pushing the new article
       const updateResult = await topicsCollection.updateOne(

@@ -2,12 +2,11 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "./article_details.module.css";
-
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { MdFacebook, MdSearch, MdYoutubeSearchedFor } from "react-icons/md";
-import FeaturedCard from "@/components/featured/FeaturedCard";
+import { MdFacebook, MdSearch } from "react-icons/md";
+
 import { FaLinkedinIn } from "react-icons/fa";
 import { BsTwitterX } from "react-icons/bs";
 
@@ -18,6 +17,45 @@ async function getTopicDetails(slug) {
     throw new Error("Failed to fetch article details");
   }
   return response.json();
+}
+
+// Metadata generation function
+export async function generateMetadata({ params }) {
+  try {
+    const article = await getTopicDetails(params.slug);
+
+    return {
+      title: article.title,
+      description: article.description || article.title,
+      openGraph: {
+        title: article.title,
+        description: article.description || article.title,
+        url: `https://azbytegems.com/article_details/${params.slug}`,
+        images: [
+          {
+            url:
+              article.filtered_images?.[0] || article.image || "/azbyte.jpeg",
+            width: 800,
+            height: 600,
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: article.title,
+        description: article.description || article.title,
+        images: [
+          article.filtered_images?.[0] || article.image || "/azbyte.jpeg",
+        ],
+      },
+    };
+  } catch (error) {
+    console.error("Metadata generation error:", error);
+    return {
+      title: "Article Not Found",
+      description: "The requested article could not be found",
+    };
+  }
 }
 
 export default function ArticleDetails() {
@@ -76,7 +114,11 @@ export default function ArticleDetails() {
     try {
       const articleUrl = `${process.env.NEXT_PUBLIC_DOMAIN}/article_details/${article.id}`;
 
-      await fetch("/api/social-share", {
+      // Prepare image URL
+      const imageUrl =
+        article.filtered_images?.[0] || article.image || "/azbyte.jpeg";
+
+      const response = await fetch("/api/social-share", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -85,8 +127,9 @@ export default function ArticleDetails() {
           title: article.title,
           link: articleUrl,
           author: article.author,
-          description: article.description,
-          platform: platform, // Add platform information
+          description: article.description || article.title,
+          image: imageUrl,
+          platform: platform,
         }),
       });
 
@@ -182,7 +225,12 @@ export default function ArticleDetails() {
           {typeof article.content === "string" ? (
             // For string content (HTML)
             <div
-              dangerouslySetInnerHTML={{ __html: article.content }}
+              dangerouslySetInnerHTML={{
+                __html: article.content.replace(
+                  /<img/g,
+                  '<img class="imageResizer" style="max-width:100%; height:auto;"'
+                ),
+              }}
               className={styles.paragraphs}
             />
           ) : (
@@ -192,20 +240,29 @@ export default function ArticleDetails() {
               <div key={index}>
                 {article.filtered_images &&
                 article.filtered_images.length > 0 ? (
-                  <Image
-                    src={article.filtered_images[2]}
-                    alt="Article image"
-                    layout="responsive"
-                    width={700}
-                    height={475}
-                    className={styles.sectionImage}
-                  />
+                  <div className={styles.imageContainer}>
+                    <Image
+                      src={
+                        article.filtered_images?.[0] ||
+                        article.image ||
+                        "/default.jpg"
+                      }
+                      alt="Article image"
+                      sizes="(max-width: 768px) 100vw, 800px"
+                      width={800}
+                      height={600}
+                      className={styles.imageResizer}
+                      priority={false}
+                      quality={75}
+                    />
+                  </div>
                 ) : (
                   <Image
                     src="/azbyte.jpeg"
                     alt="Default image"
                     width={700}
                     height={475}
+                    className={styles.imageResizer}
                   />
                 )}
 

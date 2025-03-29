@@ -19,11 +19,9 @@ const AuthLinks = () => {
   const [activeMenu, setActiveMenu] = useState(null);
   const { data: session, status } = useSession();
 
-  // Check if user's email is in the admin list
 
-  // Add this console.log to debug
-  console.log("Session status:", status);
-  console.log("Session data:", session);
+
+ 
 
   // Use the hardcoded array for testing
   const isAdmin = session?.user?.email && isAdminEmail(session.user.email);
@@ -67,7 +65,7 @@ const AuthLinks = () => {
         throw new Error("Failed to fetch RSS feed");
       }
       const data = await response.json();
-      console.log("RSS Feed Data:", data);
+    
 
       // Ensure the topic is a string
       if (typeof topic !== "string") {

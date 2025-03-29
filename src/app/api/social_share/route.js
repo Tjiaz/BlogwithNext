@@ -2,7 +2,6 @@
 import { TwitterApi } from "twitter-api-v2";
 import axios from "axios";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 export async function POST(req) {
   try {
@@ -47,81 +46,29 @@ export async function POST(req) {
     }
 
     if (platform === "facebook") {
-      // Construct a more comprehensive Facebook sharing URL
-      const shareUrl = `https://www.facebook.com/dialog/share?app_id=${
-        process.env.FACEBOOK_APP_ID
-      }&href=${encodeURIComponent(link)}&quote=${encodeURIComponent(title)}`;
-
-      // Optional: Add Open Graph meta tags for better sharing
-      const ogMetaTags = `
-        <meta property="og:url" content="${link}" />
-        <meta property="og:title" content="${title}" />
-        <meta property="og:description" content="${description || ""}" />
-        <meta property="og:site_name" content="AzByteGems" />
-      `;
-
       return NextResponse.json({
         success: true,
         platform: "facebook",
-        shareUrl: shareUrl,
-        ogMetaTags: ogMetaTags,
+        message: "Facebook share dialog opened",
       });
     }
 
     if (platform === "linkedin") {
-      const accessToken = req.headers.get("linkedin-access-token");
-      const shareContent = {
-        author: `urn:li:person:${process.env.LINKEDIN_ORGANIZATION_ID}`,
-        lifecycleState: "PUBLISHED",
-        specificContent: {
-          "com.linkedin.ugc.ShareContent": {
-            shareCommentary: {
-              text: `${title}\n\n${description || ""}\n\nRead more: ${link}`,
-            },
-            shareMediaCategory: "ARTICLE",
-            media: [
-              {
-                status: "READY",
-                originalUrl: link,
-                title: { text: title },
-                description: { text: description || "" },
-              },
-            ],
-          },
-        },
-        visibility: {
-          "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
-        },
-      };
-
-      try {
-        const response = await axios.post(
-          "https://api.linkedin.com/v2/ugcPosts",
-          shareContent,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-              "X-Restli-Protocol-Version": "2.0.0",
-              "LinkedIn-Version": "202304",
-            },
-          }
-        );
-
-        console.log("LinkedIn API response:", response.data);
-
-        return NextResponse.json({
-          success: true,
-          platform: "linkedin",
-          postId: response.data.id,
-        });
-      } catch (error) {
-        console.error("LinkedIn share error:", error.response?.data || error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
+      return NextResponse.json({
+        success: true,
+        platform: "linkedin",
+        message: "LinkedIn share dialog opened",
+      });
     }
 
-    return NextResponse.json({ success: true });
+    // If platform is not recognized
+    return NextResponse.json(
+      {
+        error: "Unsupported sharing platform",
+        platform: platform,
+      },
+      { status: 400 }
+    );
   } catch (error) {
     console.error("Social sharing error:", error);
     return NextResponse.json(

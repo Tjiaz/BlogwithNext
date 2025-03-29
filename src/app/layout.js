@@ -16,8 +16,21 @@ if (!process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID) {
 }
 
 export const metadata = {
-  title: "AzByteGems:Empowering Innovation with Data and Technology",
-  description: "Ease Path in Tech!",
+  title: {
+    default: "AzByteGems - Tech Insights and Articles",
+    template: "%s | AzByteGems",
+  },
+  description: "Your source for cutting-edge tech insights and articles",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://azbytegems.com",
+    siteName: "AzByteGems",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@azbytegems",
+  },
 };
 
 export default function RootLayout({ children }) {
