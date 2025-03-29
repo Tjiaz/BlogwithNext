@@ -2,8 +2,7 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
-      "@/lib/*": ["./src/lib/*"],
-      "@/emailTemplates/*": ["./src/emailTemplates/*"]
+    
     }
   }
 }
