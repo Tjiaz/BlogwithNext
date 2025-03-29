@@ -1,0 +1,6 @@
+0000000000000000000000000000000000000000 f0d7313239d848c6ac54833f317a824b5997786d Tjiaz <tunjiazeez24@gmail.com> 1742313885 +0000	clone: from https://github.com/Tjiaz/BlogwithNext.git
+f0d7313239d848c6ac54833f317a824b5997786d f5aa22f327d49741699bb25208b5137b72be9eec Tjiaz <tunjiazeez24@gmail.com> 1742324335 +0000	commit: modified the homepage width and padding
+f5aa22f327d49741699bb25208b5137b72be9eec c40de0d7dfe5eff508d6ec41221f61ccaa63e254 Tjiaz <tunjiazeez24@gmail.com> 1742415862 +0000	commit: change the structure of article saving to Topic Collection
+c40de0d7dfe5eff508d6ec41221f61ccaa63e254 fbe4ce6c56b893b152fe9f75dc7a0a3a6edb350f Tjiaz <tunjiazeez24@gmail.com> 1742503261 +0000	commit: fixed the date sorting in the backend
+fbe4ce6c56b893b152fe9f75dc7a0a3a6edb350f 5fcf3fb7bd39a3d340989064939abd7bb365b07c Tjiaz <tunjiazeez24@gmail.com> 1742574778 +0000	commit: fixed mobile login
+5fcf3fb7bd39a3d340989064939abd7bb365b07c 17b09dc073970412c008abe52ac9dba1000f0675 Tjiaz <tunjiazeez24@gmail.com> 1742671051 +0000	commit: added description logic to topics
