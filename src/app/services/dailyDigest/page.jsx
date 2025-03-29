@@ -1,5 +1,5 @@
 // app/services/dailyDigest.js
-import { getTemplate } from "../emailTemplates";
+import { getTemplate } from "../emailTemplates/digest"; // Assuming you have a function to get the email template
 import { sendEmail } from "../../../utils/email"; // Assuming you have an email sending utility
 import fetch from "node-fetch";
 import prisma from "../../../prisma/client";
