@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import styles from "./newsletter.module.css";
-import { templates } from "@/app/emailTemplates";
+// import { templates } from "@/app/emailTemplates";
 import { isAdminEmail } from "@/config/admin";
 
 export default function NewsletterAdmin() {
@@ -13,7 +13,7 @@ export default function NewsletterAdmin() {
 
   const [subscribers, setSubscribers] = useState([]);
   const [subject, setSubject] = useState("");
-  const [content, setContent] = useState(templates.welcome);
+  // const [content, setContent] = useState(templates.welcome);
   const [loading, setLoading] = useState(false);
   const [fetchingSubscribers, setFetchingSubscribers] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
