@@ -11,9 +11,7 @@ const pgPool = new Pool({
   port: parseInt(process.env.PGPORT || "5432"),
 });
 
-const mongoUri =
-  "mongodb+srv://Olatunji:Olatunji@cluster0.8e6lboe.mongodb.net/ARTICLES?retryWrites=true&w=majority&appName=Cluster0";
-
+const mongoUri = process.env.DATABASE_URL;
 async function migrateArticles() {
   try {
     // Connect to MongoDB
