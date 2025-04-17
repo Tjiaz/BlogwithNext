@@ -91,7 +91,7 @@ export async function POST(req) {
     // Find the user
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true, email: true },
+      select: { id: true, email: true, name: true },
     });
 
     if (!user) {
@@ -144,7 +144,7 @@ export async function POST(req) {
         description,
         content: content,
         date: new Date().toISOString(),
-        author: session.user.email,
+        author: user.name || session.user.email,
         filtered_images: normalizedImages,
         createdAt: new Date(),
       };
@@ -187,7 +187,7 @@ export async function POST(req) {
             typeof content === "object" ? JSON.stringify(content) : content,
           topic: topic.toLowerCase(),
           date: new Date().toISOString(),
-          author: session.user.email,
+          author: user.name || session.user.email,
           userId: user.id,
           filtered_images: normalizedImages
             ? JSON.stringify(normalizedImages)
