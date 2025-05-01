@@ -6,7 +6,10 @@ import dynamic from "next/dynamic";
 import "react-quill/dist/quill.snow.css";
 import styles from "./write.module.css";
 
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+const ReactQuill = dynamic(() => import("react-quill"), {
+  ssr: false,
+  loading: () => <p>Loading editor...</p>,
+});
 
 const Write = () => {
   const { data: session, status } = useSession();
@@ -16,6 +19,12 @@ const Write = () => {
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
   const [topic, setTopic] = useState("AI"); // Set a default value
+  const [author, setAuthor] = useState("");
+  const [error, setError] = useState(null);
+
+  if (status === "loading") {
+    return <div className={styles.loading}>Loading user session...</div>;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +34,7 @@ const Write = () => {
       return;
     }
 
-    if (!title || !description || !content || !topic) {
+    if (!title || !description || !content || !topic || !author) {
       alert("Please fill in all fields");
       return;
     }
@@ -43,7 +52,7 @@ const Write = () => {
         description: description.trim(),
         content: content,
         topic: normalizedTopic,
-      
+        author: author.trim(),
       };
 
       console.log("Submitting article data:", articleData); // Debug log
@@ -157,6 +166,14 @@ const Write = () => {
           placeholder="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          required
+          className={styles.input}
+        />
+        <input
+          type="text"
+          placeholder="Author Name"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
           required
           className={styles.input}
         />

@@ -4,67 +4,82 @@ import prisma from "@/utils/connect";
 import { authOptions } from "@/utils/auth";
 import { MongoClient, ObjectId } from "mongodb";
 
-// Helper function to extract images from content
+// const extractImagesFromContent = (content) => {
+//   const images = [];
+
+//   const extractImagesFromString = (str) => {
+//        const imageRegexes = [
+//       /!$$.*?$$$$(.*?)$$/g,
+//       /<img[^>]+src="?([^"\s]+)"?\s*\/?>]/gi,
+//       /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/gi,
+//     ];
+
+//     imageRegexes.forEach((regex) => {
+//       let match;
+//       while ((match = regex.exec(str)) !== null) {
+//         if (match[1] && !images.includes(match[1])) {
+//           images.push(match[1]);
+//         }
+//       }
+//     });
+//   };
+
+//   // Handle different content structures
+//   if (typeof content === "string") {
+//     extractImagesFromString(content);
+//   } else if (Array.isArray(content)) {
+//     content.forEach((section) => {
+//       if (section.paragraphs && Array.isArray(section.paragraphs)) {
+//         section.paragraphs.forEach((paragraph) => {
+//           if (typeof paragraph === "string") {
+//             extractImagesFromString(paragraph);
+//           }
+//         });
+//       }
+//     });
+//   }
+
+//   return images;
+
 const extractImagesFromContent = (content) => {
   const images = [];
 
-  // Helper function to extract images from a string
-  const extractImagesFromString = (str) => {
-    // Regex for various image formats
-    const imageRegexes = [
-      /!$$.*?$$$$(.*?)$$/g, // Markdown image syntax
-      /<img[^>]+src="?([^"\s]+)"?\s*\/?>]/gi, // HTML image tag
-      /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/gi, // Direct image URLs
-    ];
-
-    imageRegexes.forEach((regex) => {
+  try {
+    // For ReactQuill HTML content
+    if (typeof content === "string") {
+      // This regex specifically targets img tags in HTML
+      const imgRegex = /<img[^>]+src="([^">]+)"/g;
       let match;
-      while ((match = regex.exec(str)) !== null) {
-        if (match[1] && !images.includes(match[1])) {
+
+      while ((match = imgRegex.exec(content)) !== null) {
+        if (match[1]) {
           images.push(match[1]);
         }
       }
-    });
-  };
 
-  // Handle different content structures
-  if (typeof content === "string") {
-    extractImagesFromString(content);
-  } else if (Array.isArray(content)) {
-    content.forEach((section) => {
-      if (section.paragraphs && Array.isArray(section.paragraphs)) {
-        section.paragraphs.forEach((paragraph) => {
-          if (typeof paragraph === "string") {
-            extractImagesFromString(paragraph);
+      // If no images found with the first regex, try others
+      if (images.length === 0) {
+        // Try other patterns
+        const otherPatterns = [
+          /!$$.*?$$$$(.*?)$$/g, // Markdown image
+          /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/gi, // Direct URLs
+        ];
+
+        for (const pattern of otherPatterns) {
+          while ((match = pattern.exec(content)) !== null) {
+            if (match[1]) {
+              images.push(match[1]);
+            }
           }
-        });
+        }
       }
-    });
+    }
+
+    return images;
+  } catch (error) {
+    console.error("Error extracting images:", error);
+    return [];
   }
-
-  return images;
-};
-
-// Helper function to validate and normalize image URLs
-const normalizeImageUrls = (images) => {
-  return images
-    .map((img) => {
-      // Remove any relative paths or resolve them
-      if (img.startsWith("/")) {
-        return `${
-          process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"
-        }${img}`;
-      }
-
-      // Ensure it's a valid URL
-      try {
-        new URL(img);
-        return img;
-      } catch {
-        return null;
-      }
-    })
-    .filter((img) => img !== null);
 };
 
 export async function POST(req) {
@@ -78,10 +93,10 @@ export async function POST(req) {
     }
 
     const body = await req.json();
-    const { title, description, content, topic } = body;
+    const { title, description, content, topic, author } = body;
 
     // Validate required fields
-    if (!title || !description || !content || !topic) {
+    if (!title || !description || !content || !topic || !author) {
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
@@ -144,7 +159,7 @@ export async function POST(req) {
         description,
         content: content,
         date: new Date().toISOString(),
-        author: user.name || session.user.email,
+        author: author,
         filtered_images: normalizedImages,
         createdAt: new Date(),
       };
@@ -187,7 +202,7 @@ export async function POST(req) {
             typeof content === "object" ? JSON.stringify(content) : content,
           topic: topic.toLowerCase(),
           date: new Date().toISOString(),
-          author: user.name || session.user.email,
+          author: author,
           userId: user.id,
           filtered_images: normalizedImages
             ? JSON.stringify(normalizedImages)

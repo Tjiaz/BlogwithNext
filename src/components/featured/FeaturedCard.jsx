@@ -6,21 +6,58 @@ import Link from "next/link";
 import { RiRssFill } from "react-icons/ri";
 import toast from "react-hot-toast";
 
-const useLinkedInShare = (isProcessingLinkedIn, setIsProcessingLinkedIn) => {
-  useEffect(() => {
-    const handleLinkedInCallback = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const linkedinSuccess = params.get("linkedin_success");
-      const accessToken = params.get("access_token");
-      const error = params.get("error");
+const shareToSocial = async (platform) => {
+  setIsSharing(true);
+  try {
+    // Use clean URL without /article_details
+    const articleUrl = `${process.env.NEXT_PUBLIC_DOMAIN}/${article.id}`;
 
-      if (linkedinSuccess === "true" && accessToken && !isProcessingLinkedIn) {
-        setIsProcessingLinkedIn(true);
+    // Get the first available image
+    const imageUrl =
+      article.filtered_images?.[0] || article.image || "/azbyte.jpeg";
+    const fullImageUrl = imageUrl.startsWith("http")
+      ? imageUrl
+      : `${process.env.NEXT_PUBLIC_DOMAIN}${imageUrl}`;
+
+    const response = await fetch("/api/social-share", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: article.title,
+        link: articleUrl,
+        author: article.author,
+        description: article.description || article.title,
+        image: fullImageUrl,
+        platform: platform,
+      }),
+    });
+
+    if (!response.ok) {
+      // Fallback to direct sharing
+      let shareUrl;
+      switch (platform) {
+        case "facebook":
+          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(articleUrl)}`;
+          break;
+        case "twitter":
+          shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+            `${article.title}\n\nazbytegems.com`
+          )}&url=${encodeURIComponent(articleUrl)}`;
+          break;
+        case "linkedin":
+          shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(articleUrl)}`;
+          break;
       }
-    };
-
-    handleLinkedInCallback();
-  }, [isProcessingLinkedIn, setIsProcessingLinkedIn]);
+      window.open(shareUrl, "_blank", "width=600,height=400");
+    }
+  } catch (error) {
+    console.error("Failed to share:", error);
+    alert(`Failed to share to ${platform}. Please try again.`);
+  } finally {
+    setIsSharing(false);
+  }
 };
 
 const SafeImage = ({ src, alt, ...props }) => {
@@ -103,8 +140,6 @@ const FeaturedCard = ({
   const [isSharingTwitter, setIsSharingTwitter] = useState(false);
   const [isSharingFacebook, setIsSharingFacebook] = useState(false);
   const [isSharingLinkedIn, setIsSharingLinkedIn] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [isProcessingLinkedIn, setIsProcessingLinkedIn] = useState(false);
 
   useEffect(() => {
     const handleLinkedInCallback = async () => {
@@ -167,6 +202,12 @@ const FeaturedCard = ({
             process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
           }/article_details/${postId}`;
 
+      // Get the first available image
+      const imageUrl = postImg || "/azbyte.jpeg";
+      const fullImageUrl = imageUrl.startsWith("http")
+        ? imageUrl
+        : `${process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"}${imageUrl}`;
+
       const response = await fetch("/api/social_share", {
         method: "POST",
         headers: {
@@ -184,10 +225,14 @@ const FeaturedCard = ({
       console.log("Twitter share response:", data);
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to share to Twitter");
+        // Fallback to direct Twitter sharing
+        const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+          `${postTitle}\n\nazbytegems.com`
+        )}&url=${encodeURIComponent(articleUrl)}`;
+        window.open(twitterShareUrl, "_blank", "width=600,height=400");
+      } else {
+        toast.success("Successfully shared to Twitter!");
       }
-
-      toast.success("Successfully shared to Twitter!");
     } catch (error) {
       console.error("Twitter share error:", error);
       alert("Failed to share to Twitter. Please try again.");
@@ -254,8 +299,6 @@ const FeaturedCard = ({
     }
   };
 
-  useLinkedInShare(isProcessingLinkedIn, setIsProcessingLinkedIn);
-
   // Format the date
   const formatDate = (dateString) => {
     try {
@@ -305,8 +348,10 @@ const FeaturedCard = ({
         </a>
       );
     }
+    const url = `/article_details/${postId}`;
+    console.log("Generated URL:", url);
     return (
-      <Link href={`/article_details/${postId}`} className={styles.postTitle}>
+      <Link href={url} className={styles.postTitle}>
         {children}
       </Link>
     );

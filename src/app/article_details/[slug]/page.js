@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { MdFacebook, MdSearch } from "react-icons/md";
+import Head from "next/head";
 
 import { FaLinkedinIn } from "react-icons/fa";
 import { BsTwitterX } from "react-icons/bs";
@@ -27,6 +28,25 @@ export default function ArticleDetails() {
   const [latestPosts, setLatestPosts] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSharing, setIsSharing] = useState(false);
+
+  <Head>
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@azbytegems" />
+    <meta
+      name="twitter:title"
+      content={article?.title || "AzByteGems Article"}
+    />
+    <meta name="twitter:description" content={article?.description || ""} />
+    <meta
+      name="twitter:image"
+      content={
+        article?.filtered_images?.[0] ||
+        extractImageFromContent(article?.content) ||
+        `${process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"}/azbyte.jpeg`
+      }
+    />
+    <meta name="twitter:domain" content="azbytegems.com" />
+  </Head>;
 
   // Get the page from query params
   const searchParams = useSearchParams();
@@ -261,7 +281,7 @@ export default function ArticleDetails() {
               {latestPosts?.length > 0 ? (
                 latestPosts.map((post) => (
                   <Link
-                    href={`/post/${post._id}`}
+                    href={`/article_details/${post._id}`}
                     key={post._id}
                     className={styles.postItem}
                   >

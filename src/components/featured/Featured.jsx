@@ -13,37 +13,71 @@ import LoadingPlaceholder from "./LoadingPlaceholder";
 const POSTS_PER_PAGE = 8;
 
 const extractImageFromContent = (content) => {
+  //   try {
+  //     // If content is a string or array
+  //     const imageRegexes = [
+  //       /!$$.*?$$$$(.*?)$$/, // Custom Markdown syntax
+  //       /!$$.*?$$$$(.*?)$$/, // Standard Markdown image syntax
+  //       /<img[^>]+src="([^">]+)"/, // HTML img tag
+  //       /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/, // Direct image URLs
+  //     ];
+
+  //     // Handle different content types
+  //     const contentString =
+  //       typeof content === "string"
+  //         ? content
+  //         : Array.isArray(content)
+  //         ? content
+  //             .map((section) =>
+  //               section.paragraphs ? section.paragraphs.join(" ") : ""
+  //             )
+  //             .join(" ")
+  //         : "";
+
+  //     for (let regex of imageRegexes) {
+  //       const match = contentString.match(regex);
+  //       if (match && match[1]) {
+  //         // Normalize the URL
+  //         const normalizedUrl = match[1].startsWith("/")
+  //           ? `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${
+  //               match[1]
+  //             }`
+  //           : match[1];
+  //         return normalizedUrl;
+  //       }
+  //     }
+
+  //     return null;
+  //   } catch (error) {
+  //     console.error("Error extracting image from content:", error);
+  //     return null;
+  //   }
+  // };
+
   try {
-    // If content is a string or array
-    const imageRegexes = [
-      /!$$.*?$$$$(.*?)$$/, // Custom Markdown syntax
-      /!$$.*?$$$$(.*?)$$/, // Standard Markdown image syntax
-      /<img[^>]+src="([^">]+)"/, // HTML img tag
-      /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/, // Direct image URLs
+    // If no content, return null
+    if (!content) return null;
+
+    // Convert content to string if it's not already
+    const contentString =
+      typeof content === "string" ? content : JSON.stringify(content);
+
+    // First try to match img tags (most likely format from ReactQuill)
+    const imgTagMatch = contentString.match(/<img[^>]+src="([^">]+)"/);
+    if (imgTagMatch && imgTagMatch[1]) {
+      return imgTagMatch[1];
+    }
+
+    // If no img tag found, try other formats
+    const otherPatterns = [
+      /!$$.*?$$$$(.*?)$$/, // Markdown image
+      /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/, // Direct URLs
     ];
 
-    // Handle different content types
-    const contentString =
-      typeof content === "string"
-        ? content
-        : Array.isArray(content)
-        ? content
-            .map((section) =>
-              section.paragraphs ? section.paragraphs.join(" ") : ""
-            )
-            .join(" ")
-        : "";
-
-    for (let regex of imageRegexes) {
-      const match = contentString.match(regex);
+    for (const pattern of otherPatterns) {
+      const match = contentString.match(pattern);
       if (match && match[1]) {
-        // Normalize the URL
-        const normalizedUrl = match[1].startsWith("/")
-          ? `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${
-              match[1]
-            }`
-          : match[1];
-        return normalizedUrl;
+        return match[1];
       }
     }
 
@@ -195,6 +229,21 @@ const Featured = () => {
     post?.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  filteredPosts.forEach((post) => {
+    console.log("Post title:", post.title);
+    console.log("Has filtered_images?", !!post.filtered_images);
+    if (post.filtered_images) {
+      console.log("filtered_images:", post.filtered_images);
+    }
+    console.log("Content type:", typeof post.content);
+    console.log(
+      "Content preview:",
+      typeof post.content === "string"
+        ? post.content.substring(0, 100)
+        : JSON.stringify(post.content).substring(0, 100)
+    );
+  });
+
   return (
     <div className={styles.container}>
       <div className={styles.advertsContainer}>
@@ -220,10 +269,10 @@ const Featured = () => {
                 const imageToUse = post.isRssPost
                   ? post.img || "/azbyte.jpeg"
                   : post.filtered_images && post.filtered_images.length > 0
-                  ? post.filtered_images[0]
-                  : extractImageFromContent(post.content)
-                  ? extractImageFromContent(post.content)
-                  : "/azbyte.jpeg";
+                    ? post.filtered_images[0]
+                    : extractImageFromContent(post.content)
+                      ? extractImageFromContent(post.content)
+                      : "/azbyte.jpeg";
 
                 const postDate = post.isRssPost
                   ? post.isoDate || post.pubDate || post.date

@@ -6,7 +6,7 @@
   --softBg: #424242;
   --softTextColor: #121212;
   --AuthBorder: #0b73b1;
-  --fontFamily: "Funnel Sans", sans-serif;
+  --fontFamily: var(--font-plus-jakarta-sans), sans-serif;
 }
 
 * {
@@ -60,8 +60,8 @@ a {
   max-width: 1536px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 80px;
-  padding-right: 80px;
+  padding-left: 35px;
+  padding-right: 35px;
 }
 
 @media screen and (max-width: 1536px) {
@@ -77,8 +77,6 @@ a {
 @media screen and (max-width: 1024px) {
   .wrapper {
     max-width: 1024px;
-    padding-left: 15px;
-    padding-right: 15px;
   }
 }
 @media screen and (max-width: 768px) {

@@ -1,7 +1,8 @@
 .container {
   display: flex;
   justify-content: center; /* Center the inner content */
-  height: 90px;
+  height: auto;
+  min-height: 90px;
   align-items: center;
   position: fixed;
   top: 0;
@@ -16,7 +17,7 @@
   justify-content: space-between;
   width: 100%;
   max-width: 1536px; /* Match the .wrapper max-width */
-  padding: 10px 80px; /* Match the .wrapper padding */
+  padding: 10px 35px; /* Match the .wrapper padding */
   box-sizing: border-box;
   border-bottom: 2px solid #0b73b1;
   margin: 0 auto;
@@ -26,6 +27,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .social_icons {
@@ -163,16 +165,21 @@
     max-width: 1024px;
     padding: 10px 30px;
   }
-  .social {
-    display: none;
-  }
+
   .logo {
     text-align: left;
   }
   .logo img {
     width: 115px;
-    height: 45px;
-    margin-left: 0;
+    height: 40px;
+    margin-left: 15px;
+  }
+  .social{ 
+    flex-wrap: nowrap;
+  }
+  .join_newsletter_button{
+    padding: 8px 16px;
+    font-size: 12px;
   }
 }
 
