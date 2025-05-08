@@ -13,6 +13,7 @@ const nextConfig = {
       "analyticsindiamag.com",
       "your-wordpress-domain.com",
       "azbytegems.com",
+      "publicisgroupe-my.sharepoint.com",
     ],
   },
 

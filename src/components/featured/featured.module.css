@@ -628,7 +628,7 @@
 
 @media screen and (max-width: 430px) {
   .latestPostsTitle {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
   .articleCard {
     padding: 10px;
@@ -686,12 +686,12 @@
   }
 
   .latestPostsTitle {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .postImage {
     position: relative;
-    width: 250px; /* Fixed width */
+    width: 100%; /* Fixed width */
     height: 200px; /* Fixed height */
     border-radius: 8px;
     overflow: hidden;
