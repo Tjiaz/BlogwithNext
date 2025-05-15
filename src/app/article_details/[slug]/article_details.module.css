@@ -184,11 +184,37 @@
   height: 100%;
   object-fit: cover;
 }
+.socialLinksWrapper {
+  position: relative;
+  height: 50px; /* Match the height of your horizontal social links */
+  margin-bottom: 20px;
+}
 
 .socialLink {
   display: flex;
   align-items: center;
   gap: 5px;
+  transition: all 0.3s ease;
+}
+
+/* Horizontal layout (default) */
+.socialLink.horizontal {
+  position: static;
+  flex-direction: row;
+}
+
+/* Vertical layout when scrolled */
+.socialLink.vertical {
+  position: fixed;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  flex-direction: column;
+  z-index: 100;
+  background: transparent;
+  padding: 20px 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .socialButton {
@@ -196,12 +222,32 @@
   border: none;
   cursor: pointer;
   padding: 8px;
-  border-radius: 50%;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   transition: all 0.3s ease;
 }
 
+.facebookButton {
+  background-color: #1877f2;
+}
+
+.linkedinButton {
+  background-color: #0077b5; /* LinkedIn blue */
+}
+.xButton {
+  background-color: #000000; /* X blue */
+}
+.emailButton {
+  background-color: #5a5a5a;
+  color: white;
+}
+
 .socialButton:hover {
-  background: #f0f0f0;
+  opacity: 0.8;
 }
 .sectionImage {
   width: 50%;
@@ -215,15 +261,21 @@
 }
 
 .facebookIcon {
-  color: #1877f2;
+  color: #fff;
+  font-size: x-large;
 }
 
 .linkedIcon {
-  color: #0a66c2;
+  color: white;
+  font-size: x-large;
 }
 
 .xIcon {
-  color: #000;
+  color: white;
+  font-size: larger;
+}
+.emailIcon {
+  font-size: x-large;
 }
 
 .divider {
@@ -349,6 +401,11 @@
   .advert {
     max-width: 100%;
     padding-left: 0;
+  }
+
+  .socialLink.vertical {
+    left: 5px;
+    padding: 15px 5px;
   }
 }
 

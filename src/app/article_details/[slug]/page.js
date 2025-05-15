@@ -1,6 +1,6 @@
 "use client";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import styles from "./article_details.module.css";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,7 +9,8 @@ import { MdFacebook, MdSearch } from "react-icons/md";
 import Head from "next/head";
 
 import { FaLinkedinIn } from "react-icons/fa";
-import { BsTwitterX } from "react-icons/bs";
+import { BsEnvelope, BsMailbox, BsMessenger, BsTwitterX } from "react-icons/bs";
+import Comments from "@/components/comments/Comments";
 
 // Function to fetch article by ID
 async function getTopicDetails(slug) {
@@ -28,6 +29,21 @@ export default function ArticleDetails() {
   const [latestPosts, setLatestPosts] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSharing, setIsSharing] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  const articleRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (articleRef.current) {
+        const { top } = articleRef.current.getBoundingClientRect();
+        setIsScrolled(top < -100); // Adjust this value as needed
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   <Head>
     <meta name="twitter:card" content="summary_large_image" />
@@ -41,7 +57,7 @@ export default function ArticleDetails() {
       name="twitter:image"
       content={
         article?.filtered_images?.[0] ||
-        extractImageFromContent(article?.content) ||
+        article?.content ||
         `${process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"}/azbyte.jpeg`
       }
     />
@@ -171,36 +187,48 @@ export default function ArticleDetails() {
         </Link>
       </div>
       <div className={styles.articleInfo}>
-        <div className={styles.textContainer1}>
+        <div className={styles.textContainer1} ref={articleRef}>
           <h1>{article.title}</h1>
           <p className={styles.meta}>
             By <span className={styles.author}>{article.author}</span> on{" "}
             <span className={styles.date}>{article.date}</span>
           </p>
-          <div className={styles.socialLink}>
-            <button
-              onClick={() => shareToSocial("facebook")}
-              className={styles.socialButton}
-              disabled={isSharing}
+          <div className={styles.socialLinksWrapper}>
+            <div
+              className={`${styles.socialLink} ${isScrolled ? styles.vertical : styles.horizontal}`}
             >
-              <MdFacebook className={styles.facebookIcon} />
-            </button>
+              <button
+                onClick={() => shareToSocial("facebook")}
+                className={`${styles.socialButton} ${styles.facebookButton}`}
+                disabled={isSharing}
+              >
+                <MdFacebook className={styles.facebookIcon} />
+              </button>
 
-            <button
-              onClick={() => shareToSocial("linkedin")}
-              className={styles.socialButton}
-              disabled={isSharing}
-            >
-              <FaLinkedinIn className={styles.linkedIcon} />
-            </button>
+              <button
+                onClick={() => shareToSocial("linkedin")}
+                className={`${styles.socialButton} ${styles.linkedinButton}`}
+                disabled={isSharing}
+              >
+                <FaLinkedinIn className={styles.linkedIcon} />
+              </button>
 
-            <button
-              onClick={() => shareToSocial("twitter")}
-              className={styles.socialButton}
-              disabled={isSharing}
-            >
-              <BsTwitterX className={styles.xIcon} />
-            </button>
+              <button
+                onClick={() => shareToSocial("twitter")}
+                className={`${styles.socialButton} ${styles.xButton}`}
+                disabled={isSharing}
+              >
+                <BsTwitterX className={styles.xIcon} />
+              </button>
+
+              <button
+                onClick={() => shareToSocial("twitter")}
+                className={`${styles.socialButton} ${styles.emailButton}`}
+                disabled={isSharing}
+              >
+                <BsEnvelope className={styles.emailIcon} />
+              </button>
+            </div>
           </div>
           <hr className={styles.divider} />
           {typeof article.content === "string" ? (
@@ -295,6 +323,8 @@ export default function ArticleDetails() {
           </div>
         </div>
       </div>
+
+      <Comments />
     </div>
   );
 }

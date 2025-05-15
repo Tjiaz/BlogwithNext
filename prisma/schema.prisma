@@ -51,6 +51,7 @@ model User {
   sessions      Session[]
   Post          Post[]
   articles      Article[]
+  comments      Comment[] 
   isAdmin       Boolean  @default(false) 
 
 }
@@ -152,3 +153,14 @@ model LinkedinAuth {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model Comment {
+  id String @id @default(cuid()) @map("_id")
+  content String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userEmail String
+  user User @relation(fields: [userEmail], references: [email])
+  postSlug String?
+}
+

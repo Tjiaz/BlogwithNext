@@ -16,6 +16,7 @@
     "@types/node-fetch": "^2.6.12",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.5.0",
+    "emoji-mart": "^5.6.0",
     "eslint": "8.48.0",
     "eslint-config-next": "13.4.19",
     "facebook-nodejs-business-sdk": "^21.0.5",
