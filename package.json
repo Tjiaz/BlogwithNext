@@ -17,6 +17,7 @@
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.5.0",
     "emoji-mart": "^5.6.0",
+    "emoji-picker-react": "^4.12.2",
     "eslint": "8.48.0",
     "eslint-config-next": "13.4.19",
     "facebook-nodejs-business-sdk": "^21.0.5",

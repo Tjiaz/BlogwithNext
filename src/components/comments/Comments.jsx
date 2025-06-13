@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import styles from "./comments.module.css";
-import { Picker } from "emoji-mart";
+import EmojiPicker from "emoji-picker-react";
 import { useSession } from "next-auth/react";
+import Comment from "./Comment";
+import { FiMessageCircle } from "react-icons/fi";
+import { FaRegSmile, FaTimes } from "react-icons/fa";
 
 const Comments = ({ user }) => {
   const { data: session } = useSession();
@@ -57,8 +60,8 @@ const Comments = ({ user }) => {
     }
   }
 
-  function addEmoji(emoji) {
-    setNewComment((prevComment) => prevComment + emoji.native);
+  function onEmojiClick(emojiObject) {
+    setNewComment((prevComment) => prevComment + emojiObject.emoji);
   }
 
   return (
@@ -77,18 +80,16 @@ const Comments = ({ user }) => {
             type="button"
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           >
-            {showEmojiPicker ? "Close Emoji Picker" : "Add Emoji"}
+            {showEmojiPicker ? <FaTimes /> : <FaRegSmile />}
           </button>
-          {showEmojiPicker && (
-            <Picker onEmojiSelect={addEmoji} title="Pick emoji" />
-          )}
-          <button type="submit">Submit</button>
+          {showEmojiPicker && <EmojiPicker onEmojiClick={onEmojiClick} />}
+          <button type="submit">Comment</button>
         </form>
       ) : (
         <p>Please log in to leave a comment.</p>
       )}
 
-      <ul className={styles.commentList}>
+      {/* <ul className={styles.commentList}>
         {Array.isArray(comments) &&
           comments.map((comment) => (
             <li key={comment.id}>
@@ -98,6 +99,12 @@ const Comments = ({ user }) => {
               : {comment.content}
             </li>
           ))}
+      </ul> */}
+
+      <ul className={styles.commentList}>
+        {comments.map((comment) => (
+          <Comment key={comment.id} comment={comment} />
+        ))}
       </ul>
     </div>
   );
