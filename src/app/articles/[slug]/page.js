@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
 import ArticleCard from "./ArticleCard";
+import { getCurrentAdvert } from "@/utils/advert";
 
 const ArticlePage = ({ params }) => {
   const { slug } = params; // Destructure slug from params
@@ -59,7 +60,8 @@ const ArticlePage = ({ params }) => {
     fetchTopPosts();
   }, []); // Empty dependency array to run once on component mount
   // Log articles to see its structure before rendering
-  console.log("Articles state before rendering:", articles);
+
+  const currentAdvert = getCurrentAdvert();
 
   return loading ? (
     <div className={styles.spinner}></div>
@@ -69,10 +71,15 @@ const ArticlePage = ({ params }) => {
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/ads.gif" alt="" fill className={styles.image} />
+          <Image
+            src={currentAdvert.gif1}
+            alt=""
+            fill
+            className={styles.image}
+          />
         </div>
-        <Link href="/" className={styles.advert}>
-          Google-bigquery
+        <Link href={currentAdvert.link} className={styles.advert}>
+          {currentAdvert.name}
         </Link>
       </div>
       <div className={styles.post}>
@@ -138,13 +145,13 @@ const ArticlePage = ({ params }) => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif2}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Adverts</Link>
+            <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div>
             <h3>Top Posts</h3>
@@ -179,13 +186,13 @@ const ArticlePage = ({ params }) => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif3}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Google-bigquery</Link>
+            <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div className={styles.signupContainer}>
             <input

@@ -12,6 +12,7 @@ import {
   FaTwitter,
   FaYoutube,
 } from "react-icons/fa";
+import { getCurrentAdvert } from "@/utils/advert";
 
 const Page = () => {
   const [latestPosts, setLatestPosts] = useState([]);
@@ -33,14 +34,21 @@ const Page = () => {
     }
     fetchArticles();
   }, []);
+
+  const currentAdvert = getCurrentAdvert();
   return (
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/ads.gif" alt="" fill className={styles.image} />
+          <Image
+            src={currentAdvert.gif1}
+            alt=""
+            fill
+            className={styles.image}
+          />
         </div>
-        <Link href="/" className={styles.advert}>
-          Google-bigquery
+        <Link href={currentAdvert.link} className={styles.advert}>
+          {currentAdvert.name}
         </Link>
       </div>
       <div className={styles.post}>
@@ -83,13 +91,13 @@ const Page = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif2}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">advert</Link>
+            <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div>
             <h3>Latest Posts</h3>

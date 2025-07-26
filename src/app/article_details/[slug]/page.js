@@ -11,6 +11,7 @@ import Head from "next/head";
 import { FaLinkedinIn } from "react-icons/fa";
 import { BsEnvelope, BsMailbox, BsMessenger, BsTwitterX } from "react-icons/bs";
 import Comments from "@/components/comments/Comments";
+import { getCurrentAdvert } from "@/utils/advert";
 
 // Function to fetch article by ID
 async function getTopicDetails(slug) {
@@ -172,6 +173,8 @@ export default function ArticleDetails() {
     }
   };
 
+  const currentAdvert = getCurrentAdvert();
+
   return error ? (
     <div>Error: {error}</div>
   ) : !article ? (
@@ -180,10 +183,15 @@ export default function ArticleDetails() {
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/ads.gif" alt="" fill className={styles.image} />
+          <Image
+            src={currentAdvert.gif1}
+            alt=""
+            fill
+            className={styles.image}
+          />
         </div>
-        <Link href="/" className={styles.advert}>
-          Google-bigquery
+        <Link href={currentAdvert.link} className={styles.advert}>
+          {currentAdvert.name}
         </Link>
       </div>
       <div className={styles.articleInfo}>
@@ -296,7 +304,7 @@ export default function ArticleDetails() {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif2}
               alt="Advert"
               width={300}
               height={250}

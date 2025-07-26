@@ -6,6 +6,7 @@ import Link from "next/link";
 import { RiRssFill } from "react-icons/ri";
 import toast from "react-hot-toast";
 
+
 const shareToSocial = async (platform) => {
   setIsSharing(true);
   try {

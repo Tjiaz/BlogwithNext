@@ -14,8 +14,9 @@ import {
 } from "react-icons/fa";
 import ShareButtons from "@/components/share_buttons/ShareButtons";
 import Head from "next/head";
+import { getCurrentAdvert } from "@/utils/advert";
 
-
+const currentAdvert = getCurrentAdvert();
 
 const BlogPage = () => {
   const [loading, setLoading] = useState(true);
@@ -127,10 +128,15 @@ const BlogPage = () => {
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/ads.gif" alt="" fill className={styles.image} />
+          <Image
+            src={currentAdvert.gif1}
+            alt=""
+            fill
+            className={styles.image}
+          />
         </div>
-        <Link href="/" className={styles.advert}>
-          Google-bigquery
+        <Link href={currentAdvert.link} className={styles.advert}>
+          {currentAdvert.name}
         </Link>
       </div>
       <div className={styles.post}>
@@ -267,13 +273,13 @@ const BlogPage = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif2}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Google-bigquery</Link>
+            <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div>
             <h3>Latest Posts</h3>
@@ -303,13 +309,13 @@ const BlogPage = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif3}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Adverts</Link>
+            <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div className={styles.signupContainer}>
             <input

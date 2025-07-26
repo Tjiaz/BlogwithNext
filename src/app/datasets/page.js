@@ -5,6 +5,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
 import datasets from "@/Data2";
+import { getCurrentAdvert } from "@/utils/advert";
+
+import {
+  FaEnvelope,
+  FaFacebookF,
+  FaGithubSquare,
+  FaLinkedinIn,
+  FaRedditSquare,
+  FaTwitter,
+  FaYoutube,
+} from "react-icons/fa";
 
 const DatasetPage = () => {
   const [latestPosts, setLatestPosts] = useState([]);
@@ -22,25 +33,24 @@ const DatasetPage = () => {
         }
       } catch (error) {
         console.error("Failed to fetch articles", error);
-      } finally {
-        setLoading(false);
       }
     }
     fetchArticles();
   }, []);
+  const currentAdvert = getCurrentAdvert();
   return (
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
           <Image
-            src="/Data-science-engineering.jpeg"
+            src={currentAdvert.gif1}
             alt=""
             fill
             className={styles.image}
           />
         </div>
-        <Link href="/" className={styles.advert}>
-          adverts link
+        <Link href={currentAdvert.link} className={styles.advert}>
+          {currentAdvert.name}
         </Link>
       </div>
       <div className={styles.post}>
@@ -50,50 +60,20 @@ const DatasetPage = () => {
           </h1>
 
           <div className={styles.socialmedialinks}>
-            <a href="#">
-              <Image
-                src="/facebook.png"
-                alt=""
-                className={styles.socialmedia}
-                width={24}
-                height={24}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaFacebookF />
             </a>
-            <a href="#">
-              <Image
-                src="/twitter.png"
-                alt=""
-                className={styles.socialmedia}
-                width={24}
-                height={24}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaTwitter />
             </a>
-            <a href="#">
-              <Image
-                src="/instagram.png"
-                alt=""
-                className={styles.socialmedia}
-                width={24}
-                height={24}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaLinkedinIn />
             </a>
-            <a href="#">
-              <Image
-                src="/youtube.png"
-                alt=""
-                width={24}
-                height={24}
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaYoutube />
             </a>
-            <a href="#">
-              <Image
-                src="/reddit.png"
-                alt=""
-                width={24}
-                height={24}
-                className={styles.socialmedia}
-              />
+            <a href="#" className={styles.socialmedia}>
+              <FaRedditSquare />
             </a>
           </div>
           <hr style={{ color: "#bbbbbb" }} />
@@ -161,13 +141,13 @@ const DatasetPage = () => {
           </div>
           <div className={styles.advertImageContainer}>
             <Image
-              src="/dummy_Image.png"
+              src={currentAdvert.gif2}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImage}
             />
-            <Link href="/">Adverts</Link>
+            <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div>
             <h3>Latest Posts</h3>
@@ -195,13 +175,13 @@ const DatasetPage = () => {
           </div>
           <div className={styles.advertImageContainer}>
             <Image
-              src="/dummy_Image.png"
+              src={currentAdvert.gif3}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImage}
             />
-            <Link href="/">Adverts</Link>
+            <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div className={styles.signupContainer}>
             <input

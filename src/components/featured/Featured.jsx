@@ -9,51 +9,11 @@ import Pagination from "../pagination/Pagination";
 import { useSearchParams } from "next/navigation";
 import SubscribeModal from "../subscribeModal/SubscribeModal";
 import LoadingPlaceholder from "./LoadingPlaceholder";
+import { getCurrentAdvert } from "@/utils/advert";
 
 const POSTS_PER_PAGE = 8;
 
 const extractImageFromContent = (content) => {
-  //   try {
-  //     // If content is a string or array
-  //     const imageRegexes = [
-  //       /!$$.*?$$$$(.*?)$$/, // Custom Markdown syntax
-  //       /!$$.*?$$$$(.*?)$$/, // Standard Markdown image syntax
-  //       /<img[^>]+src="([^">]+)"/, // HTML img tag
-  //       /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/, // Direct image URLs
-  //     ];
-
-  //     // Handle different content types
-  //     const contentString =
-  //       typeof content === "string"
-  //         ? content
-  //         : Array.isArray(content)
-  //         ? content
-  //             .map((section) =>
-  //               section.paragraphs ? section.paragraphs.join(" ") : ""
-  //             )
-  //             .join(" ")
-  //         : "";
-
-  //     for (let regex of imageRegexes) {
-  //       const match = contentString.match(regex);
-  //       if (match && match[1]) {
-  //         // Normalize the URL
-  //         const normalizedUrl = match[1].startsWith("/")
-  //           ? `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${
-  //               match[1]
-  //             }`
-  //           : match[1];
-  //         return normalizedUrl;
-  //       }
-  //     }
-
-  //     return null;
-  //   } catch (error) {
-  //     console.error("Error extracting image from content:", error);
-  //     return null;
-  //   }
-  // };
-
   try {
     // If no content, return null
     if (!content) return null;
@@ -87,6 +47,7 @@ const extractImageFromContent = (content) => {
     return null;
   }
 };
+
 
 const Featured = () => {
   const [state, setState] = useState({
@@ -244,14 +205,21 @@ const Featured = () => {
     );
   });
 
+  const currentAdvert = getCurrentAdvert()
+
   return (
     <div className={styles.container}>
       <div className={styles.advertsContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/ads.gif" alt="advert" fill className={styles.image} />
+          <Image
+            src={currentAdvert.gif1}
+            alt="advert"
+            fill
+            className={styles.image}
+          />
         </div>
-        <Link href="/" className={styles.advert}>
-          Google-bigquery
+        <Link href={currentAdvert.link} className={styles.advert}>
+          {currentAdvert.name}
         </Link>
       </div>
       <div className={styles.post}>
@@ -318,14 +286,14 @@ const Featured = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif2}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link className={styles.ads_name} href="/">
-              Google-bigquery
+            <Link className={styles.ads_name} href={currentAdvert.link}>
+              {currentAdvert.name}
             </Link>
           </div>
           <div>
@@ -356,14 +324,14 @@ const Featured = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif3}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link className={styles.ads_name} href="/">
-              Google-bigquery
+            <Link className={styles.ads_name} href={currentAdvert.link}>
+              {currentAdvert.name}
             </Link>
           </div>
           <div className={styles.signupContainer}>
