@@ -40,7 +40,7 @@ const DatasetPage = () => {
   const currentAdvert = getCurrentAdvert();
   return (
     <div className={styles.container}>
-      <div className={styles.advertContainer}>
+      <div className={styles.advertsContainer}>
         <div className={styles.imageadvert}>
           <Image
             src={currentAdvert.gif1}
@@ -139,13 +139,13 @@ const DatasetPage = () => {
             />
             <MdSearch className={styles.searchIcon} />
           </div>
-          <div className={styles.advertImageContainer}>
+          <div className={styles.advertImgContainer}>
             <Image
               src={currentAdvert.gif2}
               alt="advert"
               width={100}
               height={100}
-              className={styles.advertImage}
+              className={styles.advertImg}
             />
             <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
@@ -173,13 +173,13 @@ const DatasetPage = () => {
               )}
             </ol>
           </div>
-          <div className={styles.advertImageContainer}>
+          <div className={styles.advertImgContainer}>
             <Image
               src={currentAdvert.gif3}
               alt="advert"
               width={100}
               height={100}
-              className={styles.advertImage}
+              className={styles.advertImg}
             />
             <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>

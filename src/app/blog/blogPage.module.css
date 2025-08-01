@@ -1,5 +1,6 @@
 .container {
   margin-top: 90px;
+  padding: 20px;
 }
 
 .imageadvert {
@@ -56,19 +57,19 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  max-width: 1536px; /* Match your body max-width */
-  padding-top: 40px;
-  margin: 0 auto; /* Center the container */
+
+  margin: 0 auto;
+  padding: 20px 0;
 }
 
 .advert {
   width: 70vw;
   max-width: 1000px; /* Match the imageadvert max-width */
-  font-size: small;
+  font-size: 14px;
   text-decoration: underline;
   text-align: center;
-  padding-left: 0;
   margin: 0 auto;
+  color: #0b73b1;
 }
 
 .textContainer1 {
@@ -244,6 +245,12 @@
   .title {
     font-size: 72px;
   }
+
+  .imageadvert,
+  .advert {
+    width: 50vw;
+    max-width: 800px;
+  }
 }
 
 @media screen and (max-width: 1024px) {
@@ -266,7 +273,7 @@
     font-size: small;
     text-decoration: underline;
     text-align: center;
-    padding-left: 200px;
+    padding-left: 0;
   }
 }
 

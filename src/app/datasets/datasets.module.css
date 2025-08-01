@@ -1,5 +1,5 @@
 .container {
-  margin-top: 30px;
+  margin-top: 90px;
 }
 
 .imageadvert {
@@ -45,6 +45,8 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
+  margin: 0 auto;
+  padding: 20px 0;
 }
 
 .advert {
@@ -52,7 +54,6 @@
   font-size: small;
   text-decoration: underline;
   text-align: center;
-  padding-left: 550px;
 }
 
 .textContainer1 {

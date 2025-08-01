@@ -32,8 +32,8 @@
   font-size: 14px;
   color: #0b73b1;
   text-align: center;
-  margin-top: 10px;
-  text-decoration: none;
+  margin-top: 0 auto;
+  text-decoration: underline;
 }
 .advert:hover {
   text-decoration: underline;

@@ -15,6 +15,14 @@ const adverts = [
     gif3: "/adss/nvd2.png",
     link: "https://www.pny.com/dgx-spark",
   },
+  {
+    id: 3,
+    name: "ai",
+    gif1: "/adss/ai.png",
+    gif2: "/adss/nvd3.jpg",
+    gif3: "/adss/nvd2.png",
+    link: "https://ai-infra-summit.com/events/ai-infrastructure-summit-2024",
+  },
 ];
 
 export default adverts;

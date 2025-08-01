@@ -69,7 +69,7 @@ const ArticlePage = ({ params }) => {
     <div>Article not found</div>
   ) : (
     <div className={styles.container}>
-      <div className={styles.advertContainer}>
+      <div className={styles.advertsContainer}>
         <div className={styles.imageadvert}>
           <Image
             src={currentAdvert.gif1}
