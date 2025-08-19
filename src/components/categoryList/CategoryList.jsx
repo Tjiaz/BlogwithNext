@@ -58,7 +58,7 @@ const CategoryList = () => {
     <div className={styles.container}>
       <div className={styles.recentContainer1}>
         <div className={styles.category}>
-          <h3 className={styles.title}>More Recent Posts</h3>
+          <h3 className={styles.title}>More Recent Articles</h3>
           {loading ? (
             <p>Loading...</p>
           ) : moreRecentPosts.length > 0 ? (
@@ -66,7 +66,7 @@ const CategoryList = () => {
               <CatCard
                 key={item.id}
                 postTitle={
-                  <Link href={`/article_details/${item.id}`} postId={item.id} >
+                  <Link href={`/article_details/${item.id}`} postId={item.id}>
                     {item.title}
                   </Link>
                 }

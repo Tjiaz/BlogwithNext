@@ -58,19 +58,31 @@ const Page = () => {
           <h1 className={styles.head}>About AzByteGems</h1>
 
           <div className={styles.socialmedialinks}>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.facebook.com/profile.php?id=61572544476793"
+              className={styles.socialmedia}
+            >
               <FaFacebookF />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a href="https://x.com/azbytegems" className={styles.socialmedia}>
               <FaTwitter />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.linkedin.com/company/106269314/admin/dashboard/"
+              className={styles.socialmedia}
+            >
               <FaLinkedinIn />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.youtube.com/channel/UCAzNdfK8i3WcStsAQjGI9-Q"
+              className={styles.socialmedia}
+            >
               <FaYoutube />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.reddit.com/user/DinnerDesperate3392/"
+              className={styles.socialmedia}
+            >
               <FaRedditSquare />
             </a>
           </div>
@@ -164,6 +176,52 @@ const Page = () => {
               </div>
             ))}
           </div>
+          <div style={{ marginTop: "30px" }}>
+            <h2 style={{ fontWeight: "bold", marginBottom: "10px" }}>
+              Advertising
+            </h2>
+            <p>
+              AzByteGems only accepts advertising relevant to Data Science,
+              Machine Learning, AI and Analytics products or services. Contact{" "}
+              <a href="mailto:editor@azbytegems.com">editor@azbytegems.com</a>{" "}
+              for rates and options.
+            </p>
+            <h2 style={{ fontWeight: "bold", margin: "20px 0 10px" }}>
+              Subscription
+            </h2>
+            <p>
+              AzByteGems has reached over 1,000 unique monthly visitors in
+              September 2024, and currently has over 360 subscribers via email,
+              Twitter, LinkedIn and Facebook. Get your free AzByteGems email
+              subscription here. AzByteGems News is a summary of interesting
+              stories on AzByteGems, and is emailed 3-4 times a month, usually
+              on Wednesday. You can also follow{" "}
+              <a
+                href="https://twitter.com/azbytegems"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                @AzByteGems on Twitter
+              </a>
+              , like the{" "}
+              <a
+                href="https://facebook.com/azbytegems"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                AzByteGems Facebook page
+              </a>
+              , or join the{" "}
+              <a
+                href="https://linkedin.com/company/azbytegems"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                AzByteGems LinkedIn Group
+              </a>
+              .
+            </p>
+          </div>
         </div>
         <div className={styles.textContainer2}>
           <div className={styles.searchContainer}>
@@ -185,7 +243,7 @@ const Page = () => {
             <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div>
-            <h3>Latest Posts</h3>
+            <h3>Latest Articles</h3>
             <div style={{ display: "flex", width: "100%" }}>
               <div
                 style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}

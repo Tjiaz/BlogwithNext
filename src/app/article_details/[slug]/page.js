@@ -312,7 +312,7 @@ export default function ArticleDetails() {
             />
           </div>
           <div className={styles.latestPosts}>
-            <h3 className={styles.latestPostsTitle}>Latest Posts</h3>
+            <h3 className={styles.latestPostsTitle}>Latest Articles</h3>
             <div className={styles.latestPostsList}>
               {latestPosts?.length > 0 ? (
                 latestPosts.map((post) => (

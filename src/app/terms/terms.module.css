@@ -30,6 +30,7 @@
   height: 100px;
   position: relative;
   width: 70vw;
+  max-width: 1000px; /* Set a maximum width for large screens */
   display: block;
   margin: 0 auto;
 }

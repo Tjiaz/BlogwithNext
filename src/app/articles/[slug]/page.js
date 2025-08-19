@@ -154,7 +154,7 @@ const ArticlePage = ({ params }) => {
             <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div>
-            <h3>Top Posts</h3>
+            <h3>Top Articles</h3>
             <div style={{ display: "flex", width: "100%" }}>
               <div
                 style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}

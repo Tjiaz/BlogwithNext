@@ -48,7 +48,6 @@ const extractImageFromContent = (content) => {
   }
 };
 
-
 const Featured = () => {
   const [state, setState] = useState({
     latestPosts: [],
@@ -205,7 +204,7 @@ const Featured = () => {
     );
   });
 
-  const currentAdvert = getCurrentAdvert()
+  const currentAdvert = getCurrentAdvert();
 
   return (
     <div className={styles.container}>
@@ -297,7 +296,7 @@ const Featured = () => {
             </Link>
           </div>
           <div>
-            <h3>Top Posts</h3>
+            <h3>Top Articles</h3>
             <div style={{ display: "flex", width: "100%" }}>
               <div
                 style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
@@ -318,7 +317,7 @@ const Featured = () => {
                   </li>
                 ))
               ) : (
-                <li>No top posts found.</li>
+                <li>No top articles found.</li>
               )}
             </ol>
           </div>

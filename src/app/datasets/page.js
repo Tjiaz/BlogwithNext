@@ -60,19 +60,38 @@ const DatasetPage = () => {
           </h1>
 
           <div className={styles.socialmedialinks}>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.facebook.com/profile.php?id=61572544476793"
+              className={`${styles.socialmedia} ${styles.facebook}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <FaFacebookF />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://x.com/azbytegems"
+              className={`${styles.socialmedia} ${styles.twitter}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <FaTwitter />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.linkedin.com/company/106269314/admin/dashboard/"
+              className={`${styles.socialmedia} ${styles.linkedin}`}
+            >
               <FaLinkedinIn />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.youtube.com/channel/UCAzNdfK8i3WcStsAQjGI9-Q"
+              className={styles.socialmedia}
+            >
               <FaYoutube />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.reddit.com/user/DinnerDesperate3392/"
+              className={styles.socialmedia}
+            >
               <FaRedditSquare />
             </a>
           </div>
@@ -150,7 +169,7 @@ const DatasetPage = () => {
             <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div>
-            <h3>Latest Posts</h3>
+            <h3>Latest Articles</h3>
             <div style={{ display: "flex", width: "100%" }}>
               <div
                 style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
