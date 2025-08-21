@@ -104,7 +104,7 @@ export const accordionItems = [
         Clicking on a link in an article might normally send you to another page
         or part of the article. To achieve this, 1°) your browser sends a
         request to a server linked to the website, 2°) the server answers back
-        (“here is the article you asked for”), using technical information
+        (&quot;here is the article you asked for&quot;), using technical information
         automatically included in the request sent by your device, to properly
         display the information / images that are part of the article you asked
         for. Technically, such exchange of information is necessary to deliver
@@ -133,8 +133,8 @@ export const accordionItems = [
     title: "11. Legitimate Interest",
     content: (
       <p>
-        For some purposes and/or vendors we use the legal basis "Legitimate
-        Interest" (GDPR 6.1.f).
+        For some purposes and/or vendors we use the legal basis &quot;Legitimate
+        Interest&quot; (GDPR 6.1.f).
       </p>
     ),
   },
