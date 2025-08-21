@@ -20,6 +20,7 @@ const Write = () => {
   const [content, setContent] = useState("");
   const [topic, setTopic] = useState("AI"); // Set a default value
   const [author, setAuthor] = useState("");
+  const [customDate, setCustomDate] = useState("");
   const [error, setError] = useState(null);
 
   if (status === "loading") {
@@ -53,6 +54,7 @@ const Write = () => {
         content: content,
         topic: normalizedTopic,
         author: author.trim(),
+        date: customDate,
       };
 
       console.log("Submitting article data:", articleData); // Debug log
@@ -177,6 +179,16 @@ const Write = () => {
           required
           className={styles.input}
         />
+
+        <label htmlFor="article-date">Publication Date & Time:</label>
+        <input
+          type="datetime-local"
+          id="article-date"
+          value={customDate}
+          onChange={(e) => setCustomDate(e.target.value)}
+          className={styles.input}
+        />
+
         <ReactQuill
           value={content}
           onChange={setContent}

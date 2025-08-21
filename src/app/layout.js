@@ -7,6 +7,8 @@ import ThemeProvider from "@/providers/ThemeProvider";
 import AuthProvider from "@/providers/AuthProvider";
 import CookieConsentBanner from "@/components/cookies/CookieConsentBanner";
 import ToastProvider from "@/providers/ToastProvider";
+import { Analytics } from "@vercel/analytics/next";
+import ConsentModal from "@/components/consentModal/ConsentModal";
 
 const plus_Jakarta_Sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -49,6 +51,8 @@ export default function RootLayout({ children }) {
                 <div className="wrapper">
                   <ToastProvider />
                   {children}
+                  <ConsentModal />
+                  <Analytics />
                   <Footer />
                   <CookieConsentBanner />
                 </div>

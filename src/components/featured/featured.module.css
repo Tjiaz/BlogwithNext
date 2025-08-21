@@ -154,6 +154,10 @@
   flex: 2.25;
 }
 
+.middle_ads {
+  text-align: end;
+}
+
 .textContainer2 {
   flex: 1;
   border-left: 1px solid #e0e0e0;

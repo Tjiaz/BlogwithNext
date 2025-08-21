@@ -232,7 +232,7 @@ const Featured = () => {
           </div>
           <Suspense fallback={<LoadingPlaceholder count={8} />}>
             {filteredPosts && filteredPosts.length > 0 ? (
-              filteredPosts.map((post) => {
+              filteredPosts.map((post, index) => {
                 const imageToUse = post.isRssPost
                   ? post.img || "/azbyte.jpeg"
                   : post.filtered_images && post.filtered_images.length > 0
@@ -246,22 +246,44 @@ const Featured = () => {
                   : post.date;
 
                 return (
-                  <FeaturedCard
-                    key={post.isRssPost ? post.guid : post._id}
-                    postImg={imageToUse}
-                    postTitle={post.title}
-                    postDesc={
-                      post.description ||
-                      post.desc ||
-                      "No description available"
-                    }
-                    postAuthor={post.author}
-                    postDate={postDate}
-                    postTopic={post.isRssPost ? "RSS Feed" : post.topic}
-                    postId={post.isRssPost ? post.guid : post.id}
-                    isRssPost={post.isRssPost}
-                    rssLink={post.isRssPost ? post.link : null}
-                  />
+                  <React.Fragment key={post.isRssPost ? post.guid : post._id}>
+                    {/* Render the article */}
+                    <FeaturedCard
+                      postImg={imageToUse}
+                      postTitle={post.title}
+                      postDesc={
+                        post.description ||
+                        post.desc ||
+                        "No description available"
+                      }
+                      postAuthor={post.author}
+                      postDate={postDate}
+                      postTopic={post.isRssPost ? "RSS Feed" : post.topic}
+                      postId={post.isRssPost ? post.guid : post.id}
+                      isRssPost={post.isRssPost}
+                      rssLink={post.isRssPost ? post.link : null}
+                    />
+
+                    {/* Insert advert after the 4th article */}
+                    {index === 3 && currentAdvert && (
+                      <div>
+                        <div>
+                          <Image
+                            src={currentAdvert.gif1}
+                            alt={currentAdvert.name}
+                            width={740}
+                            height={150}
+                          />
+                        </div>
+                        <Link
+                          href={currentAdvert.link}
+                          className={styles.middle_ads}
+                        >
+                          {currentAdvert.name}
+                        </Link>
+                      </div>
+                    )}
+                  </React.Fragment>
                 );
               })
             ) : (
@@ -383,6 +405,18 @@ const Featured = () => {
                 Privacy Policy
               </a>
             </p>
+          </div>
+          <div className={styles.advertImgContainer}>
+            <Image
+              src={currentAdvert.gif2}
+              alt="advert"
+              width={100}
+              height={100}
+              className={styles.advertImg}
+            />
+            <Link className={styles.ads_name} href={currentAdvert.link}>
+              {currentAdvert.name}
+            </Link>
           </div>
         </div>
       </div>

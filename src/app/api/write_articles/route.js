@@ -4,43 +4,6 @@ import prisma from "@/utils/connect";
 import { authOptions } from "@/utils/auth";
 import { MongoClient, ObjectId } from "mongodb";
 
-// const extractImagesFromContent = (content) => {
-//   const images = [];
-
-//   const extractImagesFromString = (str) => {
-//        const imageRegexes = [
-//       /!$$.*?$$$$(.*?)$$/g,
-//       /<img[^>]+src="?([^"\s]+)"?\s*\/?>]/gi,
-//       /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/gi,
-//     ];
-
-//     imageRegexes.forEach((regex) => {
-//       let match;
-//       while ((match = regex.exec(str)) !== null) {
-//         if (match[1] && !images.includes(match[1])) {
-//           images.push(match[1]);
-//         }
-//       }
-//     });
-//   };
-
-//   // Handle different content structures
-//   if (typeof content === "string") {
-//     extractImagesFromString(content);
-//   } else if (Array.isArray(content)) {
-//     content.forEach((section) => {
-//       if (section.paragraphs && Array.isArray(section.paragraphs)) {
-//         section.paragraphs.forEach((paragraph) => {
-//           if (typeof paragraph === "string") {
-//             extractImagesFromString(paragraph);
-//           }
-//         });
-//       }
-//     });
-//   }
-
-//   return images;
-
 const extractImagesFromContent = (content) => {
   const images = [];
 
@@ -93,7 +56,7 @@ export async function POST(req) {
     }
 
     const body = await req.json();
-    const { title, description, content, topic, author } = body;
+    const { title, description, content, topic, author, date } = body;
 
     // Validate required fields
     if (!title || !description || !content || !topic || !author) {
@@ -102,6 +65,24 @@ export async function POST(req) {
         { status: 400 }
       );
     }
+
+    // 2. Validate and parse the incoming date
+    let articleDate;
+    if (date) {
+      // Try to create a date object from the frontend input
+      articleDate = new Date(date);
+      // Check if the date is valid. If not, fall back to the current date.
+      if (isNaN(articleDate.getTime())) {
+        console.warn("Invalid date provided, using current date.");
+        articleDate = new Date();
+      }
+    } else {
+      // If no date is provided, use the current date
+      articleDate = new Date();
+    }
+
+    // Convert the final date to an ISO string for consistent storage
+    const dateToStore = articleDate.toISOString();
 
     // Find the user
     const user = await prisma.user.findUnique({
@@ -158,14 +139,17 @@ export async function POST(req) {
         title,
         description,
         content: content,
-        date: new Date().toISOString(),
+        date: new Date().toISOString(), // 3. Use the validated date from the frontend (or current date)
+        date: dateToStore,
         author: author,
         filtered_images: normalizedImages,
         createdAt: new Date(),
       };
 
-      console.log("Full content being stored:", content);
-      console.log("Article document being created:", articleDocument);
+      console.log(
+        "Article document being created with date:",
+        articleDocument.date
+      );
 
       // Update the topic by pushing the new article
       const updateResult = await topicsCollection.updateOne(
@@ -201,7 +185,8 @@ export async function POST(req) {
           content:
             typeof content === "object" ? JSON.stringify(content) : content,
           topic: topic.toLowerCase(),
-          date: new Date().toISOString(),
+          // 4. Use the same validated date for Prisma
+          date: dateToStore,
           author: author,
           userId: user.id,
           filtered_images: normalizedImages
@@ -216,6 +201,7 @@ export async function POST(req) {
           mongoId: articleDocument._id,
           prismaId: prismaArticle.id,
           extractedImages: normalizedImages,
+          publishedDate: dateToStore, // Send back the date that was used
           topicUpdateResult: updateResult,
         },
         { status: 201 }
