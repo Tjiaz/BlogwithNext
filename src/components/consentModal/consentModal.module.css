@@ -43,30 +43,37 @@
   justify-content: flex-end;
   margin-top: 20px;
   align-items: center;
+  flex-wrap: wrap; /* allows wrapping if needed */
+  gap: 10px; /* spacing between buttons */
 }
 
 .acceptButton {
   background-color: #0b73b1;
   color: white;
-  padding: 10px 20px;
-  font-size: 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  margin: 20px;
 }
 
 .manageButton {
   background-color: #dcdcdb;
   color: #333;
+}
+
+.backButton {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.acceptButton,
+.manageButton,
+.backButton {
   padding: 10px 20px;
   font-size: 14px;
-  border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s ease;
+  min-width: 100px; /* consistent width */
+  text-align: center;
 }
+
 .manageButton:hover {
   background-color: #656262;
   color: #ddd;
@@ -74,17 +81,6 @@
 
 .acceptButton:hover {
   background-color: #001c44;
-}
-
-.backButton {
-  background-color: #f0f0f0;
-  color: #333;
-  padding: 10px 20px;
-  font-size: 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s ease;
 }
 
 .backButton:hover {
@@ -148,5 +144,53 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Responsive behavior */
+@media screen and (max-width: 768px) {
+  .modal {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .text {
+    font-size: 13px;
+  }
+
+  .actions {
+    flex-direction: column; /* stack buttons */
+    align-items: stretch; /* full width buttons */
+  }
+
+  .acceptButton,
+  .manageButton,
+  .backButton {
+    width: 100%; /* make buttons full width */
+    font-size: 14px;
+    padding: 12px 0;
+    margin: 5px 0; /* vertical spacing */
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .title {
+    font-size: 16px;
+  }
+
+  .text {
+    font-size: 12px;
+  }
+
+  .accordionHeader {
+    font-size: 13px;
+  }
+
+  .accordionContent {
+    font-size: 11px;
   }
 }
