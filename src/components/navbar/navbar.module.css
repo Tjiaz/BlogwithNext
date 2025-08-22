@@ -1,25 +1,27 @@
 .container {
   display: flex;
   justify-content: center; /* Center the inner content */
-  height: auto;
+
   min-height: 90px;
   align-items: center;
   position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
   background-color: var(--bg);
   z-index: 1000;
+  border-bottom: 2px solid #0b73b1;
 }
 
 .navbarContent {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
   max-width: 1536px; /* Match the .wrapper max-width */
-  padding: 10px 35px; /* Match the .wrapper padding */
+  padding: 0 35px; /* Match the .wrapper padding */
   box-sizing: border-box;
-  border-bottom: 2px solid #0b73b1;
+
   margin: 0 auto;
 }
 
@@ -27,7 +29,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  flex: 1;
 }
 
 .social_icons {
@@ -43,7 +45,7 @@
   border: 2px solid #0b73b1;
   color: #fff;
   padding: 10px 20px;
-  font-size: 14px;
+  font-size: 10px;
   text-transform: uppercase;
   cursor: pointer;
   transition: 0.3s;
@@ -55,7 +57,7 @@
   color: #0b73b1;
 }
 .logo {
-  flex: 1;
+  flex: 0 0 auto;
   text-align: center;
 }
 
@@ -68,8 +70,10 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  font-size: 16px;
+  font-size: 14x;
   text-transform: uppercase;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 .link {
@@ -174,10 +178,10 @@
     height: 40px;
     margin-left: 15px;
   }
-  .social{ 
+  .social {
     flex-wrap: nowrap;
   }
-  .join_newsletter_button{
+  .join_newsletter_button {
     padding: 8px 16px;
     font-size: 12px;
   }

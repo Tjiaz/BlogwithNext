@@ -266,21 +266,20 @@ const Featured = () => {
 
                     {/* Insert advert after the 4th article */}
                     {index === 3 && currentAdvert && (
-                      <div>
-                        <div>
+                      <div className={styles.middleAdContainer}>
+                        <Link href={currentAdvert.link}>
                           <Image
                             src={currentAdvert.gif1}
                             alt={currentAdvert.name}
-                            width={740}
-                            height={150}
+                            width={0}
+                            height={0}
+                            sizes="100vw"
+                            className={styles.middleAdImage}
                           />
-                        </div>
-                        <Link
-                          href={currentAdvert.link}
-                          className={styles.middle_ads}
-                        >
-                          {currentAdvert.name}
                         </Link>
+                        <div className={styles.middleAdText}>
+                          {currentAdvert.name}
+                        </div>
                       </div>
                     )}
                   </React.Fragment>
