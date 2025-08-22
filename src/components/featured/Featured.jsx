@@ -224,11 +224,24 @@ const Featured = () => {
       <div className={styles.post}>
         <div className={styles.textContainer1}>
           <h2 className={styles.latestPostsTitle}>Latest Articles</h2>
-          <div style={{ display: "flex", width: "100%", marginBottom: "20px" }}>
-            <div
-              style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
-            ></div>
-            <div style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}></div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
+            <div style={{ flex: 1, borderBottom: "2px solid #0B73B1" }}></div>
+            <span
+              style={{
+                padding: "0 10px",
+                color: "#0B73B1",
+                fontWeight: "bold",
+              }}
+            >
+              ✦
+            </span>
+            <div style={{ flex: 1, borderBottom: "2px solid #0B73B1" }}></div>
           </div>
           <Suspense fallback={<LoadingPlaceholder count={8} />}>
             {filteredPosts && filteredPosts.length > 0 ? (
