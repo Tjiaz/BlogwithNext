@@ -197,6 +197,7 @@ export default function ArticleDetails() {
       <div className={styles.articleInfo}>
         <div className={styles.textContainer1} ref={articleRef}>
           <h1>{article.title}</h1>
+          <i>{article.description}</i>
           <p className={styles.meta}>
             By <span className={styles.author}>{article.author}</span> on{" "}
             <span className={styles.date}>{article.date}</span>

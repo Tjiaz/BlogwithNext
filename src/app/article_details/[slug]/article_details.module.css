@@ -174,15 +174,17 @@
 }
 .socialLinksWrapper {
   position: relative;
-  height: 50px; /* Match the height of your horizontal social links */
+  height: auto;
   margin-bottom: 20px;
   width: 100%;
+  display: flex;
+  justify-content: flex-start;
 }
 
 .socialLink {
   display: flex;
   align-items: center;
-
+  justify-content: flex-start;
   gap: 5px;
   transition: all 0.3s ease;
 }
@@ -464,7 +466,7 @@
   }
 
   .socialLinksWrapper {
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .socialLink {
@@ -502,7 +504,6 @@
   }
 
   .socialLink {
-    justify-content: center;
     gap: 8px;
   }
 }
@@ -531,7 +532,7 @@
   }
 
   .socialLink {
-    justify-content: center;
+    justify-content: flex-start;
     gap: 9px;
   }
 }
@@ -557,10 +558,11 @@
   .socialLinksWrapper {
     height: auto;
     margin-bottom: 20px;
+    justify-content: flex-start;
   }
 
   .socialLink {
-    justify-content: center;
+    justify-content: flex-start;
     gap: 12px;
   }
 }
