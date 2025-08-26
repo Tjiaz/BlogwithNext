@@ -88,6 +88,38 @@
   text-transform: uppercase;
 }
 
+.responsiveDivider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.line {
+  flex: 1;
+  border-bottom: 2px solid #0b73b1;
+}
+
+.dividerIcon {
+  padding: 0 10px;
+  color: #0b73b1;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Responsive: shrink spacing on small screens */
+@media (max-width: 600px) {
+  .line {
+    flex: none;
+    width: 43%;
+  }
+
+  .dividerIcon {
+    font-size: 1rem;
+    padding: 0 6px;
+  }
+}
+
 .articleCard {
   display: flex;
   gap: 15px;

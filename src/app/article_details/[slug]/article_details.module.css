@@ -397,10 +397,10 @@
     padding-left: 0;
   }
 
-  .socialLink.vertical {
+  /* .socialLink.vertical {
     left: 5px;
     padding: 15px 5px;
-  }
+  } */
 
   .imageResizer {
     width: 100%;
@@ -408,6 +408,15 @@
   }
   .imageContainer {
     padding-bottom: 75%; /* Adjust aspect ratio for mobile */
+  }
+
+  .socialLink.vertical {
+    position: static;
+    transform: none;
+    flex-direction: row;
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
   }
 }
 
