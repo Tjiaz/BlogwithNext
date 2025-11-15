@@ -333,7 +333,7 @@ export default function ArticleDetails() {
         </div>
       </div>
 
-      <Comments />
+      <Comments articleId={article?._id || article?.id} />
     </div>
   );
 }

@@ -45,6 +45,10 @@ const extractImagesFromContent = (content) => {
   }
 };
 
+function removeBase64Images(html) {
+  return html.replace(/<img[^>]+src=["']data:image\/[^"']+["'][^>]*>/gi, "");
+}
+
 export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
@@ -57,6 +61,9 @@ export async function POST(req) {
 
     const body = await req.json();
     const { title, description, content, topic, author, date } = body;
+
+    // Remove base64 images from content (extra safety)
+    const cleanedContent = removeBase64Images(content);
 
     // Validate required fields
     if (!title || !description || !content || !topic || !author) {
@@ -95,7 +102,7 @@ export async function POST(req) {
     }
 
     // Extract and normalize images
-    const extractedImages = extractImagesFromContent(content);
+    const extractedImages = extractImagesFromContent(cleanedContent);
     const normalizedImages = extractedImages.map((img) =>
       img.startsWith("/")
         ? `${
@@ -138,7 +145,7 @@ export async function POST(req) {
         _id: new ObjectId(),
         title,
         description,
-        content: content,
+        content: cleanedContent,
         date: new Date().toISOString(), // 3. Use the validated date from the frontend (or current date)
         date: dateToStore,
         author: author,
@@ -183,15 +190,15 @@ export async function POST(req) {
           title,
           description,
           content:
-            typeof content === "object" ? JSON.stringify(content) : content,
+            typeof content === "object"
+              ? JSON.stringify(cleanedContent)
+              : cleanedContent,
           topic: topic.toLowerCase(),
           // 4. Use the same validated date for Prisma
           date: dateToStore,
           author: author,
           userId: user.id,
-          filtered_images: normalizedImages
-            ? JSON.stringify(normalizedImages)
-            : null,
+          filtered_images: normalizedImages,
         },
       });
 

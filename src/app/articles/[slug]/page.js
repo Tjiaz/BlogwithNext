@@ -22,6 +22,9 @@ const ArticlePage = ({ params }) => {
 
   const articleRef = useRef(null);
 
+
+  
+
   useEffect(() => {
     const handleScroll = () => {
       if (articleRef.current) {

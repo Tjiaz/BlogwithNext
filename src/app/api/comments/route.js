@@ -6,10 +6,10 @@ import { NextResponse } from "next/server";
 
 export const GET = async (req) => {
   const { searchParams } = new URL(req.url);
-  const postSlug = searchParams.get("postSlug");
+  const articleId = searchParams.get("postSlug");
   try {
     const comments = await prisma.comment.findMany({
-      where: { ...(postSlug && { postSlug }) },
+      where: { ...(articleId && { articleId }) },
       include: { user: true },
     });
 
@@ -39,14 +39,14 @@ export const POST = async (req) => {
 
   try {
     const { searchParams } = new URL(req.url);
-    const postSlug = searchParams.get("postSlug");
+    const articleId = searchParams.get("articleId");
     const body = await req.json();
 
     const comment = await prisma.comment.create({
       data: {
         content: body.content,
         userEmail: session.user.email,
-        ...(postSlug && { postSlug }),
+        ...(articleId && { articleId }),
       },
       include: { user: true },
     });
@@ -59,3 +59,6 @@ export const POST = async (req) => {
     );
   }
 };
+
+
+

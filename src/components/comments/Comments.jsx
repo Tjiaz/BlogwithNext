@@ -6,7 +6,7 @@ import Comment from "./Comment";
 import { FiMessageCircle } from "react-icons/fi";
 import { FaRegSmile, FaTimes } from "react-icons/fa";
 
-const Comments = ({ user }) => {
+const Comments = ({ articleId }) => {
   const { data: session } = useSession();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -28,8 +28,8 @@ const Comments = ({ user }) => {
         console.error("Failed to fetch comments:", error);
       }
     }
-    fetchComments();
-  }, []);
+    if (articleId) fetchComments();
+  }, [articleId]);
 
   // Handle new comment submission
   async function handleSubmit(e) {
@@ -45,7 +45,7 @@ const Comments = ({ user }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ content: newComment }),
+        body: JSON.stringify({ content: newComment,articleId }),
       });
 
       if (response.ok) {

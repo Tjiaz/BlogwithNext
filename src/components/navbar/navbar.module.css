@@ -49,6 +49,7 @@
   cursor: pointer;
   transition: 0.3s;
   font-family: inherit;
+  white-space: nowrap;
 }
 
 .join_newsletter_button:hover {

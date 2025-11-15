@@ -15,7 +15,6 @@ import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const router = useRouter();
-
   const [showMenu, setShowMenu] = useState(false);
   const [showBlogMenu, setShowBlogMenu] = useState(false);
   const [showResMenu, setShowResMenu] = useState(false);

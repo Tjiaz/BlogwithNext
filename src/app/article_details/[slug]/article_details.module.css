@@ -109,9 +109,12 @@
 
 .textContainer2 {
   flex: 1;
-  border-left: 1px solid #e0e0e0;
+
+  border-left: 1px solid var(--borderColor);
   padding-left: 30px;
   flex-direction: column;
+  background-color: var(--bgSecondary);
+  color: var(--textColor);
 }
 
 .searchContainer {
@@ -126,6 +129,10 @@
   padding: 10px;
   padding-right: 40px;
   font-size: 16px;
+  border: 1px solid var(--borderColor);
+  border-radius: 5px;
+  background-color: var(--bg);
+  color: var(--textColor);
 }
 
 .searchIcon {
@@ -329,7 +336,7 @@
 }
 
 .latestPosts {
-  background: #f9f9f9;
+  background: var(--bgSecondary);
   padding: 20px;
   border-radius: 10px;
 }
@@ -348,13 +355,14 @@
 .postItem {
   padding: 10px;
   border-bottom: 1px solid #eee;
-  color: #333;
+  border-bottom: 1px solid var(--borderColor);
+  color: var(--textColor);
   text-decoration: none;
   transition: all 0.3s ease;
 }
 
 .postItem:hover {
-  background: #f0f0f0;
+  background: var(--bgSecondary);
   color: #0b73b1;
 }
 
@@ -442,7 +450,7 @@
 .paragraphs {
   font-size: 1.1rem;
   line-height: 1.8;
-  color: #333;
+  color: var(--textColor);
   margin-bottom: 24px;
 }
 

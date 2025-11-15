@@ -48,11 +48,26 @@ const extractImageFromContent = (content) => {
   }
 };
 
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 const Featured = () => {
   const [state, setState] = useState({
+    allPosts: [],
     latestPosts: [],
     topPosts: [],
-    rssPosts: [],
+    // rssPosts: [],
     loading: true,
   });
 
@@ -60,7 +75,7 @@ const Featured = () => {
   const [status, setStatus] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
+  const debouncedSearch = useDebounce(searchQuery, 500); // wait 500ms
   // Get the page from query params
   const searchParams = useSearchParams();
   const pageParam = searchParams.get("page");
@@ -76,84 +91,143 @@ const Featured = () => {
   }, []);
 
   useEffect(() => {
+    if (debouncedSearch.trim().length > 0) {
+      const filtered = state.allPosts.filter((post) =>
+        post?.title?.toLowerCase().includes(debouncedSearch.toLowerCase())
+      );
+      setState((prev) => ({
+        ...prev,
+        latestPosts: filtered,
+      }));
+    } else {
+      // Reset back to original paginated posts
+      const startIndex = (page - 1) * POSTS_PER_PAGE;
+      const endIndex = startIndex + POSTS_PER_PAGE;
+      setState((prev) => ({
+        ...prev,
+        latestPosts: prev.allPosts.slice(startIndex, endIndex),
+      }));
+    }
+  }, [debouncedSearch, page, state.allPosts]);
+
+  // useEffect(() => {
+  //   const fetchAllData = async () => {
+  //     try {
+  //       const [mongoResponse, rssResponse, topPostsResponse] =
+  //         await Promise.all([
+  //           fetch(`/api/latest_articles?page=${page}`),
+  //           fetch("/api/rss"),
+  //           fetch(`/api/topArticles?page=1`),
+  //         ]);
+
+  //       const [mongoData, topPostsData] = await Promise.all([
+  //         mongoResponse.json(),
+  //         rssResponse.json(),
+  //         topPostsResponse.json(),
+  //       ]);
+
+  //       const getFirstImageFromContent = (content) => {
+  //         if (!content) return null;
+  //         const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
+  //         return imgMatch ? imgMatch[1] : null;
+  //       };
+
+  //       const transformedRssData = rssData.map((item) => ({
+  //         ...item,
+  //         id: item.guid,
+  //         title: item.title?.trim(),
+  //         description: item.contentSnippet || item.description || "",
+  //         date: item.isoDate || item.pubDate,
+  //         author: item.author?.trim().replace(/\n/g, "") || "RSS Feed",
+  //         link: item.link?.trim(),
+  //         topic: "RSS Feed",
+  //         img:
+  //           item.enclosure?.url ||
+  //           item.image ||
+  //           getFirstImageFromContent(item.content) ||
+  //           "/azbyte.jpeg",
+  //         isRssPost: true,
+  //       }));
+
+  //       // Create a Set to track unique articles by ID
+  //       const uniquePosts = new Set();
+
+  //       // Add MongoDB posts
+  //       mongoData.forEach((post) => {
+  //         uniquePosts.add(post.id || post._id);
+  //       });
+
+  //       // Add RSS posts, avoiding duplicates
+  //       const uniqueRssPosts = transformedRssData.filter((post) => {
+  //         if (!uniquePosts.has(post.guid || post.id)) {
+  //           uniquePosts.add(post.guid || post.id);
+  //           return true;
+  //         }
+  //         return false;
+  //       });
+
+  //       // Combine MongoDB and unique RSS posts
+  //       const combinedPosts = [...mongoData, ...uniqueRssPosts];
+
+  //       // Sort combined posts by date (newest first)
+  //       combinedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  //       // Paginate the combined posts
+  //       const startIndex = (page - 1) * POSTS_PER_PAGE;
+  //       const endIndex = startIndex + POSTS_PER_PAGE;
+  //       const paginatedPosts = combinedPosts.slice(startIndex, endIndex);
+
+  //       setState({
+  //         allPosts: combinedPosts,
+  //         latestPosts: paginatedPosts,
+  //         topPosts: topPostsData.slice(0, 7),
+  //         // rssPosts: transformedRssData,
+  //         loading: false,
+  //       });
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //       setState((prev) => ({ ...prev, loading: false }));
+  //     }
+  //   };
+
+  //   fetchAllData();
+  // }, [page]);
+
+  useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const [mongoResponse, rssResponse, topPostsResponse] =
-          await Promise.all([
-            fetch(`/api/latest_articles?page=${page}`),
-            fetch("/api/rss"),
-            fetch(`/api/topArticles?page=1`),
-          ]);
-
-        const [mongoData, rssData, topPostsData] = await Promise.all([
-          mongoResponse.json(),
-          rssResponse.json(),
-          topPostsResponse.json(),
+        // Only Mongo + topPosts now
+        const [mongoRes, topRes] = await Promise.all([
+          fetch(`/api/latest_articles?page=${page}`),
+          fetch(`/api/topArticles?page=1`),
         ]);
 
-        const getFirstImageFromContent = (content) => {
-          if (!content) return null;
-          const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
-          return imgMatch ? imgMatch[1] : null;
-        };
+        const [mongoData, topPostsData] = await Promise.all([
+          mongoRes.json(),
+          topRes.json(),
+        ]);
 
-        const transformedRssData = rssData.map((item) => ({
-          ...item,
-          id: item.guid,
-          title: item.title?.trim(),
-          description: item.contentSnippet || item.description || "",
-          date: item.isoDate || item.pubDate,
-          author: item.author?.trim().replace(/\n/g, "") || "RSS Feed",
-          link: item.link?.trim(),
-          topic: "RSS Feed",
-          img:
-            item.enclosure?.url ||
-            item.image ||
-            getFirstImageFromContent(item.content) ||
-            "/azbyte.jpeg",
-          isRssPost: true,
-        }));
+        // Sort Mongo results by date descending
+        mongoData.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        // Create a Set to track unique articles by ID
-        const uniquePosts = new Set();
-
-        // Add MongoDB posts
-        mongoData.forEach((post) => {
-          uniquePosts.add(post.id || post._id);
-        });
-
-        // Add RSS posts, avoiding duplicates
-        const uniqueRssPosts = transformedRssData.filter((post) => {
-          if (!uniquePosts.has(post.guid || post.id)) {
-            uniquePosts.add(post.guid || post.id);
-            return true;
-          }
-          return false;
-        });
-
-        // Combine MongoDB and unique RSS posts
-        const combinedPosts = [...mongoData, ...uniqueRssPosts];
-
-        // Sort combined posts by date (newest first)
-        combinedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        // Paginate the combined posts
+        // Paginate
         const startIndex = (page - 1) * POSTS_PER_PAGE;
-        const endIndex = startIndex + POSTS_PER_PAGE;
-        const paginatedPosts = combinedPosts.slice(startIndex, endIndex);
+        const paginated = mongoData.slice(
+          startIndex,
+          startIndex + POSTS_PER_PAGE
+        );
 
         setState({
-          latestPosts: paginatedPosts,
+          allPosts: mongoData,
+          latestPosts: paginated,
           topPosts: topPostsData.slice(0, 7),
-          rssPosts: transformedRssData,
           loading: false,
         });
       } catch (error) {
         console.error("Error fetching data:", error);
-        setState((prev) => ({ ...prev, loading: false }));
+        setState((s) => ({ ...s, loading: false }));
       }
     };
-
     fetchAllData();
   }, [page]);
 
@@ -200,7 +274,9 @@ const Featured = () => {
       "Content preview:",
       typeof post.content === "string"
         ? post.content.substring(0, 100)
-        : JSON.stringify(post.content).substring(0, 100)
+        : post.content
+          ? JSON.stringify(post.content).substring(0, 100)
+          : "No content available"
     );
   });
 
@@ -232,13 +308,24 @@ const Featured = () => {
           <Suspense fallback={<LoadingPlaceholder count={8} />}>
             {filteredPosts && filteredPosts.length > 0 ? (
               filteredPosts.map((post, index) => {
-                const imageToUse = post.isRssPost
-                  ? post.img || "/azbyte.jpeg"
-                  : post.filtered_images && post.filtered_images.length > 0
+                const first =
+                  Array.isArray(post.filtered_images) &&
+                  post.filtered_images.length
                     ? post.filtered_images[0]
-                    : extractImageFromContent(post.content)
-                      ? extractImageFromContent(post.content)
-                      : "/azbyte.jpeg";
+                    : null;
+
+                const filteredUrl =
+                  typeof first === "string"
+                    ? first
+                    : first?.url || first?.src || null;
+
+                const imageFromContent = extractImageFromContent(post.content);
+
+                const imageToUse =
+                  filteredUrl ||
+                  imageFromContent ||
+                  post.image || // if you store it
+                  "/azbyte.jpeg"; // final fallback
 
                 const postDate = post.isRssPost
                   ? post.isoDate || post.pubDate || post.date
