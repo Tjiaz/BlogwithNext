@@ -15,22 +15,17 @@ const POSTS_PER_PAGE = 8;
 
 const extractImageFromContent = (content) => {
   try {
-    // If no content, return null
     if (!content) return null;
 
-    // Convert content to string if it's not already
     const contentString =
       typeof content === "string" ? content : JSON.stringify(content);
 
-    // First try to match img tags (most likely format from ReactQuill)
     const imgTagMatch = contentString.match(/<img[^>]+src="([^">]+)"/);
     if (imgTagMatch && imgTagMatch[1]) {
       return imgTagMatch[1];
     }
 
-    // If no img tag found, try other formats
     const otherPatterns = [
-      /!$$.*?$$$$(.*?)$$/, // Markdown image
       /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/, // Direct URLs
     ];
 
@@ -62,24 +57,30 @@ function useDebounce(value, delay) {
   return debouncedValue;
 }
 
-const Featured = () => {
+const Featured = ({
+  page,
+  initialAllPosts,
+  initialLatestPosts,
+  initialTopPosts,
+  initialHasNext,
+}) => {
   const [state, setState] = useState({
-    allPosts: [],
-    latestPosts: [],
-    topPosts: [],
-    // rssPosts: [],
-    loading: true,
+    allPosts: initialAllPosts || [],
+    latestPosts: initialLatestPosts || [],
+    topPosts: initialTopPosts || [],
   });
+
+  const [hasNext, setHasNext] = useState(initialHasNext ?? false);
 
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const debouncedSearch = useDebounce(searchQuery, 500); // wait 500ms
-  // Get the page from query params
+  const debouncedSearch = useDebounce(searchQuery, 500);
+
   const searchParams = useSearchParams();
   const pageParam = searchParams.get("page");
-  const page = parseInt(pageParam, 10) || 1;
+  const currentPage = parseInt(pageParam, 10) || page || 1;
 
   // Check for first visit using localStorage
   useEffect(() => {
@@ -90,6 +91,7 @@ const Featured = () => {
     }
   }, []);
 
+  // Handle search / pagination on the client
   useEffect(() => {
     if (debouncedSearch.trim().length > 0) {
       const filtered = state.allPosts.filter((post) =>
@@ -99,144 +101,21 @@ const Featured = () => {
         ...prev,
         latestPosts: filtered,
       }));
+      // When searching, we don't really paginate across pages,
+      // so hasNext can be false during search if you want
+      setHasNext(false);
     } else {
-      // Reset back to original paginated posts
-      const startIndex = (page - 1) * POSTS_PER_PAGE;
+      const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
       const endIndex = startIndex + POSTS_PER_PAGE;
       setState((prev) => ({
         ...prev,
         latestPosts: prev.allPosts.slice(startIndex, endIndex),
       }));
+      setHasNext(initialHasNext);
     }
-  }, [debouncedSearch, page, state.allPosts]);
+  }, [debouncedSearch, currentPage, state.allPosts, initialHasNext]);
 
-  // useEffect(() => {
-  //   const fetchAllData = async () => {
-  //     try {
-  //       const [mongoResponse, rssResponse, topPostsResponse] =
-  //         await Promise.all([
-  //           fetch(`/api/latest_articles?page=${page}`),
-  //           fetch("/api/rss"),
-  //           fetch(`/api/topArticles?page=1`),
-  //         ]);
-
-  //       const [mongoData, topPostsData] = await Promise.all([
-  //         mongoResponse.json(),
-  //         rssResponse.json(),
-  //         topPostsResponse.json(),
-  //       ]);
-
-  //       const getFirstImageFromContent = (content) => {
-  //         if (!content) return null;
-  //         const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
-  //         return imgMatch ? imgMatch[1] : null;
-  //       };
-
-  //       const transformedRssData = rssData.map((item) => ({
-  //         ...item,
-  //         id: item.guid,
-  //         title: item.title?.trim(),
-  //         description: item.contentSnippet || item.description || "",
-  //         date: item.isoDate || item.pubDate,
-  //         author: item.author?.trim().replace(/\n/g, "") || "RSS Feed",
-  //         link: item.link?.trim(),
-  //         topic: "RSS Feed",
-  //         img:
-  //           item.enclosure?.url ||
-  //           item.image ||
-  //           getFirstImageFromContent(item.content) ||
-  //           "/azbyte.jpeg",
-  //         isRssPost: true,
-  //       }));
-
-  //       // Create a Set to track unique articles by ID
-  //       const uniquePosts = new Set();
-
-  //       // Add MongoDB posts
-  //       mongoData.forEach((post) => {
-  //         uniquePosts.add(post.id || post._id);
-  //       });
-
-  //       // Add RSS posts, avoiding duplicates
-  //       const uniqueRssPosts = transformedRssData.filter((post) => {
-  //         if (!uniquePosts.has(post.guid || post.id)) {
-  //           uniquePosts.add(post.guid || post.id);
-  //           return true;
-  //         }
-  //         return false;
-  //       });
-
-  //       // Combine MongoDB and unique RSS posts
-  //       const combinedPosts = [...mongoData, ...uniqueRssPosts];
-
-  //       // Sort combined posts by date (newest first)
-  //       combinedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  //       // Paginate the combined posts
-  //       const startIndex = (page - 1) * POSTS_PER_PAGE;
-  //       const endIndex = startIndex + POSTS_PER_PAGE;
-  //       const paginatedPosts = combinedPosts.slice(startIndex, endIndex);
-
-  //       setState({
-  //         allPosts: combinedPosts,
-  //         latestPosts: paginatedPosts,
-  //         topPosts: topPostsData.slice(0, 7),
-  //         // rssPosts: transformedRssData,
-  //         loading: false,
-  //       });
-  //     } catch (error) {
-  //       console.error("Error fetching data:", error);
-  //       setState((prev) => ({ ...prev, loading: false }));
-  //     }
-  //   };
-
-  //   fetchAllData();
-  // }, [page]);
-
-  useEffect(() => {
-    const fetchAllData = async () => {
-      try {
-        // Only Mongo + topPosts now
-        const [mongoRes, topRes] = await Promise.all([
-          fetch(`/api/latest_articles?page=${page}`),
-          fetch(`/api/topArticles?page=1`),
-        ]);
-
-        const [mongoData, topPostsData] = await Promise.all([
-          mongoRes.json(),
-          topRes.json(),
-        ]);
-
-        // Sort Mongo results by date descending
-        mongoData.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        // Paginate
-        const startIndex = (page - 1) * POSTS_PER_PAGE;
-        const paginated = mongoData.slice(
-          startIndex,
-          startIndex + POSTS_PER_PAGE
-        );
-
-        setState({
-          allPosts: mongoData,
-          latestPosts: paginated,
-          topPosts: topPostsData.slice(0, 7),
-          loading: false,
-        });
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setState((s) => ({ ...s, loading: false }));
-      }
-    };
-    fetchAllData();
-  }, [page]);
-
-  if (state.loading) {
-    return <div className={styles.spinner}></div>;
-  }
-
-  const hasPrev = page > 1;
-  const hasNext = state.latestPosts.length >= POSTS_PER_PAGE;
+  const hasPrev = currentPage > 1;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -262,23 +141,6 @@ const Featured = () => {
   const filteredPosts = state.latestPosts.filter((post) =>
     post?.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  filteredPosts.forEach((post) => {
-    console.log("Post title:", post.title);
-    console.log("Has filtered_images?", !!post.filtered_images);
-    if (post.filtered_images) {
-      console.log("filtered_images:", post.filtered_images);
-    }
-    console.log("Content type:", typeof post.content);
-    console.log(
-      "Content preview:",
-      typeof post.content === "string"
-        ? post.content.substring(0, 100)
-        : post.content
-          ? JSON.stringify(post.content).substring(0, 100)
-          : "No content available"
-    );
-  });
 
   const currentAdvert = getCurrentAdvert();
 
@@ -324,8 +186,8 @@ const Featured = () => {
                 const imageToUse =
                   filteredUrl ||
                   imageFromContent ||
-                  post.image || // if you store it
-                  "/azbyte.jpeg"; // final fallback
+                  post.image ||
+                  "/azbyte.jpeg";
 
                 const postDate = post.isRssPost
                   ? post.isoDate || post.pubDate || post.date
@@ -333,7 +195,6 @@ const Featured = () => {
 
                 return (
                   <React.Fragment key={post.isRssPost ? post.guid : post._id}>
-                    {/* Render the article */}
                     <FeaturedCard
                       postImg={imageToUse}
                       postTitle={post.title}
@@ -350,7 +211,6 @@ const Featured = () => {
                       rssLink={post.isRssPost ? post.link : null}
                     />
 
-                    {/* Insert advert after the 4th article */}
                     {index === 3 && currentAdvert && (
                       <div className={styles.middleAdContainer}>
                         <Link href={currentAdvert.link}>
@@ -376,7 +236,7 @@ const Featured = () => {
             )}
           </Suspense>
 
-          <Pagination page={page} hasPrev={hasPrev} hasNext={hasNext} />
+          <Pagination page={currentPage} hasPrev={hasPrev} hasNext={hasNext} />
         </div>
 
         <div className={styles.textContainer2}>
@@ -406,7 +266,10 @@ const Featured = () => {
             <h3>Top Articles</h3>
             <div style={{ display: "flex", width: "100%" }}>
               <div
-                style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
+                style={{
+                  flex: "0 0 25%",
+                  borderBottom: "3px solid #0B73B1",
+                }}
               ></div>
               <div
                 style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}
