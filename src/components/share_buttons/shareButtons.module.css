@@ -1,0 +1,40 @@
+/* components/ShareButtons.module.css */
+.shareButtons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.shareButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.shareButton svg {
+  font-size: 16px;
+}
+
+.shareButton.twitter {
+  background-color: #1DA1F2;
+  color: white;
+}
+
+.shareButton.twitter:hover {
+  background-color: #1a91da;
+}
+
+.shareButton.facebook {
+  background-color: #4267B2;
+  color: white;
+}
+
+.shareButton.facebook:hover {
+  background-color: #365899;
+}

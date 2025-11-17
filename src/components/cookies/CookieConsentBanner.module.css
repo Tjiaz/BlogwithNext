@@ -1,0 +1,32 @@
+.cookieConsentBanner {
+  position: fixed;
+  bottom: 0;
+  left: 50%; /* Move the banner to the center horizontally */
+  transform: translateX(-50%); /* Adjust for exact centering */
+  width: 100%; /* Full width */
+  max-width: 1536px; /* Match the global body width */
+  background-color: #0b73b1;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box; /* Ensure padding is included in the width */
+}
+
+.cookieConsentBanner p {
+  margin: 0;
+  padding: 0;
+  display: inline;
+}
+
+.cookieConsentBanner button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: #0b73b1;
+  color: white;
+  border: none;
+  cursor: pointer;
+}

@@ -1,0 +1,18 @@
+[33mcommit ef71d2b35545cd396732378047cc6cc769205d67[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mstarter2[m[33m)[m
+Author: Tjiaz <tunjiazeez24@gmail.com>
+Date:   Sat Nov 15 13:45:27 2025 +0000
+
+    fixed the dark mode toggling on the article details page
+
+ ...tintopc.com_WIN11X64_PRO_AUG_ACTIVATED_2022.iso | Bin [31m1173422080[m -> [32m0[m bytes
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+
+[33mcommit c70bc1958cc578575a483e06f471cc233996eb38[m
+Author: Tjiaz <tunjiazeez24@gmail.com>
+Date:   Sat Nov 15 13:35:14 2025 +0000
+
+    fixed the dark mode toggle changes in th newsletter and article details page
+
+ ...tintopc.com_WIN11X64_PRO_AUG_ACTIVATED_2022.iso | Bin [31m0[m -> [32m1173422080[m bytes
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+fatal: unable to read tree (d215ae413daf5a6a52406b08136b047c413f607f)
