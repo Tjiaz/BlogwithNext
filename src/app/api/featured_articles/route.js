@@ -2,8 +2,6 @@
 // const uri = process.env.DATABASE_URL;
 // const client = new MongoClient(uri);
 
-
-
 // export async function GET(req) {
 //     try{
 //         await client.connect();
@@ -17,13 +15,13 @@
 //             day: 'numeric',
 //         });
 
-//         //Fetch all topics 
+//         //Fetch all topics
 //         const topics = await collection.find().toArray();
 
 //         let featuredArticles = [];
 
 //         //Find articles published today
-//         topics.forEach((topic)=> { 
+//         topics.forEach((topic)=> {
 //             if(Array.isArray(topic.articles)){
 //                 topic.articles.forEach((article)=>{
 //                     if(article.date === todayString){
@@ -36,7 +34,7 @@
 //                 });
 //             }
 //         });
-    
+
 //   // If no articles today, get the most recent articles
 //    if (featuredArticles.length === 0) {
 //       let allArticles = [];
@@ -59,19 +57,15 @@
 //      return new Response(JSON.stringify(featuredArticles), { status: 200 });
 //  } catch (error) {
 //     console.error("Error fetching featured articles:", error);
-//     return new Response(JSON.stringify({ message: "Error fetching featured articles" }), { 
-//       status: 500 
+//     return new Response(JSON.stringify({ message: "Error fetching featured articles" }), {
+//       status: 500
 //     });
 //   } finally {
 //     await client.close();
 //   }
 // }
 
-
 import { getFeaturedArticles } from "../../../utils/featuredArticles.js";
-
-// app/api/featured/route.js
-import { getFeaturedArticles } from "@/lib/featuredArticles.js";
 
 export async function GET() {
   try {
