@@ -2,10 +2,13 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 
+// ✅ Tell Next this route is always dynamic
+export const dynamic = "force-dynamic";
+
 export async function GET(request) {
   try {
-    // Safely parse the URL
-    const url = new URL(request.url, `https://${request.headers.get("host")}`);
+    // ✅ Use request.nextUrl (App Router) instead of new URL(request.url, ...)
+    const url = request.nextUrl;
 
     console.log("Full Request URL:", url.toString());
     console.log("Callback Environment Debug:", {
@@ -14,26 +17,31 @@ export async function GET(request) {
         ? "Present"
         : "Missing",
       nodeEnv: process.env.NODE_ENV,
-      host: request.headers.get("host"),
+      host: url.host,
     });
 
     const code = url.searchParams.get("code");
     const state = url.searchParams.get("state");
-    const error = url.searchParams.get("error");
+    const errorParam = url.searchParams.get("error");
 
-    // Extensive logging
     console.log("Callback Received Parameters:", {
       code: code ? "Present" : "Missing",
       state: state ? "Present" : "Missing",
-      error: error || "No error",
+      error: errorParam || "No error",
     });
 
-    // Validate inputs
+    if (errorParam) {
+      console.error("LinkedIn returned error:", errorParam);
+    }
+
+    // If no code, redirect back with error info
     if (!code) {
       console.error("No authorization code received");
-      return NextResponse.redirect(
-        new URL(`${process.env.NEXT_PUBLIC_DOMAIN}?linkedin_error=no_code`)
+      const redirectUrl = new URL(
+        process.env.NEXT_PUBLIC_DOMAIN || "https://yourdomain.com"
       );
+      redirectUrl.searchParams.set("linkedin_error", "no_code");
+      return NextResponse.redirect(redirectUrl);
     }
 
     // Determine redirect URI
@@ -42,7 +50,6 @@ export async function GET(request) {
         ? "http://localhost:3000/api/linkedin/callback"
         : `${process.env.NEXT_PUBLIC_DOMAIN}/api/linkedin/callback`;
 
-    // Validate client credentials
     const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
     const clientSecret = process.env.LINKEDIN_CLIENT_SECRET;
 
@@ -51,16 +58,18 @@ export async function GET(request) {
         clientIdPresent: !!clientId,
         clientSecretPresent: !!clientSecret,
       });
-      return NextResponse.redirect(
-        new URL(
-          `${process.env.NEXT_PUBLIC_DOMAIN}?linkedin_error=missing_credentials`
-        )
+
+      const redirectUrl = new URL(
+        process.env.NEXT_PUBLIC_DOMAIN || "https://yourdomain.com"
       );
+      redirectUrl.searchParams.set("linkedin_error", "missing_credentials");
+      return NextResponse.redirect(redirectUrl);
     }
 
-    // Exchange code for access token
+    // 🔁 Exchange the authorization code for an access token
+    let tokenResponse;
     try {
-      const tokenResponse = await axios({
+      tokenResponse = await axios({
         method: "POST",
         url: "https://www.linkedin.com/oauth/v2/accessToken",
         headers: {
@@ -69,29 +78,11 @@ export async function GET(request) {
         data: new URLSearchParams({
           grant_type: "authorization_code",
           code: code,
-          client_id: clientId.trim(), // Ensure no whitespace
+          client_id: clientId.trim(),
           client_secret: clientSecret.trim(),
           redirect_uri: redirectUri,
         }).toString(),
       });
-
-      console.log("Token Exchange Debug:", {
-        status: tokenResponse.status,
-        accessTokenPresent: !!tokenResponse.data.access_token,
-        expiresIn: tokenResponse.data.expires_in,
-      });
-
-      const { access_token, expires_in } = tokenResponse.data;
-
-      // Construct redirect URL more safely
-      const redirectUrl = new URL(
-        process.env.NEXT_PUBLIC_DOMAIN || "https://yourdomain.com"
-      );
-      redirectUrl.searchParams.set("linkedin_success", "true");
-      redirectUrl.searchParams.set("access_token", access_token);
-      redirectUrl.searchParams.set("expires_in", expires_in.toString());
-
-      return NextResponse.redirect(redirectUrl);
     } catch (tokenError) {
       console.error("Token Exchange Detailed Error:", {
         message: tokenError.message,
@@ -99,7 +90,6 @@ export async function GET(request) {
         status: tokenError.response?.status,
       });
 
-      // Redirect with error details
       const redirectUrl = new URL(
         process.env.NEXT_PUBLIC_DOMAIN || "https://yourdomain.com"
       );
@@ -112,13 +102,32 @@ export async function GET(request) {
 
       return NextResponse.redirect(redirectUrl);
     }
+
+    console.log("Token Exchange Debug:", {
+      status: tokenResponse.status,
+      accessTokenPresent: !!tokenResponse.data.access_token,
+      expiresIn: tokenResponse.data.expires_in,
+    });
+
+    const { access_token, expires_in } = tokenResponse.data;
+
+    // Redirect back to your frontend with success flags
+    const redirectUrl = new URL(
+      process.env.NEXT_PUBLIC_DOMAIN || "https://yourdomain.com"
+    );
+    redirectUrl.searchParams.set("linkedin_success", "true");
+    redirectUrl.searchParams.set("expires_in", String(expires_in || ""));
+    // ⚠️ usually you would NOT send the access token back in the URL to the browser,
+    // better to store it on the server. Leaving this here only because your original code did:
+    redirectUrl.searchParams.set("access_token", access_token || "");
+
+    return NextResponse.redirect(redirectUrl);
   } catch (error) {
     console.error("Overall LinkedIn Callback Error:", {
       message: error.message,
       stack: error.stack,
     });
 
-    // Redirect with general error
     const redirectUrl = new URL(
       process.env.NEXT_PUBLIC_DOMAIN || "https://yourdomain.com"
     );
