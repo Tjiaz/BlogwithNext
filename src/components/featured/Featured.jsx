@@ -11,8 +11,6 @@ import SubscribeModal from "../subscribeModal/SubscribeModal";
 import LoadingPlaceholder from "./LoadingPlaceholder";
 import { getCurrentAdvert } from "@/utils/advert";
 
-const POSTS_PER_PAGE = 8;
-
 const extractImageFromContent = (content) => {
   try {
     if (!content) return null;
@@ -82,6 +80,16 @@ const Featured = ({
   const pageParam = searchParams.get("page");
   const currentPage = parseInt(pageParam, 10) || page || 1;
 
+  // 🔹 Sync when props change (e.g. page 1 -> page 2)
+  useEffect(() => {
+    setState({
+      allPosts: initialAllPosts || [],
+      latestPosts: initialLatestPosts || [],
+      topPosts: initialTopPosts || [],
+    });
+    setHasNext(initialHasNext ?? false);
+  }, [initialAllPosts, initialLatestPosts, initialTopPosts, initialHasNext]);
+
   // Check for first visit using localStorage
   useEffect(() => {
     const hasVisited = localStorage.getItem("hasVisited");
@@ -101,19 +109,16 @@ const Featured = ({
         ...prev,
         latestPosts: filtered,
       }));
-      // When searching, we don't really paginate across pages,
-      // so hasNext can be false during search if you want
-      setHasNext(false);
+      setHasNext(false); // while searching we don't show Next
     } else {
-      const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
-      const endIndex = startIndex + POSTS_PER_PAGE;
+      // No search → just use whatever server sent for this page
       setState((prev) => ({
         ...prev,
-        latestPosts: prev.allPosts.slice(startIndex, endIndex),
+        latestPosts: initialLatestPosts || [],
       }));
-      setHasNext(initialHasNext);
+      setHasNext(initialHasNext ?? false);
     }
-  }, [debouncedSearch, currentPage, state.allPosts, initialHasNext]);
+  }, [debouncedSearch, state.allPosts, initialLatestPosts, initialHasNext]);
 
   const hasPrev = currentPage > 1;
 
