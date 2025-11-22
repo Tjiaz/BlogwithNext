@@ -84,9 +84,7 @@ const SafeImage = ({ src, alt, ...props }) => {
         // Only fall back if the real image fails
         setImgSrc("/azbyte.jpeg");
       }}
-      // If your images are on external domains not added to next.config.js,
-      // temporarily uncomment the next line:
-      // unoptimized
+    
       {...props}
     />
   );

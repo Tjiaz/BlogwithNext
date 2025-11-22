@@ -14,6 +14,8 @@ const nextConfig = {
       "your-wordpress-domain.com",
       "azbytegems.com",
       "publicisgroupe-my.sharepoint.com",
+      "lh3.googleusercontent.com",
+      "res.cloudinary.com",
     ],
   },
 

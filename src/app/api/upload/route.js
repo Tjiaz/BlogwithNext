@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
-import path from "path";
-import fs from "fs/promises";
+import { v2 as cloudinary } from "cloudinary";
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function POST(req) {
   const formData = await req.formData();
@@ -10,20 +16,31 @@ export async function POST(req) {
     return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
   }
 
-  // Get file extension
-  const ext = file.name.split(".").pop();
-  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  const filePath = path.join(uploadDir, fileName);
+  try {
+    // Convert file to buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
 
-  // Ensure upload directory exists
-  await fs.mkdir(uploadDir, { recursive: true });
+    // Upload to Cloudinary using a Promise wrapper
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream(
+          { folder: "blog-uploads" }, // Optional: organize in a folder
+          (error, result) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(result);
+          }
+        )
+        .end(buffer);
+    });
 
-  // Save file
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(filePath, buffer);
-
-  // Return public URL
-  const url = `/uploads/${fileName}`;
-  return NextResponse.json({ url });
+    // Return the Cloudinary URL (starts with https://res.cloudinary.com/...)
+    return NextResponse.json({ url: result.secure_url });
+  } catch (error) {
+    console.error("Upload error:", error);
+    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+  }
 }
