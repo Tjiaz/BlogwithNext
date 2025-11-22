@@ -8,7 +8,23 @@ import MenuCategories from "../menuCategories/MenuCategories";
 import MenuPostCard from "../menuPosts/MenuPostCard";
 
 /* ─────────────────────────────────────────────── */
-/* shimmer loader (very small helper)             */
+/* Helper to sanitize images                       */
+/* ─────────────────────────────────────────────── */
+const getSafeImage = (img) => {
+  // 1. If no image, return default
+  if (!img) return "/azbyte.jpeg";
+
+  // 2. If it's an external URL (Cloudinary/Google/WordPress), it's valid
+  if (img.startsWith("http")) return img;
+
+  // 3. If it is the specific default local image, it's valid
+  if (img === "/azbyte.jpeg") return img;
+
+  // 4. If it's a path like "/wp-content/..." or "/uploads/...",
+  // assume it is broken on Vercel and return the default instead.
+  return "/azbyte.jpeg";
+};
+
 const Skeleton = ({ lines = 1 }) => (
   <div className={styles.skeletonWrapper}>
     {Array.from({ length: lines }).map((_, i) => (
@@ -16,7 +32,6 @@ const Skeleton = ({ lines = 1 }) => (
     ))}
   </div>
 );
-/* ─────────────────────────────────────────────── */
 
 export default function CategoryList({
   page,
@@ -37,32 +52,39 @@ export default function CategoryList({
         )}
 
         <ul className={styles.cardList}>
-          {recent.map((a) => (
-            <li key={a._id || a.id} className={styles.card}>
-              {/* thumbnail (if any) */}
-              <div className={styles.thumbWrapper}>
-                <Image
-                  src={a.filtered_images?.[0] || a.image || "/azbyte.jpeg"}
-                  alt={a.title}
-                  fill
-                  sizes="80px"
-                  className={styles.thumb}
-                />
-              </div>
+          {recent.map((a) => {
+            // Get raw image candidate
+            const rawImg = a.filtered_images?.[0] || a.image;
+            // Sanitize it
+            const validImg = getSafeImage(rawImg);
 
-              <div className={styles.cardMeta}>
-                <Link
-                  href={`/article_details/${a._id || a.id}`}
-                  className={styles.cardTitle}
-                >
-                  {a.title}
-                </Link>
-                <span className={styles.metaLine}>
-                  {a.author} • {new Date(a.date).toLocaleDateString("en-US")}
-                </span>
-              </div>
-            </li>
-          ))}
+            return (
+              <li key={a._id || a.id} className={styles.card}>
+                {/* thumbnail (if any) */}
+                <div className={styles.thumbWrapper}>
+                  <Image
+                    src={validImg}
+                    alt={a.title}
+                    fill
+                    sizes="80px"
+                    className={styles.thumb}
+                  />
+                </div>
+
+                <div className={styles.cardMeta}>
+                  <Link
+                    href={`/article_details/${a._id || a.id}`}
+                    className={styles.cardTitle}
+                  >
+                    {a.title}
+                  </Link>
+                  <span className={styles.metaLine}>
+                    {a.author} • {new Date(a.date).toLocaleDateString("en-US")}
+                  </span>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       </aside>
 
@@ -75,17 +97,24 @@ export default function CategoryList({
         )}
 
         <div className={styles.popularGrid}>
-          {popular.map((p) => (
-            <MenuPostCard
-              key={p._id}
-              withImage
-              topic={p.topic}
-              title={p.title}
-              author={p.author}
-              date={p.date}
-              image={p.filtered_images?.[0] || p.image || "/azbyte.jpeg"}
-            />
-          ))}
+          {popular.map((p) => {
+            // Clean the popular posts images too!
+            const rawPopImg = p.filtered_images?.[0] || p.image;
+            const validPopImg = getSafeImage(rawPopImg);
+
+            return (
+              <MenuPostCard
+                key={p._id}
+                withImage
+                topic={p.topic}
+                title={p.title}
+                author={p.author}
+                date={p.date}
+                // Pass the CLEANED image to the child component
+                image={validPopImg}
+              />
+            );
+          })}
         </div>
 
         <h3 className={styles.topicsHeading}>Discover by Topics</h3>
