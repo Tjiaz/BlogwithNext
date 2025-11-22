@@ -115,7 +115,7 @@ model Article {
   link        String?  // Link to the original article
   isRssPost   Boolean  @default(false) // Flag to identify RSS feed articles
   img         String?  // Image URL for the article
-  filtered_images String? //
+  filtered_images String[]
   Topic       TopicArticle[]
 }
 
@@ -161,6 +161,6 @@ model Comment {
   updatedAt DateTime @updatedAt
   userEmail String
   user User @relation(fields: [userEmail], references: [email])
-  postSlug String?
+  articleId String?
 }
 
