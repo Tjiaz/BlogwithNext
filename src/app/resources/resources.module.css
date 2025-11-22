@@ -1,0 +1,386 @@
+.container {
+  margin-top: 90px;
+}
+
+.advertsContainer {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 1536px;
+  padding-top: 40px;
+  margin: 0 auto;
+}
+
+.advert {
+  width: 70vw;
+  max-width: 1000px; /* Match the imageadvert max-width */
+  font-size: small;
+  text-decoration: underline;
+  text-align: center;
+  padding-left: 0;
+  margin: 0 auto;
+}
+
+.imageadvert {
+  height: 100px;
+  position: relative;
+  width: 70vw;
+  max-width: 1000px; /* Set a maximum width for large screens */
+  display: block;
+  margin: 0 auto;
+}
+
+.post {
+  margin-top: 60px;
+  display: flex;
+  align-content: center;
+  gap: 50px;
+}
+
+.topPosts {
+  text-align: justify;
+}
+
+.noListStyle {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.postItem {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ccd;
+  padding-bottom: 20px;
+}
+
+.postImage {
+  margin-right: 20px;
+}
+
+.textContainer1 {
+  flex: 2.25;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.textContainer2 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.advertImgContainer {
+  text-align: center;
+  font-size: smaller;
+  font-weight: lighter;
+  text-decoration: underline;
+}
+
+.advertImg {
+  width: 85%;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+}
+.head {
+  text-transform: capitalize;
+}
+.socialmedialinks {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.socialmedia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: #0b73b1;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.cheatsheetContainer {
+  margin: 2rem 0;
+  padding: 1rem;
+}
+
+.cheatsheetGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.cheatsheetCard {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cheatsheetCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.cheatsheetCard h3 {
+  margin: 1rem 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.cheatsheetCard p {
+  color: #666;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.downloadBtn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #0b73b1;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.downloadBtn:hover {
+  background-color: #085d8f;
+}
+.advertImg {
+  width: 85%;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+}
+
+.topPosts {
+  text-align: justify;
+}
+
+.noListStyle {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.listItem {
+  border-bottom: 1px solid#f2f2f2;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+}
+.listItem:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.postTitle {
+  font-size: 1.2em;
+  margin: 0 0 10px 0;
+}
+
+.postDesc {
+  font-size: 0.8em;
+  margin: 0 0 10px 0;
+  color: var(--softTextColor);
+}
+.articleCard {
+  margin-bottom: 15px;
+  display: flex;
+}
+.author {
+  font-size: 0.9em;
+  color: #000;
+}
+
+.searchContainer {
+  position: relative;
+  width: 400px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px;
+  padding-right: 40px;
+  font-size: 16px;
+}
+
+.searchIcon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  cursor: pointer;
+  color: grey;
+  font-size: 24px;
+  transform: translateY(-50%);
+}
+
+.button {
+  padding: 16px 20px;
+  border: none;
+  border-radius: 5px;
+  width: max-content;
+}
+
+.signupContainer {
+  position: relative;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.signupbutton {
+  background-color: #0b73b1;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  text-transform: uppercase;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.readMore {
+  color: var(--primaryColor);
+  text-decoration: underline;
+}
+
+.socialmedia {
+  width: 30px;
+}
+
+.lightText {
+  font-weight: 300; /* Light font weight */
+}
+.lightText:hover {
+  text-decoration: underline;
+}
+.boldText {
+  font-weight: 300; /* Bold font weight */
+}
+
+@media screen and (max-width: 1600px) {
+  .post {
+    max-width: 1200px;
+  }
+}
+
+@media screen and (max-width: 1280px) {
+  .title {
+    font-size: 72px;
+  }
+
+  .imageadvert,
+  .advert {
+    width: 80vw;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .title {
+    font-size: 64px;
+  }
+  .imgContainer {
+    display: none;
+  }
+
+  .searchContainer,
+  .signupContainer {
+    width: 100%;
+  }
+
+  .post {
+    padding: 0 15px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .title {
+    font-size: 36px;
+  }
+
+  .post {
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .textContainer1,
+  .textContainer2 {
+    flex: 1;
+    width: 100%;
+  }
+
+  .textContainer2 {
+    border-left: none;
+    padding-left: 0;
+    border-top: 0.5px solid #f2f2f2;
+    padding-top: 20px;
+  }
+
+  .imageadvert {
+    height: 80px;
+  }
+
+  .title {
+    font-size: 64px;
+  }
+
+  .advert {
+    font-size: small;
+    text-decoration: underline;
+    text-align: center;
+    padding-left: 200px;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .container {
+    margin-top: 60px;
+  }
+
+  .textContainer2 {
+    display: none;
+  }
+
+  .imageadvert {
+    width: 90vw;
+    height: 70px;
+  }
+
+  .advert {
+    width: 90vw;
+  }
+
+  .cheatsheetGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .socialmedialinks {
+    justify-content: center;
+  }
+
+  .searchContainer,
+  .signupContainer {
+    width: 100%;
+  }
+
+  .post {
+    padding: 0 10px;
+  }
+}

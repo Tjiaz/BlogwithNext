@@ -1,0 +1,90 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  --bg: white;
+  --textColor: #242424;
+  --softBg: #424242;
+  --softTextColor: #121212;
+  --AuthBorder: #0b73b1;
+  --fontFamily: "Roboto", sans-serif;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: var(--fontFamily);
+}
+
+body {
+  min-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--bg);
+  color: var(--textColor);
+  font-size: 16px;
+  line-height: 1.625;
+
+  /* Add these for better mobile typography */
+  -webkit-text-size-adjust: 100%; /* Prevents automatic text scaling on iOS */
+  -ms-text-size-adjust: 100%; /* Prevents automatic text scaling on Windows Phone */
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.dark {
+  --bg: #0f172a;
+  --textColor: #ddd;
+  --softBg: #1f273a;
+  --softTextColor: #a6a6a6;
+  --cardBg: #1e293b;
+}
+
+.light {
+  --bg: white;
+  --textColor: var(--textColor);
+  --softBg: #f0f0f0;
+  --softTextColor: #626262;
+  --cardBg: #fff;
+}
+
+.container {
+  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--textColor);
+}
+
+.wrapper {
+  max-width: 1536px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 35px;
+  padding-right: 35px;
+}
+
+@media screen and (max-width: 1536px) {
+  .wrapper {
+    max-width: 1366px;
+  }
+}
+@media screen and (max-width: 1280px) {
+  .wrapper {
+    max-width: 1280px;
+  }
+}
+@media screen and (max-width: 1024px) {
+  .wrapper {
+    max-width: 1024px;
+  }
+}
+@media screen and (max-width: 768px) {
+  .wrapper {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  body {
+    font-size: 15px; /* Slightly larger base font size on mobile */
+  }
+}

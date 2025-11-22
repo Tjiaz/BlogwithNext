@@ -1,0 +1,36 @@
+.container {
+  flex: 1;
+}
+.subtitle {
+  color: grey;
+  font-size: 14px;
+  font-weight: 200;
+}
+
+.title {
+  font-size: 28px;
+}
+
+@media screen and (max-width: 1024px) {
+  .container {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    display: none;
+  }
+  .title {
+    font-size: 1.3em;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .container {
+    display: none;
+  }
+  .title {
+    font-size: 1.2em;
+  }
+}
