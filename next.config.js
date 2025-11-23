@@ -15,6 +15,13 @@ const nextConfig = {
       "azbytegems.com",
       "publicisgroupe-my.sharepoint.com",
     ],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**", // or be specific like "images.unsplash.com"
+        pathname: "/**",
+      },
+    ],
   },
 
   experimental: {
