@@ -90,155 +90,67 @@ import { headers } from "next/headers";
 
 const POSTS_PER_PAGE = 8;
 
+// --------------------------------------------------
+// Build absolute base URL that works on Vercel
+// --------------------------------------------------
+function getBaseUrl() {
+  const hdrs = headers();
+  const proto =
+    hdrs.get("x-forwarded-proto") ||
+    (process.env.NODE_ENV === "development" ? "http" : "https");
+
+  const host =
+    hdrs.get("x-forwarded-host") || hdrs.get("host") || process.env.VERCEL_URL;
+
+  if (!host) throw new Error("Could not determine host");
+
+  return `${proto}://${host}`;
+}
+
+// --------------------------------------------------
 export default async function Home({ searchParams }) {
-  const page = parseInt(searchParams?.page || "1", 10) || 1;
+  const page = parseInt(searchParams?.page || "1", 10);
+  const baseUrl = getBaseUrl();
 
-  async function safeFetch(path, opts = {}) {
-    // IMPORTANT: use relative path to avoid Vercel deployment protection / auth pages
-    const url = path; // e.g. "/api/latest_articles?page=1"
+  async function safeFetch(path) {
+    const url = `${baseUrl}${path}`;
     try {
-      const res = await fetch(url, { cache: "no-store", ...opts });
+      const res = await fetch(url, { cache: "no-store" });
       if (!res.ok) {
-        const text = await res.text().catch(() => "<unreadable body>");
-        console.error(`Fetch failed: ${url} status:${res.status} body:${text}`);
-        return { ok: false, status: res.status, bodyText: text, url };
+        const txt = await res.text();
+        console.error("Fetch failed:", url, txt);
+        return [];
       }
-      const json = await res.json().catch(() => null);
-      return { ok: true, json, url };
+      const json = await res.json();
+      return json;
     } catch (err) {
-      console.error(`Fetch error for ${url}:`, err);
-      return { ok: false, error: err, url };
+      console.error("Fetch error:", url, err);
+      return [];
     }
   }
 
-  // ------------------------------
-  // PARALLEL FETCHES (RELATIVE PATHS)
-  // ------------------------------
-  const [latestResult, topResult, recentResult, categoriesResult] =
-    await Promise.all([
-      safeFetch(`/api/latest_articles?page=${page}`),
-      safeFetch(`/api/topArticles?page=1`),
-      safeFetch(`/api/moreRecent_articles?page=${page}`),
-      safeFetch(`/api/categories?page=${page}`),
-    ]);
+  // Fetch all APIs
+  const [latest, top, recent, categories] = await Promise.all([
+    safeFetch(`/api/latest_articles?page=${page}`),
+    safeFetch(`/api/topArticles?page=1`),
+    safeFetch(`/api/moreRecent_articles?page=${page}`),
+    safeFetch(`/api/categories?page=${page}`),
+  ]);
 
-  // ------------------------------
-  // NORMALIZE ALL API RESPONSES
-  // ------------------------------
-  function normalizeResponsePayload(payload) {
-    if (!payload) return [];
-    if (Array.isArray(payload)) return payload;
-
-    const keys = ["data", "items", "results", "articles", "rows", "docs"];
-    for (const k of keys) {
-      if (payload[k] && Array.isArray(payload[k])) return payload[k];
-    }
-
-    if (typeof payload === "object") {
-      for (const v of Object.values(payload)) {
-        if (Array.isArray(v)) return v;
-      }
-    }
-
-    return [];
-  }
-
-  const mongoData = normalizeResponsePayload(
-    latestResult.ok ? latestResult.json : null
-  );
-  const topPostsData = normalizeResponsePayload(
-    topResult.ok ? topResult.json : null
-  );
-  const recentData = normalizeResponsePayload(
-    recentResult.ok ? recentResult.json : null
-  );
-  const popularData = normalizeResponsePayload(
-    categoriesResult.ok ? categoriesResult.json : null
-  );
-
-  // LOG TO VERCEL — inspect these logs if something still fails
-  console.log("production fetch counts:", {
-    latestCount: mongoData.length,
-    topCount: topPostsData.length,
-    recentCount: recentData.length,
-    popularCount: popularData.length,
-    sampleLatestKeys: mongoData[0] ? Object.keys(mongoData[0]) : null,
-  });
-
-  // ------------------------------
-  // SORT LATEST POSTS SAFELY
-  // ------------------------------
-  try {
-    if (Array.isArray(mongoData)) {
-      mongoData.sort(
-        (a, b) =>
-          new Date(b.date || b.pubDate || b.publishedAt || 0) -
-          new Date(a.date || a.pubDate || a.publishedAt || 0)
-      );
-    }
-  } catch (e) {
-    console.error("Sort error:", e);
-  }
-
-  const latestPosts = Array.isArray(mongoData) ? mongoData : [];
-  const hasNext = latestPosts.length === POSTS_PER_PAGE;
-
-  // ------------------------------
-  // ERROR HANDLING UI
-  // ------------------------------
-  const errors = [];
-  if (!latestResult.ok)
-    errors.push({ name: "latest_articles", detail: latestResult });
-  if (!topResult.ok) errors.push({ name: "topArticles", detail: topResult });
-  if (!recentResult.ok)
-    errors.push({ name: "moreRecent_articles", detail: recentResult });
-  if (!categoriesResult.ok)
-    errors.push({ name: "categories", detail: categoriesResult });
-
-  if (errors.length > 0) {
-    console.error("Home page fetch errors:", JSON.stringify(errors, null, 2));
-    return (
-      <div className={styles.container}>
-        <h2>Issues loading data</h2>
-        <p>
-          There was an error fetching content from the server. Check Vercel
-          logs.
-        </p>
-
-        <Featured
-          page={page}
-          initialAllPosts={latestPosts}
-          initialLatestPosts={latestPosts}
-          initialTopPosts={topPostsData.slice(0, 7)}
-          initialHasNext={hasNext}
-        />
-
-        <CategoryList
-          page={page}
-          initialRecent={recentData}
-          initialPopular={popularData}
-        />
-      </div>
-    );
-  }
-
-  // ------------------------------
-  // NORMAL RENDER
-  // ------------------------------
   return (
     <div className={styles.container}>
       <Featured
         page={page}
-        initialAllPosts={latestPosts}
-        initialLatestPosts={latestPosts}
-        initialTopPosts={topPostsData.slice(0, 7)}
-        initialHasNext={hasNext}
+        initialAllPosts={latest}
+        initialLatestPosts={latest}
+        initialTopPosts={(top || []).slice(0, 7)}
+        initialHasNext={latest.length === POSTS_PER_PAGE}
       />
 
       <CategoryList
         page={page}
-        initialRecent={recentData}
-        initialPopular={popularData}
+        initialRecent={recent}
+        initialPopular={categories}
       />
     </div>
   );
