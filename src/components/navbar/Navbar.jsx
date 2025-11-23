@@ -10,6 +10,7 @@ import SubscribeModal from "../subscribeModal/SubscribeModal";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { useRouter } from "next/navigation";
 
+
 // import { TOPIC_RSS_FEEDS } from "@/config/rssFeeds";
 
 const Navbar = () => {
@@ -19,6 +20,7 @@ const Navbar = () => {
   const [showResMenu, setShowResMenu] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
+  
   // Example RSS feed URLs for each topic
   const topicFeeds = {
     AI: "https://example.com/rss/ai",

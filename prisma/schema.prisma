@@ -51,6 +51,7 @@ model User {
   sessions      Session[]
   Post          Post[]
   articles      Article[]
+  comments      Comment[] 
   isAdmin       Boolean  @default(false) 
 
 }
@@ -83,7 +84,8 @@ model Post {
   cat       Category  @relation(fields: [catSlug], references: [slug]) 
   userEmail String
   user      User      @relation(fields: [userEmail], references: [email]) 
- 
+  authorId   String
+  authorName String 
 
   // Additional fields...
 }
@@ -91,7 +93,7 @@ model Post {
 
 model Topic { 
   id          String   @id @default(cuid()) @map("_id") 
-  title       String   @unique
+  title       String?   @unique
   description String?
   article     TopicArticle[]
 }
@@ -113,8 +115,10 @@ model Article {
   link        String?  // Link to the original article
   isRssPost   Boolean  @default(false) // Flag to identify RSS feed articles
   img         String?  // Image URL for the article
-  filtered_images String? //
+  filtered_images String[]
   Topic       TopicArticle[]
+  views       Int      @default(0)  // ← Add this
+ 
 }
 
 
@@ -151,3 +155,14 @@ model LinkedinAuth {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model Comment {
+  id String @id @default(cuid()) @map("_id")
+  content String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userEmail String
+  user User @relation(fields: [userEmail], references: [email])
+  articleId String?
+}
+

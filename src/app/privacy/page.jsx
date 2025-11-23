@@ -5,12 +5,16 @@ import {
   FaFacebookF,
   FaTwitter,
   FaYoutube,
-  FaReddit,
-  FaLinkedin,
+  FaLinkedinIn,
+  FaRedditSquare,
 } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
+
+import { getCurrentAdvert } from "@/utils/advert";
+
+const currentAdvert = getCurrentAdvert();
 
 const Page = () => {
   const [latestPosts, setLatestPosts] = useState([]);
@@ -28,20 +32,23 @@ const Page = () => {
         }
       } catch (error) {
         console.error("Failed to fetch articles", error);
-      } finally {
-        setLoading(false);
       }
     }
     fetchArticles();
   }, []);
   return (
     <div className={styles.container}>
-      <div className={styles.advertContainer}>
+      <div className={styles.advertsContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/ads.gif" alt="" fill className={styles.image} />
+          <Image
+            src={currentAdvert.gif1}
+            alt=""
+            fill
+            className={styles.image}
+          />
         </div>
-        <Link href="/" className={styles.advert}>
-          Google-bigquery
+        <Link href={currentAdvert.link} className={styles.advert}>
+          {currentAdvert.name}
         </Link>
       </div>
       <div className={styles.post}>
@@ -49,20 +56,39 @@ const Page = () => {
           <h1 className={styles.head}>Privacy Policy</h1>
 
           <div className={styles.socialmedialinks}>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.facebook.com/profile.php?id=61572544476793"
+              className={`${styles.socialmedia} ${styles.facebook}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <FaFacebookF />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://x.com/azbytegems"
+              className={`${styles.socialmedia} ${styles.twitter}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <FaTwitter />
             </a>
-            <a href="#" className={styles.socialmedia}>
-              <FaLinkedin />
+            <a
+              href="https://www.linkedin.com/company/106269314/admin/dashboard/"
+              className={`${styles.socialmedia} ${styles.linkedin}`}
+            >
+              <FaLinkedinIn />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.youtube.com/channel/UCAzNdfK8i3WcStsAQjGI9-Q"
+              className={styles.socialmedia}
+            >
               <FaYoutube />
             </a>
-            <a href="#" className={styles.socialmedia}>
-              <FaReddit />
+            <a
+              href="https://www.reddit.com/user/DinnerDesperate3392/"
+              className={styles.socialmedia}
+            >
+              <FaRedditSquare />
             </a>
           </div>
           <hr style={{ color: "#bbbbbb" }} />
@@ -197,18 +223,18 @@ const Page = () => {
             />
             <MdSearch className={styles.searchIcon} />
           </div>
-          <div className={styles.advertImageContainer}>
+          <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif2}
               alt="advert"
               width={100}
               height={100}
-              className={styles.advertImage}
+              className={styles.advertImg}
             />
-            <Link href="/">Adverts</Link>
+            <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div>
-            <h3>Latest Posts</h3>
+            <h3>Latest Articles</h3>
             <div style={{ display: "flex", width: "100%" }}>
               <div
                 style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
@@ -233,15 +259,15 @@ const Page = () => {
               )}
             </ol>
           </div>
-          <div className={styles.advertImageContainer}>
+          <div className={styles.advertImgContainer}>
             <Image
-              src="/dummy_Image.png"
+              src={currentAdvert.gif2}
               alt="advert"
               width={100}
               height={100}
-              className={styles.advertImage}
+              className={styles.advertImg}
             />
-            <Link href="/">Adverts</Link>
+            <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div className={styles.signupContainer}>
             <input

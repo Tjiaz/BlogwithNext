@@ -1,14 +1,17 @@
 "use client";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import styles from "./article_details.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { MdFacebook, MdSearch } from "react-icons/md";
+import Head from "next/head";
 
 import { FaLinkedinIn } from "react-icons/fa";
-import { BsTwitterX } from "react-icons/bs";
+import { BsEnvelope, BsMailbox, BsMessenger, BsTwitterX } from "react-icons/bs";
+import Comments from "@/components/comments/Comments";
+import { getCurrentAdvert } from "@/utils/advert";
 
 // Function to fetch article by ID
 async function getTopicDetails(slug) {
@@ -19,45 +22,6 @@ async function getTopicDetails(slug) {
   return response.json();
 }
 
-// Metadata generation function
-export async function generateMetadata({ params }) {
-  try {
-    const article = await getTopicDetails(params.slug);
-
-    return {
-      title: article.title,
-      description: article.description || article.title,
-      openGraph: {
-        title: article.title,
-        description: article.description || article.title,
-        url: `https://azbytegems.com/article_details/${params.slug}`,
-        images: [
-          {
-            url:
-              article.filtered_images?.[0] || article.image || "/azbyte.jpeg",
-            width: 800,
-            height: 600,
-          },
-        ],
-      },
-      twitter: {
-        card: "summary_large_image",
-        title: article.title,
-        description: article.description || article.title,
-        images: [
-          article.filtered_images?.[0] || article.image || "/azbyte.jpeg",
-        ],
-      },
-    };
-  } catch (error) {
-    console.error("Metadata generation error:", error);
-    return {
-      title: "Article Not Found",
-      description: "The requested article could not be found",
-    };
-  }
-}
-
 export default function ArticleDetails() {
   const { slug } = useParams();
 
@@ -66,6 +30,40 @@ export default function ArticleDetails() {
   const [latestPosts, setLatestPosts] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSharing, setIsSharing] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  const articleRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (articleRef.current) {
+        const { top } = articleRef.current.getBoundingClientRect();
+        setIsScrolled(top < -100); // Adjust this value as needed
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  <Head>
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@azbytegems" />
+    <meta
+      name="twitter:title"
+      content={article?.title || "AzByteGems Article"}
+    />
+    <meta name="twitter:description" content={article?.description || ""} />
+    <meta
+      name="twitter:image"
+      content={
+        article?.filtered_images?.[0] ||
+        article?.content ||
+        `${process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"}/azbyte.jpeg`
+      }
+    />
+    <meta name="twitter:domain" content="azbytegems.com" />
+  </Head>;
 
   // Get the page from query params
   const searchParams = useSearchParams();
@@ -175,6 +173,8 @@ export default function ArticleDetails() {
     }
   };
 
+  const currentAdvert = getCurrentAdvert();
+
   return error ? (
     <div>Error: {error}</div>
   ) : !article ? (
@@ -183,43 +183,61 @@ export default function ArticleDetails() {
     <div className={styles.container}>
       <div className={styles.advertContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/ads.gif" alt="" fill className={styles.image} />
+          <Image
+            src={currentAdvert.gif1}
+            alt=""
+            fill
+            className={styles.image}
+          />
         </div>
-        <Link href="/" className={styles.advert}>
-          Google-bigquery
+        <Link href={currentAdvert.link} className={styles.advert}>
+          {currentAdvert.name}
         </Link>
       </div>
       <div className={styles.articleInfo}>
-        <div className={styles.textContainer1}>
+        <div className={styles.textContainer1} ref={articleRef}>
           <h1>{article.title}</h1>
+          <i>{article.description}</i>
           <p className={styles.meta}>
             By <span className={styles.author}>{article.author}</span> on{" "}
             <span className={styles.date}>{article.date}</span>
           </p>
-          <div className={styles.socialLink}>
-            <button
-              onClick={() => shareToSocial("facebook")}
-              className={styles.socialButton}
-              disabled={isSharing}
+          <div className={styles.socialLinksWrapper}>
+            <div
+              className={`${styles.socialLink} ${isScrolled ? styles.vertical : styles.horizontal}`}
             >
-              <MdFacebook className={styles.facebookIcon} />
-            </button>
+              <button
+                onClick={() => shareToSocial("facebook")}
+                className={`${styles.socialButton} ${styles.facebookButton}`}
+                disabled={isSharing}
+              >
+                <MdFacebook className={styles.facebookIcon} />
+              </button>
 
-            <button
-              onClick={() => shareToSocial("linkedin")}
-              className={styles.socialButton}
-              disabled={isSharing}
-            >
-              <FaLinkedinIn className={styles.linkedIcon} />
-            </button>
+              <button
+                onClick={() => shareToSocial("linkedin")}
+                className={`${styles.socialButton} ${styles.linkedinButton}`}
+                disabled={isSharing}
+              >
+                <FaLinkedinIn className={styles.linkedIcon} />
+              </button>
 
-            <button
-              onClick={() => shareToSocial("twitter")}
-              className={styles.socialButton}
-              disabled={isSharing}
-            >
-              <BsTwitterX className={styles.xIcon} />
-            </button>
+              <button
+                onClick={() => shareToSocial("twitter")}
+                className={`${styles.socialButton} ${styles.xButton}`}
+                disabled={isSharing}
+              >
+                <BsTwitterX className={styles.xIcon} />
+              </button>
+
+              <button
+                onClick={() => shareToSocial("twitter")}
+                className={`${styles.socialButton} ${styles.emailButton}`}
+                disabled={isSharing}
+              >
+                <BsEnvelope className={styles.emailIcon} />
+              </button>
+            </div>
           </div>
           <hr className={styles.divider} />
           {typeof article.content === "string" ? (
@@ -287,7 +305,7 @@ export default function ArticleDetails() {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif2}
               alt="Advert"
               width={300}
               height={250}
@@ -295,12 +313,12 @@ export default function ArticleDetails() {
             />
           </div>
           <div className={styles.latestPosts}>
-            <h3 className={styles.latestPostsTitle}>Latest Posts</h3>
+            <h3 className={styles.latestPostsTitle}>Latest Articles</h3>
             <div className={styles.latestPostsList}>
               {latestPosts?.length > 0 ? (
                 latestPosts.map((post) => (
                   <Link
-                    href={`/post/${post._id}`}
+                    href={`/article_details/${post._id}`}
                     key={post._id}
                     className={styles.postItem}
                   >
@@ -314,6 +332,8 @@ export default function ArticleDetails() {
           </div>
         </div>
       </div>
+
+      <Comments articleId={article?._id || article?.id} />
     </div>
   );
 }

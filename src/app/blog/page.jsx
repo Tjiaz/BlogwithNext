@@ -14,8 +14,9 @@ import {
 } from "react-icons/fa";
 import ShareButtons from "@/components/share_buttons/ShareButtons";
 import Head from "next/head";
+import { getCurrentAdvert } from "@/utils/advert";
 
-
+const currentAdvert = getCurrentAdvert();
 
 const BlogPage = () => {
   const [loading, setLoading] = useState(true);
@@ -125,17 +126,22 @@ const BlogPage = () => {
     <div>top posts not found</div>
   ) : (
     <div className={styles.container}>
-      <div className={styles.advertContainer}>
+      <div className={styles.advertsContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/ads.gif" alt="" fill className={styles.image} />
+          <Image
+            src={currentAdvert.gif1}
+            alt=""
+            fill
+            className={styles.image}
+          />
         </div>
-        <Link href="/" className={styles.advert}>
-          Google-bigquery
+        <Link href={currentAdvert.link} className={styles.advert}>
+          {currentAdvert.name}
         </Link>
       </div>
       <div className={styles.post}>
         <div className={styles.textContainer1}>
-          <h1 className={styles.head}>Top posts</h1>
+          <h1 className={styles.head}>Top Articles</h1>
 
           <div className={styles.socialmedialinks}>
             <a
@@ -154,13 +160,22 @@ const BlogPage = () => {
             >
               <FaTwitter />
             </a>
-            <a href="#" className={`${styles.socialmedia} ${styles.linkedin}`}>
+            <a
+              href="https://www.linkedin.com/company/106269314/admin/dashboard/"
+              className={`${styles.socialmedia} ${styles.linkedin}`}
+            >
               <FaLinkedinIn />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.youtube.com/channel/UCAzNdfK8i3WcStsAQjGI9-Q"
+              className={styles.socialmedia}
+            >
               <FaYoutube />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.reddit.com/user/DinnerDesperate3392/"
+              className={styles.socialmedia}
+            >
               <FaRedditSquare />
             </a>
           </div>
@@ -267,16 +282,16 @@ const BlogPage = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif2}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Google-bigquery</Link>
+            <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div>
-            <h3>Latest Posts</h3>
+            <h3>Latest Articles</h3>
             <div style={{ display: "flex", width: "100%" }}>
               <div
                 style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
@@ -303,13 +318,13 @@ const BlogPage = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif3}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Adverts</Link>
+            <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div className={styles.signupContainer}>
             <input

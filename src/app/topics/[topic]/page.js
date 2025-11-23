@@ -3,6 +3,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "./topic.module.css";
 
+
 export default function TopicPage() {
   const { topic } = useParams();
   const [articles, setArticles] = useState([]);
@@ -35,6 +36,8 @@ export default function TopicPage() {
   if (error) {
     return <div className={styles.error}>Error: {error}</div>;
   }
+
+ 
 
   return (
     <div className={styles.container}>

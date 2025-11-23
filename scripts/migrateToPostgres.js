@@ -2,7 +2,6 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const { Pool } = require("pg");
 
-
 // PostgreSQL connection
 const pgPool = new Pool({
   user: process.env.PGUSER || "postgres",
@@ -12,46 +11,51 @@ const pgPool = new Pool({
   port: parseInt(process.env.PGPORT || "5432"),
 });
 
-const mongoUri =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/articles";
-
+const mongoUri = process.env.DATABASE_URL;
 async function migrateArticles() {
   try {
-    //conect to mongoDB
+    // Connect to MongoDB
     await mongoose.connect(mongoUri);
+    mongoose.set("debug", true); // Enable query debugging
     console.log("Connected to MongoDB");
 
-    //conect to PostgreSQL
+    // Connect to PostgreSQL
     const pgClient = await pgPool.connect();
     console.log("Connected to PostgreSQL");
 
-    //Get articles from MongoDB
+    // Get articles from MongoDB
     const mongoArticles = await mongoose.connection.db
-      .collection("articles")
+      .collection("Article")
       .find({})
       .toArray();
+
     console.log(`Found ${mongoArticles.length} articles to migrate`);
 
-    //Prepare and execute insert statements for PostgreSQL
     for (const article of mongoArticles) {
       try {
+        // Skip documents with missing required fields
+        if (!article.title) {
+          console.error("Skipping article due to missing title:", article);
+          continue;
+        }
+
         await pgClient.query(
-          `INSERT INTO articles(title,content,author,date,description,filtered_images)
-            VALUES ($1,$2,$3,$4,$5,$6, $7)`,
+          `INSERT INTO articles(title, content, author, date, description, image, filtered_images)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
           [
             article.title,
-            article.content,
-            article.author,
-            article.date,
-            article.description || null,
-            article.image || null,
-            article.filtered_images || null,
+            article.content || null, // Use null if content is missing
+            article.author || null, // Use null if author is missing
+            article.date || null, // Use null if date is missing
+            article.description || null, // Use null if description is missing
+            null, // Placeholder for "image" (not present in MongoDB)
+            null, // Placeholder for "filtered_images" (not present in MongoDB)
           ]
         );
         console.log(`Migrated article: ${article.title}`);
       } catch (error) {
         console.error(
-          `Error migrating article ${article.title}:`,
+          `Error migrating article ${article.title || "unknown"}:`,
           error.message
         );
       }

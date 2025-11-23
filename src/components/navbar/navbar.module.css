@@ -1,10 +1,11 @@
 .container {
   display: flex;
-  justify-content: center; /* Center the inner content */
-  height: 90px;
+
+  min-height: 90px;
   align-items: center;
   position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
   background-color: var(--bg);
   z-index: 1000;
@@ -16,16 +17,18 @@
   justify-content: space-between;
   width: 100%;
   max-width: 1536px; /* Match the .wrapper max-width */
-  padding: 10px 80px; /* Match the .wrapper padding */
+  padding: 0 35px; /* Match the .wrapper padding */
+  box-sizing: border-box;
+  margin: 0 auto;
   box-sizing: border-box;
   border-bottom: 2px solid #0b73b1;
-  margin: 0 auto;
 }
 
 .social {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
 }
 
 .social_icons {
@@ -41,11 +44,12 @@
   border: 2px solid #0b73b1;
   color: #fff;
   padding: 10px 20px;
-  font-size: 14px;
+  font-size: 10px;
   text-transform: uppercase;
   cursor: pointer;
   transition: 0.3s;
   font-family: inherit;
+  white-space: nowrap;
 }
 
 .join_newsletter_button:hover {
@@ -53,7 +57,7 @@
   color: #0b73b1;
 }
 .logo {
-  flex: 1;
+  flex: 0;
   text-align: center;
 }
 
@@ -66,8 +70,10 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  font-size: 16px;
+  font-size: 14x;
   text-transform: uppercase;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 .link {
@@ -150,29 +156,33 @@
   margin-right: 20px;
 }
 
-/* Responsive Styles */
-@media screen and (max-width: 1536px) {
+@media screen and (min-width: 1281px) {
   .navbarContent {
-    max-width: 1366px;
-    padding: 10px 40px;
+    max-width: 1372px;
+    padding: 0 40px; /* adjust spacing for larger screens */
   }
 }
 
 @media screen and (max-width: 1280px) {
   .navbarContent {
-    max-width: 1024px;
-    padding: 10px 30px;
+    max-width: 1110px;
+    padding: 10px 32px;
   }
-  .social {
-    display: none;
-  }
+
   .logo {
     text-align: left;
   }
   .logo img {
     width: 115px;
-    height: 45px;
-    margin-left: 0;
+    height: 40px;
+    margin-left: 15px;
+  }
+  .social {
+    flex-wrap: nowrap;
+  }
+  .join_newsletter_button {
+    padding: 8px 16px;
+    font-size: 12px;
   }
 }
 

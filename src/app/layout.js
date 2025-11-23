@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import { ThemeContextProvider } from "@/context/ThemeContext";
@@ -7,8 +7,14 @@ import ThemeProvider from "@/providers/ThemeProvider";
 import AuthProvider from "@/providers/AuthProvider";
 import CookieConsentBanner from "@/components/cookies/CookieConsentBanner";
 import ToastProvider from "@/providers/ToastProvider";
+import { Analytics } from "@vercel/analytics/next";
+import ConsentModal from "@/components/consentModal/ConsentModal";
 
-const inter = Inter({ subsets: ["latin"] });
+const plus_Jakarta_Sans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-plus-jakarta-sans",
+});
 
 // pages/_app.js or app/layout.js
 if (!process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID) {
@@ -36,7 +42,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={plus_Jakarta_Sans.className}>
         <AuthProvider>
           <ThemeContextProvider>
             <ThemeProvider>
@@ -45,6 +51,8 @@ export default function RootLayout({ children }) {
                 <div className="wrapper">
                   <ToastProvider />
                   {children}
+                  <ConsentModal />
+                  <Analytics />
                   <Footer />
                   <CookieConsentBanner />
                 </div>

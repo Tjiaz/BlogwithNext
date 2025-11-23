@@ -6,6 +6,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "./connect";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { compare } from "bcryptjs";
+import { getServerSession } from "next-auth";
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -94,4 +95,9 @@ export const authOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
+};
+
+// Export getServerSession function
+export const getAuthSession = async () => {
+  return await getServerSession(authOptions);
 };

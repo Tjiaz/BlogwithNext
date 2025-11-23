@@ -9,41 +9,36 @@ import Pagination from "../pagination/Pagination";
 import { useSearchParams } from "next/navigation";
 import SubscribeModal from "../subscribeModal/SubscribeModal";
 import LoadingPlaceholder from "./LoadingPlaceholder";
+import { getCurrentAdvert } from "@/utils/advert";
 
-const POSTS_PER_PAGE = 8;
+// --- SAFETY HELPER ---
+const getSafeImage = (img) => {
+  if (!img) return "/azbyte.jpeg";
+  if (img.startsWith("http")) return img;
+  if (img === "/azbyte.jpeg") return img;
+  return "/azbyte.jpeg"; // Fallback for broken /wp-content paths
+};
 
 const extractImageFromContent = (content) => {
   try {
-    // If content is a string or array
-    const imageRegexes = [
-      /!$$.*?$$$$(.*?)$$/, // Custom Markdown syntax
-      /!$$.*?$$$$(.*?)$$/, // Standard Markdown image syntax
-      /<img[^>]+src="([^">]+)"/, // HTML img tag
-      /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/, // Direct image URLs
+    if (!content) return null;
+
+    const contentString =
+      typeof content === "string" ? content : JSON.stringify(content);
+
+    const imgTagMatch = contentString.match(/<img[^>]+src="([^">]+)"/);
+    if (imgTagMatch && imgTagMatch[1]) {
+      return imgTagMatch[1];
+    }
+
+    const otherPatterns = [
+      /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/, // Direct URLs
     ];
 
-    // Handle different content types
-    const contentString =
-      typeof content === "string"
-        ? content
-        : Array.isArray(content)
-        ? content
-            .map((section) =>
-              section.paragraphs ? section.paragraphs.join(" ") : ""
-            )
-            .join(" ")
-        : "";
-
-    for (let regex of imageRegexes) {
-      const match = contentString.match(regex);
+    for (const pattern of otherPatterns) {
+      const match = contentString.match(pattern);
       if (match && match[1]) {
-        // Normalize the URL
-        const normalizedUrl = match[1].startsWith("/")
-          ? `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${
-              match[1]
-            }`
-          : match[1];
-        return normalizedUrl;
+        return match[1];
       }
     }
 
@@ -54,23 +49,54 @@ const extractImageFromContent = (content) => {
   }
 };
 
-const Featured = () => {
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+const Featured = ({
+  page,
+  initialAllPosts,
+  initialLatestPosts,
+  initialTopPosts,
+  initialHasNext,
+}) => {
   const [state, setState] = useState({
-    latestPosts: [],
-    topPosts: [],
-    rssPosts: [],
-    loading: true,
+    allPosts: initialAllPosts || [],
+    latestPosts: initialLatestPosts || [],
+    topPosts: initialTopPosts || [],
   });
+
+  const [hasNext, setHasNext] = useState(initialHasNext ?? false);
 
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 500);
 
-  // Get the page from query params
   const searchParams = useSearchParams();
   const pageParam = searchParams.get("page");
-  const page = parseInt(pageParam, 10) || 1;
+  const currentPage = parseInt(pageParam, 10) || page || 1;
+
+  // 🔹 Sync when props change (e.g. page 1 -> page 2)
+  useEffect(() => {
+    setState({
+      allPosts: initialAllPosts || [],
+      latestPosts: initialLatestPosts || [],
+      topPosts: initialTopPosts || [],
+    });
+    setHasNext(initialHasNext ?? false);
+  }, [initialAllPosts, initialLatestPosts, initialTopPosts, initialHasNext]);
 
   // Check for first visit using localStorage
   useEffect(() => {
@@ -81,94 +107,28 @@ const Featured = () => {
     }
   }, []);
 
+  // Handle search / pagination on the client
   useEffect(() => {
-    const fetchAllData = async () => {
-      try {
-        const [mongoResponse, rssResponse, topPostsResponse] =
-          await Promise.all([
-            fetch(`/api/latest_articles?page=${page}`),
-            fetch("/api/rss"),
-            fetch(`/api/topArticles?page=1`),
-          ]);
+    if (debouncedSearch.trim().length > 0) {
+      const filtered = state.allPosts.filter((post) =>
+        post?.title?.toLowerCase().includes(debouncedSearch.toLowerCase())
+      );
+      setState((prev) => ({
+        ...prev,
+        latestPosts: filtered,
+      }));
+      setHasNext(false); // while searching we don't show Next
+    } else {
+      // No search → just use whatever server sent for this page
+      setState((prev) => ({
+        ...prev,
+        latestPosts: initialLatestPosts || [],
+      }));
+      setHasNext(initialHasNext ?? false);
+    }
+  }, [debouncedSearch, state.allPosts, initialLatestPosts, initialHasNext]);
 
-        const [mongoData, rssData, topPostsData] = await Promise.all([
-          mongoResponse.json(),
-          rssResponse.json(),
-          topPostsResponse.json(),
-        ]);
-
-        const getFirstImageFromContent = (content) => {
-          if (!content) return null;
-          const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
-          return imgMatch ? imgMatch[1] : null;
-        };
-
-        const transformedRssData = rssData.map((item) => ({
-          ...item,
-          id: item.guid,
-          title: item.title?.trim(),
-          description: item.contentSnippet || item.description || "",
-          date: item.isoDate || item.pubDate,
-          author: item.author?.trim().replace(/\n/g, "") || "RSS Feed",
-          link: item.link?.trim(),
-          topic: "RSS Feed",
-          img:
-            item.enclosure?.url ||
-            item.image ||
-            getFirstImageFromContent(item.content) ||
-            "/azbyte.jpeg",
-          isRssPost: true,
-        }));
-
-        // Create a Set to track unique articles by ID
-        const uniquePosts = new Set();
-
-        // Add MongoDB posts
-        mongoData.forEach((post) => {
-          uniquePosts.add(post.id || post._id);
-        });
-
-        // Add RSS posts, avoiding duplicates
-        const uniqueRssPosts = transformedRssData.filter((post) => {
-          if (!uniquePosts.has(post.guid || post.id)) {
-            uniquePosts.add(post.guid || post.id);
-            return true;
-          }
-          return false;
-        });
-
-        // Combine MongoDB and unique RSS posts
-        const combinedPosts = [...mongoData, ...uniqueRssPosts];
-
-        // Sort combined posts by date (newest first)
-        combinedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        // Paginate the combined posts
-        const startIndex = (page - 1) * POSTS_PER_PAGE;
-        const endIndex = startIndex + POSTS_PER_PAGE;
-        const paginatedPosts = combinedPosts.slice(startIndex, endIndex);
-
-        setState({
-          latestPosts: paginatedPosts,
-          topPosts: topPostsData.slice(0, 7),
-          rssPosts: transformedRssData,
-          loading: false,
-        });
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setState((prev) => ({ ...prev, loading: false }));
-      }
-    };
-
-    fetchAllData();
-  }, [page]);
-
-  if (state.loading) {
-    return <div className={styles.spinner}></div>;
-  }
-
-  const hasPrev = page > 1;
-  const hasNext = state.latestPosts.length >= POSTS_PER_PAGE;
+  const hasPrev = currentPage > 1;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -195,57 +155,98 @@ const Featured = () => {
     post?.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const currentAdvert = getCurrentAdvert();
+
   return (
     <div className={styles.container}>
       <div className={styles.advertsContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/ads.gif" alt="advert" fill className={styles.image} />
+          <Image
+            src={currentAdvert.gif1}
+            alt="advert"
+            fill
+            className={styles.image}
+          />
         </div>
-        <Link href="/" className={styles.advert}>
-          Google-bigquery
+        <Link href={currentAdvert.link} className={styles.advert}>
+          {currentAdvert.name}
         </Link>
       </div>
       <div className={styles.post}>
         <div className={styles.textContainer1}>
           <h2 className={styles.latestPostsTitle}>Latest Articles</h2>
-          <div style={{ display: "flex", width: "100%", marginBottom: "20px" }}>
-            <div
-              style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
-            ></div>
-            <div style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}></div>
+          <div className={styles.responsiveDivider}>
+            <div className={styles.line}></div>
+            <span className={styles.dividerIcon}>✦</span>
+            <div className={styles.line}></div>
           </div>
           <Suspense fallback={<LoadingPlaceholder count={8} />}>
             {filteredPosts && filteredPosts.length > 0 ? (
-              filteredPosts.map((post) => {
-                const imageToUse = post.isRssPost
-                  ? post.img || "/azbyte.jpeg"
-                  : post.filtered_images && post.filtered_images.length > 0
-                  ? post.filtered_images[0]
-                  : extractImageFromContent(post.content)
-                  ? extractImageFromContent(post.content)
-                  : "/azbyte.jpeg";
+              filteredPosts.map((post, index) => {
+                const first =
+                  Array.isArray(post.filtered_images) &&
+                  post.filtered_images.length
+                    ? post.filtered_images[0]
+                    : null;
+
+                const filteredUrl =
+                  typeof first === "string"
+                    ? first
+                    : first?.url || first?.src || null;
+
+                const imageFromContent = extractImageFromContent(post.content);
+
+                const rawImage = filteredUrl || imageFromContent || post.image;
+
+                // SANITIZE THE IMAGE HERE BEFORE PASSING TO CARD
+                // const imageToUse = getSafeImage(rawImage);
+
+                const imageToUse =
+                  filteredUrl ||
+                  imageFromContent ||
+                  post.image || // if you store it
+                  "/azbyte.jpeg"; // final fallback
 
                 const postDate = post.isRssPost
                   ? post.isoDate || post.pubDate || post.date
                   : post.date;
 
                 return (
-                  <FeaturedCard
-                    key={post.isRssPost ? post.guid : post._id}
-                    postImg={imageToUse}
-                    postTitle={post.title}
-                    postDesc={
-                      post.description ||
-                      post.desc ||
-                      "No description available"
-                    }
-                    postAuthor={post.author}
-                    postDate={postDate}
-                    postTopic={post.isRssPost ? "RSS Feed" : post.topic}
-                    postId={post.isRssPost ? post.guid : post.id}
-                    isRssPost={post.isRssPost}
-                    rssLink={post.isRssPost ? post.link : null}
-                  />
+                  <React.Fragment key={post.isRssPost ? post.guid : post._id}>
+                    <FeaturedCard
+                      postImg={imageToUse}
+                      postTitle={post.title}
+                      postDesc={
+                        post.description ||
+                        post.desc ||
+                        "No description available"
+                      }
+                      postAuthor={post.author}
+                      postDate={postDate}
+                      postTopic={post.isRssPost ? "RSS Feed" : post.topic}
+                      postId={post.isRssPost ? post.guid : post.id}
+                      isRssPost={post.isRssPost}
+                      rssLink={post.isRssPost ? post.link : null}
+                    />
+
+                    {index === 3 && currentAdvert && (
+                      <div className={styles.middleAdContainer}>
+                        <Link href={currentAdvert.link}>
+                          <Image
+                            src={currentAdvert.gif1}
+                            alt={currentAdvert.name}
+                            width={0}
+                            height={0}
+                            sizes="100vw"
+                            className={styles.middleAdImage}
+                          />
+                        </Link>
+                        <div className={styles.middleAdText}>
+                          {currentAdvert.name}
+                        </div>
+                      </div>
+                    )}
+                  </React.Fragment>
                 );
               })
             ) : (
@@ -253,7 +254,7 @@ const Featured = () => {
             )}
           </Suspense>
 
-          <Pagination page={page} hasPrev={hasPrev} hasNext={hasNext} />
+          <Pagination page={currentPage} hasPrev={hasPrev} hasNext={hasNext} />
         </div>
 
         <div className={styles.textContainer2}>
@@ -269,21 +270,24 @@ const Featured = () => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif2}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link className={styles.ads_name} href="/">
-              Google-bigquery
+            <Link className={styles.ads_name} href={currentAdvert.link}>
+              {currentAdvert.name}
             </Link>
           </div>
           <div>
-            <h3>Top Posts</h3>
+            <h3>Top Articles</h3>
             <div style={{ display: "flex", width: "100%" }}>
               <div
-                style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
+                style={{
+                  flex: "0 0 25%",
+                  borderBottom: "3px solid #0B73B1",
+                }}
               ></div>
               <div
                 style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}
@@ -301,20 +305,20 @@ const Featured = () => {
                   </li>
                 ))
               ) : (
-                <li>No top posts found.</li>
+                <li>No top articles found.</li>
               )}
             </ol>
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif3}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link className={styles.ads_name} href="/">
-              Google-bigquery
+            <Link className={styles.ads_name} href={currentAdvert.link}>
+              {currentAdvert.name}
             </Link>
           </div>
           <div className={styles.signupContainer}>
@@ -367,6 +371,18 @@ const Featured = () => {
                 Privacy Policy
               </a>
             </p>
+          </div>
+          <div className={styles.advertImgContainer}>
+            <Image
+              src={currentAdvert.gif2}
+              alt="advert"
+              width={100}
+              height={100}
+              className={styles.advertImg}
+            />
+            <Link className={styles.ads_name} href={currentAdvert.link}>
+              {currentAdvert.name}
+            </Link>
           </div>
         </div>
       </div>

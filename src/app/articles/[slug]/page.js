@@ -1,10 +1,13 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import styles from "./article.module.css";
 import Image from "next/image";
 import Link from "next/link";
-import { MdSearch } from "react-icons/md";
+import { MdFacebook, MdSearch } from "react-icons/md";
+import { FaLinkedinIn } from "react-icons/fa";
+import { BsEnvelope, BsMailbox, BsMessenger, BsTwitterX } from "react-icons/bs";
 import ArticleCard from "./ArticleCard";
+import { getCurrentAdvert } from "@/utils/advert";
 
 const ArticlePage = ({ params }) => {
   const { slug } = params; // Destructure slug from params
@@ -14,6 +17,25 @@ const ArticlePage = ({ params }) => {
   const [topicTitle, setTopicTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [topPosts, setTopPosts] = useState([]);
+  const [isSharing, setIsSharing] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  const articleRef = useRef(null);
+
+
+  
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (articleRef.current) {
+        const { top } = articleRef.current.getBoundingClientRect();
+        setIsScrolled(top < -100); // Adjust this value as needed
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     async function fetchArticles() {
@@ -59,7 +81,8 @@ const ArticlePage = ({ params }) => {
     fetchTopPosts();
   }, []); // Empty dependency array to run once on component mount
   // Log articles to see its structure before rendering
-  console.log("Articles state before rendering:", articles);
+
+  const currentAdvert = getCurrentAdvert();
 
   return loading ? (
     <div className={styles.spinner}></div>
@@ -67,16 +90,21 @@ const ArticlePage = ({ params }) => {
     <div>Article not found</div>
   ) : (
     <div className={styles.container}>
-      <div className={styles.advertContainer}>
+      <div className={styles.advertsContainer}>
         <div className={styles.imageadvert}>
-          <Image src="/ads.gif" alt="" fill className={styles.image} />
+          <Image
+            src={currentAdvert.gif1}
+            alt=""
+            fill
+            className={styles.image}
+          />
         </div>
-        <Link href="/" className={styles.advert}>
-          Google-bigquery
+        <Link href={currentAdvert.link} className={styles.advert}>
+          {currentAdvert.name}
         </Link>
       </div>
       <div className={styles.post}>
-        <div className={styles.textContainer1}>
+        <div className={styles.textContainer1} ref={articleRef}>
           <h2 className={styles.head}>
             {topicTitle}
             <span
@@ -89,14 +117,63 @@ const ArticlePage = ({ params }) => {
             >
               ({articleCount} {articleCount === 1 ? "Article" : "Articles"})
             </span>
-          </h2>
-          <div style={{ display: "flex", width: "100%" }}>
-            <div
-              style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
-            ></div>
-            <div style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}></div>
-          </div>
+            <div className={styles.socialLinksWrapper}>
+              <div
+                className={`${styles.socialLink} ${isScrolled ? styles.vertical : styles.horizontal}`}
+              >
+                <button
+                  onClick={() => shareToSocial("facebook")}
+                  className={`${styles.socialButton} ${styles.facebookButton}`}
+                  disabled={isSharing}
+                >
+                  <MdFacebook className={styles.facebookIcon} />
+                </button>
 
+                <button
+                  onClick={() => shareToSocial("linkedin")}
+                  className={`${styles.socialButton} ${styles.linkedinButton}`}
+                  disabled={isSharing}
+                >
+                  <FaLinkedinIn className={styles.linkedIcon} />
+                </button>
+
+                <button
+                  onClick={() => shareToSocial("twitter")}
+                  className={`${styles.socialButton} ${styles.xButton}`}
+                  disabled={isSharing}
+                >
+                  <BsTwitterX className={styles.xIcon} />
+                </button>
+
+                <button
+                  onClick={() => shareToSocial("twitter")}
+                  className={`${styles.socialButton} ${styles.emailButton}`}
+                  disabled={isSharing}
+                >
+                  <BsEnvelope className={styles.emailIcon} />
+                </button>
+              </div>
+            </div>
+          </h2>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
+            <div style={{ flex: 1, borderBottom: "2px solid #0B73B1" }}></div>
+            <span
+              style={{
+                padding: "0 10px",
+                color: "#0B73B1",
+                fontWeight: "bold",
+              }}
+            >
+              ✦
+            </span>
+            <div style={{ flex: 1, borderBottom: "2px solid #0B73B1" }}></div>
+          </div>
           <div className={styles.postItem}>
             {articles && articles.length > 0 ? (
               articles.map((article) => (
@@ -138,16 +215,16 @@ const ArticlePage = ({ params }) => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif2}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Adverts</Link>
+            <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div>
-            <h3>Top Posts</h3>
+            <h3>Top Articles</h3>
             <div style={{ display: "flex", width: "100%" }}>
               <div
                 style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
@@ -179,13 +256,13 @@ const ArticlePage = ({ params }) => {
           </div>
           <div className={styles.advertImgContainer}>
             <Image
-              src="/ads2.gif"
+              src={currentAdvert.gif3}
               alt="advert"
               width={100}
               height={100}
               className={styles.advertImg}
             />
-            <Link href="/">Google-bigquery</Link>
+            <Link href={currentAdvert.link}>{currentAdvert.name}</Link>
           </div>
           <div className={styles.signupContainer}>
             <input

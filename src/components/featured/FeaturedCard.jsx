@@ -3,75 +3,75 @@ import React, { useState, useEffect } from "react";
 import styles from "./featured.module.css";
 import Image from "next/image";
 import Link from "next/link";
-import { RiRssFill } from "react-icons/ri";
+import {
+  RiRssFill,
+  RiTwitterXFill,
+  RiFacebookFill,
+  RiLinkedinFill,
+} from "react-icons/ri";
 import toast from "react-hot-toast";
 
-const useLinkedInShare = (isProcessingLinkedIn, setIsProcessingLinkedIn) => {
-  useEffect(() => {
-    const handleLinkedInCallback = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const linkedinSuccess = params.get("linkedin_success");
-      const accessToken = params.get("access_token");
-      const error = params.get("error");
+const shareToSocial = async (platform) => {
+  setIsSharing(true);
+  try {
+    // Use clean URL without /article_details
+    const articleUrl = `${process.env.NEXT_PUBLIC_DOMAIN}/${article.id}`;
 
-      if (linkedinSuccess === "true" && accessToken && !isProcessingLinkedIn) {
-        setIsProcessingLinkedIn(true);
+    // Get the first available image
+    const imageUrl =
+      article.filtered_images?.[0] || article.image || "/azbyte.jpeg";
+    const fullImageUrl = imageUrl.startsWith("http")
+      ? imageUrl
+      : `${process.env.NEXT_PUBLIC_DOMAIN}${imageUrl}`;
+
+    const response = await fetch("/api/social-share", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: article.title,
+        link: articleUrl,
+        author: article.author,
+        description: article.description || article.title,
+        image: fullImageUrl,
+        platform: platform,
+      }),
+    });
+
+    if (!response.ok) {
+      // Fallback to direct sharing
+      let shareUrl;
+      switch (platform) {
+        case "facebook":
+          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(articleUrl)}`;
+          break;
+        case "twitter":
+          shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+            `${article.title}\n\nazbytegems.com`
+          )}&url=${encodeURIComponent(articleUrl)}`;
+          break;
+        case "linkedin":
+          shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(articleUrl)}`;
+          break;
       }
-    };
-
-    handleLinkedInCallback();
-  }, [isProcessingLinkedIn, setIsProcessingLinkedIn]);
+      window.open(shareUrl, "_blank", "width=600,height=400");
+    }
+  } catch (error) {
+    console.error("Failed to share:", error);
+    alert(`Failed to share to ${platform}. Please try again.`);
+  } finally {
+    setIsSharing(false);
+  }
 };
 
 const SafeImage = ({ src, alt, ...props }) => {
-  const [imgSrc, setImgSrc] = useState(src);
-  const [error, setError] = useState(false);
+  const [imgSrc, setImgSrc] = useState(src || "/azbyte.jpeg");
 
   useEffect(() => {
-    // If no src is provided, set to default
-    if (!src) {
-      setImgSrc("/azbyte.jpeg");
-      return;
-    }
-
-    // Normalize the URL
-    const normalizeUrl = (url) => {
-      // If it's an absolute URL, return as is
-      if (url.startsWith("http://") || url.startsWith("https://")) {
-        return url;
-      }
-
-      // If it's a relative URL, prepend the site URL
-      return `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${
-        url.startsWith("/") ? url : "/" + url
-      }`;
-    };
-
-    // Try to validate the image
-    const validateImage = async () => {
-      try {
-        const normalizedSrc = normalizeUrl(src);
-
-        // Create an image element to check if it loads
-        const img = document.createElement("img");
-        img.onload = () => {
-          setImgSrc(normalizedSrc);
-        };
-        img.onerror = () => {
-          console.warn(`Image failed to load: ${normalizedSrc}`);
-          setImgSrc("/azbyte.jpeg");
-          setError(true);
-        };
-        img.src = normalizedSrc;
-      } catch (error) {
-        console.error("Image validation error:", error);
-        setImgSrc("/azbyte.jpeg");
-        setError(true);
-      }
-    };
-
-    validateImage();
+    setImgSrc(src || "/azbyte.jpeg");
   }, [src]);
+
   return (
     <Image
       src={imgSrc || "/azbyte.jpeg"}
@@ -81,9 +81,12 @@ const SafeImage = ({ src, alt, ...props }) => {
       className={styles.image}
       style={{ objectFit: "cover" }}
       onError={() => {
+        // Only fall back if the real image fails
         setImgSrc("/azbyte.jpeg");
-        setError(true);
       }}
+      // If your images are on external domains not added to next.config.js,
+      // temporarily uncomment the next line:
+      // unoptimized
       {...props}
     />
   );
@@ -103,94 +106,20 @@ const FeaturedCard = ({
   const [isSharingTwitter, setIsSharingTwitter] = useState(false);
   const [isSharingFacebook, setIsSharingFacebook] = useState(false);
   const [isSharingLinkedIn, setIsSharingLinkedIn] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [isProcessingLinkedIn, setIsProcessingLinkedIn] = useState(false);
 
-  useEffect(() => {
-    const handleLinkedInCallback = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const linkedinSuccess = params.get("linkedin_success");
-      const accessToken = params.get("access_token");
-      const error = params.get("error");
-
-      if (linkedinSuccess === "true" && accessToken) {
-        try {
-          const storedData = localStorage.getItem("linkedin_share_data");
-          if (!storedData) {
-            throw new Error("No share data found");
-          }
-
-          const shareData = JSON.parse(storedData);
-
-          const response = await fetch("/api/social_share", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "linkedin-access-token": accessToken,
-            },
-            body: JSON.stringify({
-              ...shareData,
-              platform: "linkedin",
-            }),
-          });
-
-          const data = await response.json();
-
-          if (data.success) {
-            toast.success("Successfully shared to LinkedIn!");
-          } else {
-            throw new Error(data.error || "Failed to share to LinkedIn");
-          }
-        } catch (error) {
-          console.error("LinkedIn share error:", error);
-          toast.error(`Failed to share to LinkedIn: ${error.message}`);
-        } finally {
-          localStorage.removeItem("linkedin_share_data");
-          window.history.replaceState({}, "", window.location.pathname);
-        }
-      } else if (error) {
-        toast.error(`LinkedIn Error: ${error}`);
-        localStorage.removeItem("linkedin_share_data");
-        window.history.replaceState({}, "", window.location.pathname);
-      }
-    };
-
-    handleLinkedInCallback();
-  }, []);
+  const articleUrl = (fallbackId) =>
+    isRssPost
+      ? rssLink
+      : `${process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"}/article_details/${fallbackId}`;
 
   const shareToTwitter = async () => {
     setIsSharingTwitter(true);
     try {
-      const articleUrl = isRssPost
-        ? rssLink
-        : `${
-            process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
-          }/article_details/${postId}`;
-
-      const response = await fetch("/api/social_share", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: postTitle,
-          link: articleUrl,
-          description: postDesc,
-          platform: "twitter", // Pass as string, not object
-        }),
-      });
-
-      const data = await response.json();
-      console.log("Twitter share response:", data);
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to share to Twitter");
-      }
-
-      toast.success("Successfully shared to Twitter!");
-    } catch (error) {
-      console.error("Twitter share error:", error);
-      alert("Failed to share to Twitter. Please try again.");
+      const url = articleUrl(postId);
+      const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+        `${postTitle}\n\nazbytegems.com`
+      )}&url=${encodeURIComponent(url)}`;
+      window.open(shareUrl, "_blank", "width=600,height=400");
     } finally {
       setIsSharingTwitter(false);
     }
@@ -199,121 +128,69 @@ const FeaturedCard = ({
   const shareToFacebook = async () => {
     setIsSharingFacebook(true);
     try {
-      const articleUrl = isRssPost
-        ? rssLink
-        : `${
-            process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
-          }/article_details/${postId}`;
-
-      const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-        articleUrl
+      const url = articleUrl(postId);
+      const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+        url
       )}&quote=${encodeURIComponent(postTitle)}`;
-
-      // Open Facebook share dialog
-      window.open(
-        facebookShareUrl,
-        "facebook-share-dialog",
-        "width=626,height=436"
-      );
-
-      toast.success("Opening Facebook sharing dialog");
-    } catch (error) {
-      console.error("Facebook share error:", error);
-      toast.error(`Failed to share to Facebook: ${error.message}`);
+      window.open(shareUrl, "facebook-share", "width=626,height=436");
     } finally {
       setIsSharingFacebook(false);
     }
   };
 
   const shareToLinkedIn = async () => {
+    setIsSharingLinkedIn(true);
     try {
-      const articleUrl = isRssPost
-        ? rssLink
-        : `${
-            process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
-          }/article_details/${postId}`;
-
-      // Create LinkedIn share URL
-      const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-        articleUrl
+      const url = articleUrl(postId);
+      const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+        url
       )}`;
-
-      // Open LinkedIn share dialog
-      window.open(
-        linkedInShareUrl,
-        "linkedin-share-dialog",
-        "width=626,height=436"
-      );
-
-      toast.success("Opening LinkedIn sharing dialog");
-    } catch (error) {
-      console.error("LinkedIn share error:", error);
-      toast.error(`Failed to share to LinkedIn: ${error.message}`);
+      window.open(shareUrl, "linkedin-share", "width=626,height=436");
     } finally {
       setIsSharingLinkedIn(false);
     }
   };
 
-  useLinkedInShare(isProcessingLinkedIn, setIsProcessingLinkedIn);
-
-  // Format the date
+  /* --------------------------------------------------------------
+   *  Date formatting helper
+   * -------------------------------------------------------------- */
   const formatDate = (dateString) => {
     try {
-      if (!dateString) {
-        return "No date";
-      }
-
-      // Try parsing the date
-      let date;
-      if (dateString.includes("GMT")) {
-        // Handle pubDate format (e.g., 'Mon, 20 Apr 2020 17:18:21 GMT')
-        date = new Date(dateString);
-      } else {
-        // Handle isoDate format (e.g., '2020-04-20T17:19:21.000Z')
-        date = new Date(dateString);
-      }
-
-      // Verify the date is valid
-      if (isNaN(date.getTime())) {
-        console.log("Invalid date:", dateString);
-        return dateString;
-      }
-
-      // Format the date
-      return date.toLocaleDateString("en-US", {
+      if (!dateString) return "No date";
+      const d = new Date(dateString);
+      if (isNaN(d.getTime())) return dateString;
+      return d.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
       });
-    } catch (error) {
-      console.error("Date parsing error for:", dateString, error);
-      return dateString; // Return the original string if parsing fails
+    } catch {
+      return dateString;
     }
   };
 
-  // Determine the link based on post type
-  const PostLink = ({ children }) => {
-    if (isRssPost) {
-      return (
-        <a
-          href={rssLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.postTitle}
-        >
-          {children}
-        </a>
-      );
-    }
-    return (
+  /* --------------------------------------------------------------
+   *  Link wrapper (RSS vs internal)
+   * -------------------------------------------------------------- */
+  const PostLink = ({ children }) =>
+    isRssPost ? (
+      <a
+        href={rssLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.postTitle}
+      >
+        {children}
+      </a>
+    ) : (
       <Link href={`/article_details/${postId}`} className={styles.postTitle}>
         {children}
       </Link>
     );
-  };
 
   return (
     <div className={styles.articleCard}>
+      {/* ---------- IMAGE ---------- */}
       <div className={styles.postImage}>
         <SafeImage
           src={postImg || "/azbyte.jpeg"}
@@ -323,11 +200,14 @@ const FeaturedCard = ({
           blurDataURL="/azbyte.jpeg"
         />
       </div>
+      {/* ---------- CONTENT ---------- */}
       <div className={styles.postContent}>
         <PostLink>
           <h4 className={styles.postTitle}>{postTitle}</h4>
         </PostLink>
         <p className={styles.postDesc}>{postDesc}</p>
+
+        {/* ---------- AUTHOR INFO ---------- */}
         <div className={styles.author}>
           <div className={styles.postInfo}>
             By{" "}
@@ -345,36 +225,36 @@ const FeaturedCard = ({
               )}
             </strong>
           </div>
-          <div className={styles.badgeAndShare}>
-            {isRssPost && (
-              <span className={styles.sourceTag}>
-                <RiRssFill className={styles.rssIcon} />
-                External Source
-              </span>
-            )}
-            <div className={styles.shareButtons}>
-              <button
-                onClick={shareToTwitter}
-                disabled={isSharingTwitter}
-                className={`${styles.shareButton} ${styles.twitterButton}`}
-              >
-                {isSharingTwitter ? "..." : "Share to X"}
-              </button>
-              <button
-                onClick={shareToFacebook}
-                disabled={isSharingFacebook}
-                className={`${styles.shareButton} ${styles.facebookButton}`}
-              >
-                {isSharingFacebook ? "..." : "Share to FB"}
-              </button>
-              <button
-                onClick={shareToLinkedIn}
-                disabled={isSharingLinkedIn}
-                className={`${styles.shareButton} ${styles.linkedinButton}`}
-              >
-                {isSharingLinkedIn ? "..." : "Share to LI"}
-              </button>
-            </div>
+
+          {/* ---------- SHARE BUTTONS (ICON ONLY) ---------- */}
+
+          <div className={styles.shareButtons}>
+            <button
+              onClick={shareToTwitter}
+              disabled={isSharingTwitter}
+              className={`${styles.shareButton} ${styles.twitterButton}`}
+              title="Share on X (Twitter)"
+            >
+              <RiTwitterXFill />
+            </button>
+
+            <button
+              onClick={shareToFacebook}
+              disabled={isSharingFacebook}
+              className={`${styles.shareButton} ${styles.facebookButton}`}
+              title="Share on Facebook"
+            >
+              <RiFacebookFill />
+            </button>
+
+            <button
+              onClick={shareToLinkedIn}
+              disabled={isSharingLinkedIn}
+              className={`${styles.shareButton} ${styles.linkedinButton}`}
+              title="Share on LinkedIn"
+            >
+              <RiLinkedinFill />
+            </button>
           </div>
         </div>
       </div>

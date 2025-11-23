@@ -1,12 +1,19 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import "react-quill/dist/quill.snow.css";
 import styles from "./write.module.css";
 
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+const ReactQuill = dynamic(() => import("react-quill"), {
+  ssr: false,
+  loading: () => <p>Loading editor...</p>,
+});
+
+function removeBase64Images(html) {
+  return html.replace(/<img[^>]+src=["']data:image\/[^"']+["'][^>]*>/gi, "");
+}
 
 const Write = () => {
   const { data: session, status } = useSession();
@@ -16,6 +23,14 @@ const Write = () => {
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
   const [topic, setTopic] = useState("AI"); // Set a default value
+  const [author, setAuthor] = useState("");
+  const [customDate, setCustomDate] = useState("");
+  const [error, setError] = useState(null);
+  const quillRef = useRef(null);
+
+  if (status === "loading") {
+    return <div className={styles.loading}>Loading user session...</div>;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,10 +40,13 @@ const Write = () => {
       return;
     }
 
-    if (!title || !description || !content || !topic) {
+    if (!title || !description || !content || !topic || !author) {
       alert("Please fill in all fields");
       return;
     }
+
+    // Automatically remove base64 images before submit
+    const cleanedContent = removeBase64Images(content);
 
     setIsSubmitting(true);
 
@@ -36,14 +54,15 @@ const Write = () => {
       // Normalize the topic name
       const normalizedTopic = topic.trim().toLowerCase().replace(/\s+/g, "_");
       // Extract images from content
-      const extractedImages = extractImageFromContent(content);
+      const extractedImages = extractImageFromContent(cleanedContent);
 
       const articleData = {
         title: title.trim(),
         description: description.trim(),
-        content: content,
+        content: cleanedContent,
         topic: normalizedTopic,
-      
+        author: author.trim(),
+        date: customDate,
       };
 
       console.log("Submitting article data:", articleData); // Debug log
@@ -97,21 +116,54 @@ const Write = () => {
     }
   };
 
+  // Custom image handler for ReactQuill
+  const imageHandler = () => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Upload to your backend API (implement /api/upload)
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      const url = data.url; // The image URL returned by your API
+
+      // Insert the image URL into the editor
+      const quill = quillRef.current.getEditor();
+      const range = quill.getSelection();
+      quill.insertEmbed(range.index, "image", url);
+    };
+  };
+
   const modules = {
-    toolbar: [
-      [{ header: "1" }, { header: "2" }, { font: [] }],
-      [{ size: [] }],
-      ["bold", "italic", "underline", "strike", "blockquote"],
-      [
-        { list: "ordered" },
-        { list: "bullet" },
-        { indent: "-1" },
-        { indent: "+1" },
+    toolbar: {
+      container: [
+        [{ header: "1" }, { header: "2" }, { font: [] }],
+        [{ size: [] }],
+        ["bold", "italic", "underline", "strike", "blockquote"],
+        [
+          { list: "ordered" },
+          { list: "bullet" },
+          { indent: "-1" },
+          { indent: "+1" },
+        ],
+        ["link", "image", "video"],
+        ["clean"],
+        ["code-block"],
       ],
-      ["link", "image", "video"],
-      ["clean"],
-      ["code-block"],
-    ],
+      handlers: {
+        image: imageHandler,
+      },
+    },
   };
 
   const formats = [
@@ -160,7 +212,26 @@ const Write = () => {
           required
           className={styles.input}
         />
+        <input
+          type="text"
+          placeholder="Author Name"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          required
+          className={styles.input}
+        />
+
+        <label htmlFor="article-date">Publication Date & Time:</label>
+        <input
+          type="datetime-local"
+          id="article-date"
+          value={customDate}
+          onChange={(e) => setCustomDate(e.target.value)}
+          className={styles.input}
+        />
+
         <ReactQuill
+          ref={quillRef}
           value={content}
           onChange={setContent}
           modules={modules}
