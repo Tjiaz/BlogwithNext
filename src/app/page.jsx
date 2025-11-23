@@ -90,65 +90,29 @@ import { headers } from "next/headers";
 
 const POSTS_PER_PAGE = 8;
 
-function buildBaseUrl() {
-  const hdrs = headers();
-  const proto =
-    hdrs.get("x-forwarded-proto") ||
-    (process.env.NODE_ENV === "development" ? "http" : "https");
-
-  const forwardedHost = hdrs.get("x-forwarded-host");
-  const host = forwardedHost || hdrs.get("host") || process.env.VERCEL_URL;
-
-  if (!host) {
-    if (process.env.NEXT_PUBLIC_BASE_URL)
-      return process.env.NEXT_PUBLIC_BASE_URL;
-    return null;
-  }
-
-  if (host.startsWith("http://") || host.startsWith("https://")) return host;
-
-  return `${proto}://${host}`;
-}
-
 export default async function Home({ searchParams }) {
   const page = parseInt(searchParams?.page || "1", 10) || 1;
-  const baseUrl = buildBaseUrl();
 
   async function safeFetch(path, opts = {}) {
-    const url = baseUrl ? `${baseUrl}${path}` : path;
+    // IMPORTANT: use relative path to avoid Vercel deployment protection / auth pages
+    const url = path; // e.g. "/api/latest_articles?page=1"
     try {
       const res = await fetch(url, { cache: "no-store", ...opts });
       if (!res.ok) {
         const text = await res.text().catch(() => "<unreadable body>");
         console.error(`Fetch failed: ${url} status:${res.status} body:${text}`);
-        return { ok: false, status: res.status, bodyText: text };
+        return { ok: false, status: res.status, bodyText: text, url };
       }
       const json = await res.json().catch(() => null);
-      return { ok: true, json };
+      return { ok: true, json, url };
     } catch (err) {
       console.error(`Fetch error for ${url}:`, err);
-      if (url !== path) {
-        try {
-          const res2 = await fetch(path, { cache: "no-store", ...opts });
-          if (!res2.ok) {
-            const t2 = await res2.text().catch(() => "<unreadable body>");
-            console.error(
-              `Relative fetch failed: ${path} status:${res2.status} body:${t2}`
-            );
-            return { ok: false, status: res2.status, bodyText: t2 };
-          }
-          const json2 = await res2.json().catch(() => null);
-          return { ok: true, json: json2 };
-        } catch (err2) {
-          console.error(`Relative fetch also failed for ${path}:`, err2);
-        }
-      }
-      return { ok: false, error: err };
+      return { ok: false, error: err, url };
     }
   }
 
   // ------------------------------
-  // PARALLEL FETCHES
+  // PARALLEL FETCHES (RELATIVE PATHS)
   // ------------------------------
   const [latestResult, topResult, recentResult, categoriesResult] =
     await Promise.all([
@@ -192,7 +156,7 @@ export default async function Home({ searchParams }) {
     categoriesResult.ok ? categoriesResult.json : null
   );
 
-  // LOG TO VERCEL — IMPORTANT
+  // LOG TO VERCEL — inspect these logs if something still fails
   console.log("production fetch counts:", {
     latestCount: mongoData.length,
     topCount: topPostsData.length,
@@ -207,7 +171,9 @@ export default async function Home({ searchParams }) {
   try {
     if (Array.isArray(mongoData)) {
       mongoData.sort(
-        (a, b) => new Date(b.date || b.pubDate) - new Date(a.date || a.pubDate)
+        (a, b) =>
+          new Date(b.date || b.pubDate || b.publishedAt || 0) -
+          new Date(a.date || a.pubDate || a.publishedAt || 0)
       );
     }
   } catch (e) {
@@ -234,7 +200,10 @@ export default async function Home({ searchParams }) {
     return (
       <div className={styles.container}>
         <h2>Issues loading data</h2>
-        <p>There was an error fetching content from the server.</p>
+        <p>
+          There was an error fetching content from the server. Check Vercel
+          logs.
+        </p>
 
         <Featured
           page={page}
