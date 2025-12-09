@@ -1,8 +1,9 @@
-// app/services/dailyDigest.js
-import { getTemplate } from "../emailTemplates";
-import { sendEmail } from "../../../utils/email"; // Assuming you have an email sending utility
-import fetch from "node-fetch";
-import prisma from "../../../prisma/client";
+// lib/dailyDigest.js
+import { getTemplate } from "@/app/emailTemplates/index";
+import { sendEmail } from "@/app/lib/email";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 async function getSubscribers() {
   try {
@@ -15,6 +16,7 @@ async function getSubscribers() {
       },
       select: {
         email: true,
+        name: true,
         // Add other fields you might need (like name if you add it later)
       },
     });
@@ -32,9 +34,8 @@ export async function sendDailyDigest() {
     console.log("Preparing daily digest...");
 
     // 1. Fetch today's featured articles
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN}/api/featured-articles`
-    );
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000";
+    const response = await fetch(`${baseUrl}/api/featured_articles`);
     if (!response.ok) throw new Error("Failed to fetch articles");
 
     const articles = await response.json();
@@ -72,7 +73,7 @@ export async function sendDailyDigest() {
               "https://azbytegems.com/default-article-image.jpg",
           })),
           unsubscribeLink: `${
-            process.env.NEXT_PUBLIC_DOMAIN
+            process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000"
           }/unsubscribe?email=${encodeURIComponent(subscriber.email)}`,
         });
 
@@ -107,3 +108,4 @@ export async function sendDailyDigest() {
     return { success: false, error: error.message };
   }
 }
+

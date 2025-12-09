@@ -1,8 +1,15 @@
-import { Resend } from "resend"; // Recommended service
-// or import nodemailer from 'nodemailer'; // Alternative
+import nodemailer from "nodemailer";
 
-// Initialize Resend (recommended for Next.js)
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize nodemailer transporter
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST || "smtp.gmail.com",
+  port: parseInt(process.env.EMAIL_PORT || "587"),
+  secure: process.env.EMAIL_SECURE === "true", // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
 /**
  * Send a transactional email
@@ -14,19 +21,14 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  */
 export async function sendEmail({ to, subject, html, from }) {
   try {
-    const { data, error } = await resend.emails.send({
-      from: from || process.env.EMAIL_FROM || "Acme <onboarding@resend.dev>",
+    const info = await transporter.sendMail({
+      from: from || process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to,
       subject,
       html,
     });
 
-    if (error) {
-      console.error("Email sending error:", error);
-      throw error;
-    }
-
-    return data;
+    return info;
   } catch (error) {
     console.error("Failed to send email:", error);
     throw error;

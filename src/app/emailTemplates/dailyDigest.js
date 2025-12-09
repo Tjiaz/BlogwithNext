@@ -1,5 +1,5 @@
 // app/api/cron/daily-digest/route.js
-import { sendDailyDigest } from "../../../services/dailyDigest";
+import { sendDailyDigest } from "@/lib/dailyDigest";
 
 export async function GET() {
   try {

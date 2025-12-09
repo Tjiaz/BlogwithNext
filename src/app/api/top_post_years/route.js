@@ -3,6 +3,8 @@ import { MongoClient } from "mongodb";
 const uri = process.env.DATABASE_URL;
 const client = new MongoClient(uri);
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req) {
   const databaseName = "ARTICLES"; // Your MongoDB database name
   const years = [2024, 2023]; // Define the years for which to fetch articles

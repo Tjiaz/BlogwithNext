@@ -109,7 +109,7 @@ const DatasetPage = () => {
             <strong className={styles.boldText}>AzByteGems</strong> subscribers
             have access to the{" "}
             <strong className={styles.boldText}>WorldData.AI Partners</strong>{" "}
-            Check out the world's largest external curated data platform,
+            Check out the world&apos;s largest external curated data platform,
             integrating data from all leading global sources.
           </h2>
 

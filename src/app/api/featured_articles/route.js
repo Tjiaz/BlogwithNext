@@ -2,6 +2,8 @@ import { MongoClient } from "mongodb";
 const uri = process.env.DATABASE_URL;
 const client = new MongoClient(uri);
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req) {
     try{
         await client.connect();
