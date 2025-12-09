@@ -1,32 +1,211 @@
 .cookieConsentBanner {
   position: fixed;
   bottom: 0;
-  left: 50%; /* Move the banner to the center horizontally */
-  transform: translateX(-50%); /* Adjust for exact centering */
-  width: 100%; /* Full width */
-  max-width: 1536px; /* Match the global body width */
-  background-color: #0b73b1;
-  color: white;
-  text-align: center;
-  padding: 10px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 1536px;
+  margin: 0 auto;
+  background-color: var(--cardBg);
+  color: var(--textColor);
+  padding: 20px 24px;
   z-index: 1000;
   display: flex;
-  justify-content: center;
   align-items: center;
-  box-sizing: border-box; /* Ensure padding is included in the width */
+  justify-content: space-between;
+  gap: 20px;
+  box-sizing: border-box;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  border-top: 2px solid #0b73b1;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-in-out;
 }
 
-.cookieConsentBanner p {
+.cookieConsentBanner.visible {
+  transform: translateY(0);
+}
+
+.content {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+}
+
+.iconContainer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #0b73b1 0%, #2991ce 100%);
+  border-radius: 12px;
+}
+
+.icon {
+  font-size: 24px;
+  color: white;
+}
+
+.textContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
   margin: 0;
   padding: 0;
-  display: inline;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--textColor);
+  line-height: 1.3;
 }
 
-.cookieConsentBanner button {
-  margin-left: 10px;
-  padding: 5px 10px;
-  background-color: #0b73b1;
-  color: white;
+.description {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  color: var(--softTextColor);
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.acceptButton,
+.declineButton {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.acceptButton {
+  background: linear-gradient(135deg, #0b73b1 0%, #2991ce 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(11, 115, 177, 0.3);
+}
+
+.acceptButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(11, 115, 177, 0.4);
+}
+
+.acceptButton:active {
+  transform: translateY(0);
+}
+
+.declineButton {
+  background-color: transparent;
+  color: var(--textColor);
+  border: 2px solid var(--softTextColor);
+}
+
+.declineButton:hover {
+  background-color: var(--softBg);
+  border-color: var(--textColor);
+}
+
+.closeButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: var(--softTextColor);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.closeButton:hover {
+  background-color: var(--softBg);
+  color: var(--textColor);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .cookieConsentBanner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .content {
+    gap: 12px;
+  }
+
+  .iconContainer {
+    width: 40px;
+    height: 40px;
+  }
+
+  .icon {
+    font-size: 20px;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  .description {
+    font-size: 13px;
+  }
+
+  .actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .acceptButton,
+  .declineButton {
+    width: 100%;
+    padding: 12px 20px;
+  }
+
+  .closeButton {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .cookieConsentBanner {
+    padding: 14px;
+  }
+
+  .iconContainer {
+    width: 36px;
+    height: 36px;
+  }
+
+  .icon {
+    font-size: 18px;
+  }
+
+  .title {
+    font-size: 15px;
+  }
+
+  .description {
+    font-size: 12px;
+  }
 }
