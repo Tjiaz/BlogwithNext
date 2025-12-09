@@ -1,70 +1,72 @@
-import { MongoClient } from "mongodb";
+import { connectToDatabase } from "@/utils/mongodb";
 
-const uri = process.env.DATABASE_URL;
-const client = new MongoClient(uri);
+export const dynamic = 'force-dynamic';
 
 function formatTopicName(topicName) {
   return topicName
-    .replace(/_articles$/, "") // Remove the word "articles" at the end
-    .replace(/_/g, " ") // Replace underscores with spaces
-    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize the first letter of each word
+    .replace(/_articles$/, "")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  const page = parseInt(searchParams.get("page"), 10) || 1; // Default to 1 if page is not provided
-  const limit = 4; // Number of articles per page
-  const skip = (page - 1) * limit; // Calculate how many articles to skip
-  const databaseName = "ARTICLES"; // Your MongoDB database name
+  const page = parseInt(searchParams.get("page"), 10) || 1;
+  const limit = 4;
+  const skip = (page - 1) * limit;
 
   try {
-    await client.connect();
-    const collection = client.db(databaseName).collection("Topic");
+    const { db } = await connectToDatabase();
+    const collection = db.collection("Articles");
 
-    // Fetch all articles from the Topic collection
-    const topics = await collection.find().toArray();
-
-    let results = [];
-
-    // Combine random articles from each topic
-    topics.forEach((topic) => {
-      if (topic.articles && topic.articles.length > 0) {
-        // Fetch a random article from the topic
-        const randomIndex = Math.floor(Math.random() * topic.articles.length);
-        const randomArticle = topic.articles[randomIndex];
-        results.push({
-          ...randomArticle,
-          topic: formatTopicName(topic.name),
-        });
+    // Get all unique topics
+    const topics = await collection.distinct("topic");
+    
+    // For each topic, get a random article
+    const articles = [];
+    for (const topic of topics.slice(skip, skip + limit)) {
+      const topicArticles = await collection
+        .find({ topic: topic })
+        .project({
+          _id: 1,
+          title: 1,
+          description: 1,
+          author: 1,
+          date: 1,
+          topic: 1,
+          filtered_images: 1,
+        })
+        .toArray();
+      
+      if (topicArticles.length > 0) {
+        // Get a random article from this topic
+        const randomIndex = Math.floor(Math.random() * topicArticles.length);
+        articles.push(topicArticles[randomIndex] || topicArticles[0]);
       }
-    });
+    }
 
-    // Shuffle the combined articles to add randomness
-    results.sort(() => Math.random() - 0.5);
-
-    // Paginate: skip the first 'skip' articles and return the next 'limit' articles
-    const paginatedArticles = results.slice(skip, skip + limit);
-
-    // Process the results as needed (e.g., deduplicate, format)
-    const processedResults = paginatedArticles.map((article) => ({
-      filtered_images: article.filtered_images,
+    // Format topic names and process results
+    const processedResults = articles.map((article) => ({
+      id: article._id.toString(),
       title: article.title,
       description: article.description,
       author: article.author,
       date: article.date,
-      content: article.content,
-      topic: article.topic,
-      id: article._id.toString(),
+      topic: formatTopicName(article.topic || ""),
+      filtered_images: article.filtered_images || [],
     }));
 
-    return new Response(JSON.stringify(processedResults), { status: 200 });
+    return new Response(JSON.stringify(processedResults), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   } catch (error) {
     console.error("Error fetching articles:", error);
     return new Response(
-      JSON.stringify({ message: "Error fetching articles" }),
+      JSON.stringify({ message: "Error fetching articles", error: error.message }),
       { status: 500 }
     );
-  } finally {
-    await client.close();
   }
 }

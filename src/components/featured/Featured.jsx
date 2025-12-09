@@ -97,6 +97,9 @@ const Featured = () => {
           topPostsResponse.json(),
         ]);
 
+        // Handle new API response format (object with articles array) or old format (direct array)
+        const mongoArticles = Array.isArray(mongoData) ? mongoData : (mongoData.articles || []);
+
         const getFirstImageFromContent = (content) => {
           if (!content) return null;
           const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
@@ -124,7 +127,7 @@ const Featured = () => {
         const uniquePosts = new Set();
 
         // Add MongoDB posts
-        mongoData.forEach((post) => {
+        mongoArticles.forEach((post) => {
           uniquePosts.add(post.id || post._id);
         });
 
@@ -137,19 +140,9 @@ const Featured = () => {
           return false;
         });
 
-        // Only use MongoDB posts for featured cards (RSS feeds kept separate)
-        // Sort MongoDB posts by date (newest first)
-        const sortedMongoPosts = [...mongoData].sort(
-          (a, b) => new Date(b.date) - new Date(a.date)
-        );
-
-        // Paginate only MongoDB posts
-        const startIndex = (page - 1) * POSTS_PER_PAGE;
-        const endIndex = startIndex + POSTS_PER_PAGE;
-        const paginatedPosts = sortedMongoPosts.slice(startIndex, endIndex);
-
+        // MongoDB posts are already paginated by the API, so use them directly
         setState({
-          latestPosts: paginatedPosts,
+          latestPosts: mongoArticles, // Already paginated by API
           topPosts: topPostsData.slice(0, 7),
           rssPosts: transformedRssData,
           loading: false,
@@ -168,6 +161,7 @@ const Featured = () => {
   }
 
   const hasPrev = page > 1;
+  // Check if there are more posts (if we got a full page, there might be more)
   const hasNext = state.latestPosts.length >= POSTS_PER_PAGE;
 
   const handleSubmit = async (e) => {

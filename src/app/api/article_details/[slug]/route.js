@@ -1,7 +1,7 @@
-// api/article_details/[slug]/route.js
-import { MongoClient, ObjectId } from "mongodb";
-const uri = process.env.DATABASE_URL;
-const client = new MongoClient(uri);
+import { connectToDatabase } from "@/utils/mongodb";
+import { ObjectId } from "mongodb";
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req, { params }) {
   const articleSlug = params.slug;
@@ -13,16 +13,73 @@ export async function GET(req, { params }) {
   }
 
   try {
-    await client.connect();
+    const { db } = await connectToDatabase();
 
-    const collection = client.db("ARTICLES").collection("Topic");
-    const topic = await collection.findOne({
-      "articles._id": new ObjectId(articleSlug),
-    });
+    // Try Articles collection first (faster, flattened structure)
+    let article = null;
+    let collection = db.collection("Articles");
+    
+    try {
+      article = await collection.findOne({
+        _id: new ObjectId(articleSlug),
+      });
+    } catch (idError) {
+      // If ObjectId conversion fails, try Topic collection
+      console.log("Trying Topic collection for article:", articleSlug);
+    }
 
-    if (!topic || !topic.articles || topic.articles.length === 0) {
-      console.error("No articles found.");
-      return new Response(JSON.stringify({ error: "Articles Not Found" }), {
+    // If not found in Articles, try Topic collection (for backward compatibility)
+    if (!article) {
+      collection = db.collection("Topic");
+      const topic = await collection.findOne({
+        "articles._id": new ObjectId(articleSlug),
+      });
+
+      if (topic && topic.articles) {
+        article = topic.articles.find(
+          (art) => art._id.toString() === articleSlug
+        );
+        if (article) {
+          article.topic = topic.name;
+        }
+      }
+    }
+
+    // If still not found, try Article collection (new structure)
+    if (!article) {
+      collection = db.collection("Article");
+      try {
+        article = await collection.findOne({
+          _id: articleSlug, // Article collection uses string IDs
+        });
+        if (article) {
+          // Transform Article collection format to expected format
+          article = {
+            _id: article._id,
+            title: article.title,
+            description: article.description,
+            content: article.content,
+            author: article.author,
+            topic: article.topic,
+            date: article.date ? new Date(article.date).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }) : new Date().toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+            filtered_images: [], // Extract from content if needed
+          };
+        }
+      } catch (error) {
+        console.log("Article not found in Article collection");
+      }
+    }
+
+    if (!article) {
+      return new Response(JSON.stringify({ error: "Article Not Found" }), {
         status: 404,
         headers: {
           "Content-Type": "application/json",
@@ -30,27 +87,16 @@ export async function GET(req, { params }) {
       });
     }
 
-    const article = topic.articles.find(
-      (article) => article._id.toString() === articleSlug
-    );
-
-    if (!article) {
-      console.error("Article not found.");
-      return new Response(JSON.stringify({ message: "Article not found" }), {
-        status: 404,
-      });
-    }
-
     return new Response(
       JSON.stringify({
-        filtered_images: article.filtered_images,
+        filtered_images: article.filtered_images || [],
         title: article.title,
         description: article.description,
         content: article.content,
         author: article.author,
         topic: article.topic,
         date: article.date,
-        id: article._id.toString(), // Include the ID in the response
+        id: article._id?.toString() || article._id,
       }),
       {
         status: 200,
@@ -68,7 +114,5 @@ export async function GET(req, { params }) {
       }),
       { status: 500 }
     );
-  } finally {
-    await client.close();
   }
 }

@@ -1,66 +1,91 @@
-import { MongoClient } from "mongodb";
+import { connectToDatabase } from "@/utils/mongodb";
 
-const uri = process.env.DATABASE_URL;
-const client = new MongoClient(uri);
+export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  const page = parseInt(searchParams.get("page"), 10) || 1; // Default to 1 if page is not provided
-  const limit = 5; // Number of articles per page
-  const skip = (page - 1) * limit; // Calculate how many articles to skip
-  const databaseName = "ARTICLES"; // Your MongoDB database name
+  const page = parseInt(searchParams.get("page"), 10) || 1;
+  const limit = 5;
+  const skip = (page - 1) * limit;
 
   try {
-    await client.connect();
-    const collection = client.db(databaseName).collection("Topic");
+    const { db } = await connectToDatabase();
+    const collection = db.collection("Articles");
 
-    // Fetch all articles from the Topic collection
-    const topics = await collection.find().toArray();
+    // Use aggregation to get top article from each topic
+    const pipeline = [
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          description: 1,
+          author: 1,
+          date: 1,
+          topic: 1,
+          filtered_images: 1,
+          sortDate: {
+            $cond: {
+              if: { $eq: [{ $type: "$date" }, "date"] },
+              then: "$date",
+              else: {
+                $dateFromString: {
+                  dateString: "$date",
+                  onError: new Date(0),
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $sort: { sortDate: -1 }, // Sort by date descending
+      },
+      {
+        $group: {
+          _id: "$topic",
+          topArticle: { $first: "$$ROOT" }, // Get the first (newest) article from each topic
+        },
+      },
+      {
+        $replaceRoot: { newRoot: "$topArticle" }, // Replace root with the article
+      },
+      {
+        $project: {
+          sortDate: 0, // Remove the temporary sortDate field
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ];
 
-    let results = [];
+    const articles = await collection.aggregate(pipeline).toArray();
 
-    // Combine the top article from each topic
-    topics.forEach((topic) => {
-      if (topic.articles && topic.articles.length > 0) {
-        // Sort articles by date in descending order (newest first)
-        const sortedArticles = topic.articles.sort(
-          (a, b) => new Date(b.date) - new Date(a.date)
-        );
-        // Take the top article
-        const topArticle = sortedArticles[0];
-        results.push({
-          ...topArticle,
-          topic: topic.name,
-        });
-      }
-    });
-
-    // Shuffle the combined articles randomly
-    results = results.sort(() => Math.random() - 0.5);
-
-    // Paginate: skip the first 'skip' articles and return the next 'limit' articles
-    const paginatedArticles = results.slice(skip, skip + limit);
-
-    // Process the results as needed
-    const processedResults = paginatedArticles.map((article) => ({
-      filtered_images: article.filtered_images,
+    // Process results
+    const processedResults = articles.map((article) => ({
+      id: article._id.toString(),
       title: article.title,
       description: article.description,
       author: article.author,
       date: article.date,
-      content: article.content,
       topic: article.topic,
-      id: article._id.toString(),
+      filtered_images: article.filtered_images || [],
     }));
 
-    return new Response(JSON.stringify(processedResults), { status: 200 });
+    return new Response(JSON.stringify(processedResults), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   } catch (error) {
-    console.error("Error fetching articles:", error);
+    console.error("Error fetching top articles:", error);
     return new Response(
-      JSON.stringify({ message: "Error fetching articles" }),
+      JSON.stringify({ message: "Error fetching articles", error: error.message }),
       { status: 500 }
     );
-  } finally {
-    await client.close();
   }
 }

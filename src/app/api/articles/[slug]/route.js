@@ -1,54 +1,64 @@
-import { MongoClient } from "mongodb";
+import { connectToDatabase } from "@/utils/mongodb";
 
-// Create a global variable to cache the MongoDB client
-let cachedClient = null;
-
-async function connectToDatabase() {
-  if (cachedClient) {
-    return cachedClient;
-  }
-
-  const uri = process.env.DATABASE_URL;
-
-  if (!uri) {
-    throw new Error("Please define DATABASE_URL environment variable");
-  }
-
-  // Validate connection string format
-  if (!uri.startsWith("mongodb://") && !uri.startsWith("mongodb+srv://")) {
-    throw new Error("Invalid MongoDB connection string format");
-  }
-
-  try {
-    const client = new MongoClient(uri);
-    await client.connect();
-    cachedClient = client;
-    return client;
-  } catch (error) {
-    console.error("MongoDB connection error:", error);
-    throw error;
-  }
-}
+export const dynamic = 'force-dynamic';
 
 export async function GET(req, { params }) {
   const { slug } = params;
   const databaseName = "ARTICLES";
-  const collectionName = "Topic";
-  // const collectionName = `${slug}_articles`;
 
   try {
-    const client = await connectToDatabase();
+    const { db } = await connectToDatabase();
 
-    const db = client.db(databaseName);
+    // Try Articles collection first (faster, flattened structure)
+    let articles = [];
+    let topicTitle = "";
 
-    const collection = db.collection(collectionName);
+    // Try to find articles by topic in Articles collection
+    const articlesCollection = db.collection("Articles");
+    articles = await articlesCollection
+      .find({
+        topic: { $regex: slug, $options: "i" },
+      })
+      .project({
+        _id: 1,
+        title: 1,
+        description: 1,
+        author: 1,
+        date: 1,
+        topic: 1,
+        filtered_images: 1,
+        content: 1,
+      })
+      .sort({ date: -1 })
+      .toArray();
 
-    const topic = await collection.findOne({
-      $or: [{ name: `${slug}_articles` }, { title: `${slug}_articles` }],
-    });
+    if (articles.length > 0) {
+      topicTitle = articles[0].topic || slug;
+    } else {
+      // Fallback to Topic collection for backward compatibility
+      const topicCollection = db.collection("Topic");
+      const topic = await topicCollection.findOne({
+        $or: [{ name: `${slug}_articles` }, { title: `${slug}_articles` }],
+      });
 
-    if (!topic || !topic.articles || topic.articles.length === 0) {
-      console.error("No articles found.");
+      if (topic && topic.articles && topic.articles.length > 0) {
+        articles = topic.articles.map((article) => ({
+          ...article,
+          _id: article._id ? article._id.toString() : null,
+        }));
+
+        // Sort articles by date (newest first)
+        articles.sort((a, b) => {
+          const dateA = new Date(a.date);
+          const dateB = new Date(b.date);
+          return dateB - dateA;
+        });
+
+        topicTitle = topic.title || topic.name;
+      }
+    }
+
+    if (!articles || articles.length === 0) {
       return new Response(JSON.stringify({ error: "Articles Not Found" }), {
         status: 404,
         headers: {
@@ -57,29 +67,14 @@ export async function GET(req, { params }) {
       });
     }
 
-    // Ensure articles exist
-    const articles = topic.articles || [];
-
-    // Convert _id to string explicitly
-    const articlesWithStringId = topic.articles.map((article) => ({
-      ...article,
-      _id: article._id ? article._id.toString() : null,
-    }));
-
-    console.log("Articles with string _id:", articlesWithStringId);
-
-    // Sort articles by date (newest first)
-    const sortedArticles = articlesWithStringId.sort((a, b) => {
-      return new Date(b.date) - new Date(a.date);
-    });
-
-    console.log("Articles with string _id:", sortedArticles);
-
     return new Response(
       JSON.stringify({
-        articles: sortedArticles,
+        articles: articles.map((article) => ({
+          ...article,
+          id: article._id?.toString() || article._id,
+        })),
         articleCount: articles.length,
-        topicTitle: topic.title || topic.name,
+        topicTitle: topicTitle,
       }),
       {
         status: 200,
@@ -90,12 +85,14 @@ export async function GET(req, { params }) {
     );
   } catch (error) {
     console.error("Error fetching articles:", error);
-    return new Response(JSON.stringify({ error: "Failed to fetch articles" }), {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    return new Response(
+      JSON.stringify({ error: "Failed to fetch articles", message: error.message }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
-  // Remove the client.close() call since we're reusing the connection
 }

@@ -1,87 +1,115 @@
-import { MongoClient } from "mongodb";
-
-const uri = process.env.DATABASE_URL;
-const client = new MongoClient(uri);
+import { connectToDatabase } from "@/utils/mongodb";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
-  const databaseName = "ARTICLES"; // Your MongoDB database name
-  const years = [2024, 2023]; // Define the years for which to fetch articles
-  const limit = 5; // Number of top articles per year
+  const years = [2024, 2023];
+  const limit = 5;
 
   try {
-    await client.connect();
-    const collection = client.db(databaseName).collection("Topic");
+    const { db } = await connectToDatabase();
+    const collection = db.collection("Articles");
 
-    let results = {};
-    let seenArticles = new Set();
+    const results = {};
 
-    // Loop through the years
+    // Process each year using aggregation
     for (const year of years) {
-      let yearResults = [];
+      const pipeline = [
+        {
+          $addFields: {
+            sortDate: {
+              $cond: {
+                if: { $eq: [{ $type: "$date" }, "date"] },
+                then: "$date",
+                else: {
+                  $dateFromString: {
+                    dateString: "$date",
+                    onError: new Date(0),
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          $addFields: {
+            yearFromDate: {
+              $cond: {
+                if: { $eq: [{ $type: "$date" }, "date"] },
+                then: { $year: "$date" },
+                else: {
+                  $year: {
+                    $dateFromString: {
+                      dateString: "$date",
+                      onError: new Date(0),
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          $match: {
+            $or: [
+              { yearFromDate: year },
+              { date: { $regex: year.toString() } },
+            ],
+          },
+        },
+        {
+          $sort: { sortDate: -1 },
+        },
+        {
+          $limit: limit,
+        },
+        {
+          $project: {
+            _id: 1,
+            title: 1,
+            description: 1,
+            author: 1,
+            date: 1,
+            topic: 1,
+            filtered_images: 1,
+            sortDate: 0,
+            yearFromDate: 0,
+          },
+        },
+      ];
 
-      // Fetch all articles from the Topic collection
-      const topics = await collection.find().toArray();
+      const articles = await collection.aggregate(pipeline).toArray();
 
-      topics.forEach((topic) => {
-        if (topic.articles && topic.articles.length > 0) {
-          // Fetch the top articles for the given year using aggregation
-          const articles = topic.articles.filter((article) => {
-            const articleDate = new Date(article.date);
-            return articleDate.getFullYear() === year;
-          });
-
-          // Sort articles by date in descending order (newest first)
-          const sortedArticles = articles.sort(
-            (a, b) => new Date(b.date) - new Date(a.date)
-          );
-
-          // Only add non-duplicate articles
-          sortedArticles.slice(0, limit).forEach((article) => {
-            const articleKey = `${article.title}-${article.date}`;
-            if (!seenArticles.has(articleKey)) {
-              seenArticles.add(articleKey);
-              yearResults.push({
-                ...article,
-                topic: topic.name,
-              });
-            }
-          });
-        }
-      });
-
-      // Sort the results for the year by date (newest first)
-      yearResults.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      // Take the top results for the year
-      results[year] = yearResults.slice(0, limit);
+      results[year] = articles.map((article) => ({
+        id: article._id.toString(),
+        title: article.title,
+        description: article.description,
+        author: article.author,
+        date: article.date,
+        topic: article.topic,
+        filtered_images: article.filtered_images || [],
+      }));
     }
 
-    // Process the results as needed
     const processedResults = years.map((year) => ({
       year,
-      articles:
-        results[year]?.map((article) => ({
-          filtered_images: article.filtered_images,
-          title: article.title,
-          description: article.description,
-          author: article.author,
-          date: article.date,
-          content: article.content,
-          topic: article.topic,
-          id: article._id.toString(),
-        })) || [], // If no articles for the year, return an empty array
+      articles: results[year] || [],
     }));
 
-    return new Response(JSON.stringify(processedResults), { status: 200 });
+    return new Response(JSON.stringify(processedResults), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   } catch (error) {
-    console.error("Error fetching articles:", error);
+    console.error("Error fetching articles by year:", error);
     return new Response(
-      JSON.stringify({ message: "Error fetching articles" }),
+      JSON.stringify({
+        message: "Error fetching articles",
+        error: error.message,
+      }),
       { status: 500 }
     );
-  } finally {
-    await client.close();
   }
 }
