@@ -33,7 +33,11 @@ const CookieConsentBanner = () => {
   }
 
   return (
-    <div className={`${styles.cookieConsentBanner} ${isVisible ? styles.visible : ""}`}>
+    <div
+      className={`${styles.cookieConsentBanner} ${
+        isVisible ? styles.visible : ""
+      }`}
+    >
       <div className={styles.content}>
         <div className={styles.iconContainer}>
           <FaCookie className={styles.icon} />
@@ -41,8 +45,9 @@ const CookieConsentBanner = () => {
         <div className={styles.textContainer}>
           <p className={styles.title}>We use cookies</p>
           <p className={styles.description}>
-            This website uses cookies to enhance your browsing experience and provide personalized content. 
-            By continuing to use this site, you consent to our use of cookies.
+            This website uses cookies to enhance your browsing experience and
+            provide personalized content. By continuing to use this site, you
+            consent to our use of cookies.
           </p>
         </div>
       </div>
@@ -54,7 +59,11 @@ const CookieConsentBanner = () => {
           Accept
         </button>
       </div>
-      <button onClick={handleAccept} className={styles.closeButton} aria-label="Close">
+      <button
+        onClick={handleAccept}
+        className={styles.closeButton}
+        aria-label="Close"
+      >
         <FaTimes />
       </button>
     </div>

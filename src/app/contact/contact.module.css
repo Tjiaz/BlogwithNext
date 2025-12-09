@@ -1,18 +1,3 @@
-.termsContainer {
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.termsContainer h1,
-.termsContainer h2 {
-  margin-top: 20px;
-}
-
-.termsContainer p {
-  margin-bottom: 10px;
-}
-
 .container {
   margin-top: 90px;
 }
@@ -23,23 +8,30 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  padding-top: 40px; /* Add space at the top to account for the navbar */
+  max-width: 1536px;
+  padding-top: 40px;
+  margin: 0 auto;
 }
 
 .imageadvert {
   height: 100px;
   position: relative;
   width: 70vw;
+  max-width: 1000px;
   display: block;
   margin: 0 auto;
 }
 
 .advert {
   width: 70vw;
+  max-width: 1000px;
   font-size: small;
   text-decoration: underline;
   text-align: center;
   padding-left: 0;
+  margin: 0 auto;
+  display: block;
+  color: var(--textColor);
 }
 
 .post {
@@ -47,28 +39,6 @@
   display: flex;
   align-content: center;
   gap: 50px;
-}
-
-.topPosts {
-  text-align: justify;
-}
-
-.noListStyle {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
-.postItem {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #ccd;
-  padding-bottom: 20px;
-}
-
-.postImage {
-  margin-right: 20px;
 }
 
 .textContainer1 {
@@ -83,19 +53,203 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  background: var(--cardBg);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  padding: 20px;
 }
+
 .advertImgContainer {
   text-align: center;
 }
+
 .head {
+  color: var(--textColor);
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  position: relative;
+  padding-bottom: 12px;
+  text-align: center;
   text-transform: capitalize;
 }
 
-.advertImg {
-  width: 85%;
+.head::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #0b73b1 0%, #2991ce 100%);
+  border-radius: 2px;
+}
+
+.textContainer1 > div {
+  padding: 20px;
+  color: var(--textColor);
+}
+
+.textContainer1 h1,
+.textContainer1 h2 {
+  margin-top: 30px;
+  margin-bottom: 15px;
+  color: var(--textColor);
+}
+
+.textContainer1 h1 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.textContainer1 h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0b73b1;
+}
+
+.textContainer1 p {
+  line-height: 1.8;
+  font-size: 16px;
+  color: var(--textColor);
+  margin-bottom: 15px;
+}
+
+.textContainer1 a {
+  color: #0b73b1;
+  text-decoration: underline;
+}
+
+.textContainer1 a:hover {
+  color: #2991ce;
+}
+
+.socialmedialinks {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.socialmedia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: var(--softBg);
+  color: var(--textColor);
+  border-radius: 50%;
+  text-decoration: none;
+  font-size: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.socialmedia:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.socialmedia.facebook {
+  background-color: #3b5998;
+  color: white;
+}
+.socialmedia.facebook:hover {
+  background-color: #2d4373;
+}
+
+.socialmedia.twitter {
+  background-color: #1da1f2;
+  color: white;
+}
+.socialmedia.twitter:hover {
+  background-color: #0c85d0;
+}
+
+.socialmedia.linkedin {
+  background-color: #0077b5;
+  color: white;
+}
+.socialmedia.linkedin:hover {
+  background-color: #005f8d;
+}
+
+.socialmedia.youtube {
+  background-color: #ff0000;
+  color: white;
+}
+.socialmedia.youtube:hover {
+  background-color: #cc0000;
+}
+
+.socialmedia.reddit {
+  background-color: #ff4500;
+  color: white;
+}
+.socialmedia.reddit:hover {
+  background-color: #cc3700;
+}
+
+.searchContainer {
+  position: relative;
+  width: 100%;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 40px 10px 10px;
+  font-size: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  outline: none;
+  background-color: var(--cardBg);
+  color: var(--textColor);
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  border-color: #0b73b1;
+  box-shadow: 0 0 0 3px rgba(11, 115, 177, 0.1);
+}
+
+.searchInput::placeholder {
+  color: var(--softTextColor);
+}
+
+.searchIcon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--softTextColor);
+  transition: color 0.3s ease;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.searchIcon:hover {
+  color: #0b73b1;
+}
+
+.advertImageContainer {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.advertImage {
+  width: 100%;
   height: auto;
-  margin: 0 auto;
-  display: block;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.advertImageContainer a {
+  color: var(--textColor);
+  text-decoration: underline;
+  font-size: 14px;
 }
 
 .topPosts {
@@ -107,162 +261,115 @@
   padding: 0;
   margin: 0;
 }
+
 .listItem {
-  border-bottom: 1px solid#f2f2f2;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   margin-bottom: 10px;
   padding-bottom: 10px;
 }
-.listItem:hover {
+
+.listItem a {
+  color: var(--textColor);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.listItem a:hover {
+  color: #0b73b1;
   text-decoration: underline;
-  cursor: pointer;
 }
 
-.postTitle {
-  font-size: 1.2em;
-  margin: 0 0 10px 0;
-}
-
-.postDesc {
-  font-size: 0.8em;
-  margin: 0 0 10px 0;
-  color: var(--softTextColor);
-}
-.articleCard {
-  margin-bottom: 15px;
-  display: flex;
-}
-.author {
-  font-size: 0.9em;
-  color: #000;
-}
-
-.searchContainer {
+.textContainer2 h3 {
+  color: var(--textColor);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
   position: relative;
-  width: 400px;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
 }
 
-.searchInput {
-  width: 100%;
-  padding: 10px;
-  padding-right: 40px;
-  font-size: 16px;
-}
-
-.searchIcon {
+.textContainer2 h3::after {
+  content: "";
   position: absolute;
-  right: 10px;
-  top: 50%;
-  cursor: pointer;
-  color: grey;
-  font-size: 24px;
-  transform: translateY(-50%);
-}
-
-.button {
-  padding: 16px 20px;
-  border: none;
-  border-radius: 5px;
-  width: max-content;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #0b73b1 0%, #2991ce 100%);
+  border-radius: 2px;
 }
 
 .signupContainer {
   position: relative;
-  width: 400px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
 .signupbutton {
-  background-color: #0b73b1;
+  background: linear-gradient(135deg, #0b73b1 0%, #2991ce 100%);
   color: #fff;
-  padding: 10px 20px;
+  padding: 12px 20px;
   border: none;
   text-transform: uppercase;
   font-weight: bold;
   cursor: pointer;
-}
-
-.readMore {
-  color: var(--primaryColor);
-  text-decoration: underline;
-}
-
-.socialmedialinks {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.socialmedia {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background-color: #0b73b1;
-  color: white;
   border-radius: 8px;
-  text-decoration: none;
-  font-size: 20px;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.socialmedia:hover {
-  background-color: #005f8d;
-}
-
-.lightText {
-  font-weight: 300; /* Light font weight */
-}
-.lightText:hover {
-  text-decoration: underline;
-}
-.boldText {
-  font-weight: 300; /* Bold font weight */
-}
-
-@media screen and (max-width: 1280px) {
-  .title {
-    font-size: 72px;
-  }
+.signupbutton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(11, 115, 177, 0.4);
 }
 
 @media screen and (max-width: 1024px) {
-  .title {
-    font-size: 64px;
-  }
-  .imgContainer {
-    display: none;
+  .post {
+    gap: 30px;
   }
 }
 
 @media screen and (max-width: 768px) {
-  .title {
-    font-size: 64px;
+  .post {
+    flex-direction: column;
+    gap: 30px;
   }
+
+  .textContainer2 {
+    order: -1;
+  }
+
   .imageadvert {
-    width: 70vw;
+    width: 90vw;
   }
+
   .advert {
-    font-size: small;
-    text-decoration: underline;
-    text-align: center;
-    padding-left: 200px;
+    width: 90vw;
+    padding-left: 0;
   }
 }
 
 @media screen and (max-width: 640px) {
-  .title {
-    font-size: 48px;
-  }
   .textContainer2 {
     display: none;
   }
-}
 
-@media screen and (max-width: 768) {
-  .title {
-    font-size: 36px;
+  .textContainer1 > div {
+    padding: 15px;
+  }
+
+  .textContainer1 h1 {
+    font-size: 1.75rem;
+  }
+
+  .textContainer1 h2 {
+    font-size: 1.25rem;
+  }
+
+  .textContainer1 p {
+    font-size: 14px;
   }
 }

@@ -14,6 +14,7 @@ import { MdSearch } from "react-icons/md";
 
 const Page = () => {
   const [latestPosts, setLatestPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchArticles() {
@@ -36,7 +37,7 @@ const Page = () => {
   }, []);
   return (
     <div className={styles.container}>
-      <div className={styles.advertContainer}>
+      <div className={styles.advertsContainer}>
         <div className={styles.imageadvert}>
           <Image src="/ads.gif" alt="" fill className={styles.image} />
         </div>
@@ -49,23 +50,53 @@ const Page = () => {
           <h1 className={styles.head}>Contact</h1>
 
           <div className={styles.socialmedialinks}>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.facebook.com/profile.php?id=61572544476793"
+              className={`${styles.socialmedia} ${styles.facebook}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+            >
               <FaFacebookF />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://x.com/azbytegems"
+              className={`${styles.socialmedia} ${styles.twitter}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Twitter"
+            >
               <FaTwitter />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://linkedin.com/azbytegems"
+              className={`${styles.socialmedia} ${styles.linkedin}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+            >
               <FaLinkedin />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="#"
+              className={`${styles.socialmedia} ${styles.youtube}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube"
+            >
               <FaYoutube />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="#"
+              className={`${styles.socialmedia} ${styles.reddit}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Reddit"
+            >
               <FaReddit />
             </a>
           </div>
-          <hr style={{ color: "#bbbbbb" }} />
+          <hr style={{ borderColor: "rgba(0, 0, 0, 0.1)", margin: "20px 0" }} />
           <div>
             <h2>Ads, Email Blasts, and Promotions</h2>
             <p>
@@ -103,8 +134,8 @@ const Page = () => {
             <Image
               src="/ads2.gif"
               alt="advert"
-              width={100}
-              height={100}
+              width={300}
+              height={250}
               className={styles.advertImage}
             />
             <Link href="/">Adverts</Link>
@@ -137,10 +168,10 @@ const Page = () => {
           </div>
           <div className={styles.advertImageContainer}>
             <Image
-              src="/dummy_Image.png"
+              src="/ads2.gif"
               alt="advert"
-              width={100}
-              height={100}
+              width={300}
+              height={250}
               className={styles.advertImage}
             />
             <Link href="/">Adverts</Link>
