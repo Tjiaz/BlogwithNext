@@ -2,32 +2,35 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 0;
+  padding: 30px 0;
   max-width: 100%;
-  margin: 0 auto;
+  margin: 40px auto 0;
   gap: 20px;
 }
 
 .button {
-  min-width: 120px;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 6px;
-  background-color: #0b73b1;
-  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 100px;
+  padding: 12px 20px;
+  border: 2px solid #0b73b1;
+  border-radius: 8px;
+  background-color: transparent;
+  color: #0b73b1;
   cursor: pointer;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px;
   transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.3px;
 }
 
 .button:hover:not(:disabled) {
-  background-color: #095a8e;
+  background-color: #0b73b1;
+  color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-color: #0b73b1;
 }
 
 .button:active:not(:disabled) {
@@ -35,34 +38,78 @@
 }
 
 .button:disabled {
-  background-color: #ccc;
+  border-color: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.3);
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.5;
+  background-color: transparent;
+}
+
+.icon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+}
+
+.pageInfo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+}
+
+.pageNumber {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--textColor);
+  letter-spacing: 0.3px;
 }
 
 /* Large screens */
 @media screen and (min-width: 1200px) {
   .container {
-    max-width: 1200px;
-    padding: 30px 0;
+    padding: 40px 0;
+    margin-top: 50px;
   }
 
   .button {
-    min-width: 150px;
-    padding: 15px 30px;
-    font-size: 18px;
+    min-width: 120px;
+    padding: 14px 24px;
+    font-size: 16px;
+  }
+
+  .icon {
+    font-size: 20px;
+  }
+
+  .pageNumber {
+    font-size: 16px;
   }
 }
 
 /* Medium screens */
 @media screen and (max-width: 768px) {
   .container {
-    padding: 20px;
+    padding: 25px 0;
+    margin-top: 30px;
+    gap: 15px;
   }
 
   .button {
-    min-width: 100px;
-    padding: 10px 20px;
+    min-width: 90px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .icon {
+    font-size: 16px;
+  }
+
+  .pageInfo {
+    padding: 0 10px;
+  }
+
+  .pageNumber {
     font-size: 14px;
   }
 }
@@ -70,27 +117,55 @@
 /* Small screens */
 @media screen and (max-width: 480px) {
   .container {
-    padding: 15px;
+    padding: 20px 0;
+    margin-top: 25px;
     gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .button {
-    min-width: 80px;
-    padding: 8px 16px;
-    font-size: 12px;
+    min-width: 85px;
+    padding: 8px 14px;
+    font-size: 13px;
+    gap: 6px;
+  }
+
+  .icon {
+    font-size: 15px;
+  }
+
+  .pageInfo {
+    order: -1;
+    width: 100%;
+    padding: 10px 0;
+  }
+
+  .pageNumber {
+    font-size: 13px;
   }
 }
 
 /* Extra small screens */
 @media screen and (max-width: 320px) {
   .container {
-    padding: 10px;
+    padding: 15px 0;
+    margin-top: 20px;
     gap: 8px;
   }
 
   .button {
-    min-width: 70px;
-    padding: 6px 12px;
-    font-size: 11px;
+    min-width: 75px;
+    padding: 7px 12px;
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  .icon {
+    font-size: 14px;
+  }
+
+  .pageNumber {
+    font-size: 12px;
   }
 }

@@ -78,7 +78,6 @@ const Navbar = () => {
             <BsTwitterX />
           </Link>
           <button
-            href="/"
             className={styles.join_newsletter_button}
             onClick={() => setShowModal(true)}
           >

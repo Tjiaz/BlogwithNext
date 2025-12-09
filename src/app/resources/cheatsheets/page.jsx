@@ -36,7 +36,7 @@ const Page = () => {
   }, []);
   return (
     <div className={styles.container}>
-      <div className={styles.advertContainer}>
+      <div className={styles.advertsContainer}>
         <div className={styles.imageadvert}>
           <Image src="/ads.gif" alt="" fill className={styles.image} />
         </div>
@@ -49,23 +49,53 @@ const Page = () => {
           <h1 className={styles.head}>Cheat Sheets</h1>
 
           <div className={styles.socialmedialinks}>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://www.facebook.com/profile.php?id=61572544476793"
+              className={`${styles.socialmedia} ${styles.facebook}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+            >
               <FaFacebookF />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="https://x.com/azbytegems"
+              className={`${styles.socialmedia} ${styles.twitter}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Twitter"
+            >
               <FaTwitter />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="#"
+              className={`${styles.socialmedia} ${styles.linkedin}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+            >
               <FaLinkedinIn />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="#"
+              className={styles.socialmedia}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube"
+            >
               <FaYoutube />
             </a>
-            <a href="#" className={styles.socialmedia}>
+            <a
+              href="#"
+              className={styles.socialmedia}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Reddit"
+            >
               <FaRedditSquare />
             </a>
           </div>
-          <hr style={{ color: "#bbbbbb" }} />
+          <hr className={styles.divider} />
           <div className={styles.cheatsheetContainer}>
             <div className={styles.cheatsheetGrid}>
               <div className={styles.cheatsheetCard}>
@@ -135,22 +165,15 @@ const Page = () => {
             <Image
               src="/ads2.gif"
               alt="advert"
-              width={100}
-              height={100}
+              width={300}
+              height={250}
               className={styles.advertImg}
             />
             <Link href="/">Adverts</Link>
           </div>
           <div>
-            <h3>Latest Posts</h3>
-            <div style={{ display: "flex", width: "100%" }}>
-              <div
-                style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
-              ></div>
-              <div
-                style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}
-              ></div>
-            </div>
+            <h3 className={styles.latestPostsTitle}>Latest Posts</h3>
+            <div className={styles.titleUnderline}></div>
           </div>
           <div className={styles.topPosts}>
             <ol className={styles.noListStyle}>

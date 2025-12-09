@@ -137,16 +137,16 @@ const Featured = () => {
           return false;
         });
 
-        // Combine MongoDB and unique RSS posts
-        const combinedPosts = [...mongoData, ...uniqueRssPosts];
+        // Only use MongoDB posts for featured cards (RSS feeds kept separate)
+        // Sort MongoDB posts by date (newest first)
+        const sortedMongoPosts = [...mongoData].sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        );
 
-        // Sort combined posts by date (newest first)
-        combinedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        // Paginate the combined posts
+        // Paginate only MongoDB posts
         const startIndex = (page - 1) * POSTS_PER_PAGE;
         const endIndex = startIndex + POSTS_PER_PAGE;
-        const paginatedPosts = combinedPosts.slice(startIndex, endIndex);
+        const paginatedPosts = sortedMongoPosts.slice(startIndex, endIndex);
 
         setState({
           latestPosts: paginatedPosts,
@@ -208,44 +208,49 @@ const Featured = () => {
       <div className={styles.post}>
         <div className={styles.textContainer1}>
           <h2 className={styles.latestPostsTitle}>Latest Articles</h2>
-          <div style={{ display: "flex", width: "100%", marginBottom: "20px" }}>
-            <div
-              style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
-            ></div>
-            <div style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}></div>
-          </div>
           <Suspense fallback={<LoadingPlaceholder count={8} />}>
             {filteredPosts && filteredPosts.length > 0 ? (
-              filteredPosts.map((post) => {
-                const imageToUse = post.isRssPost
-                  ? post.img || "/azbyte.jpeg"
-                  : post.filtered_images && post.filtered_images.length > 0
-                  ? post.filtered_images[0]
-                  : extractImageFromContent(post.content)
-                  ? extractImageFromContent(post.content)
-                  : "/azbyte.jpeg";
-
-                const postDate = post.isRssPost
-                  ? post.isoDate || post.pubDate || post.date
-                  : post.date;
+              filteredPosts.map((post, index) => {
+                const imageToUse =
+                  post.filtered_images && post.filtered_images.length > 0
+                    ? post.filtered_images[0]
+                    : extractImageFromContent(post.content)
+                    ? extractImageFromContent(post.content)
+                    : "/azbyte.jpeg";
 
                 return (
-                  <FeaturedCard
-                    key={post.isRssPost ? post.guid : post._id}
-                    postImg={imageToUse}
-                    postTitle={post.title}
-                    postDesc={
-                      post.description ||
-                      post.desc ||
-                      "No description available"
-                    }
-                    postAuthor={post.author}
-                    postDate={postDate}
-                    postTopic={post.isRssPost ? "RSS Feed" : post.topic}
-                    postId={post.isRssPost ? post.guid : post.id}
-                    isRssPost={post.isRssPost}
-                    rssLink={post.isRssPost ? post.link : null}
-                  />
+                  <React.Fragment key={post._id || post.id}>
+                    <FeaturedCard
+                      postImg={imageToUse}
+                      postTitle={post.title}
+                      postDesc={
+                        post.description ||
+                        post.desc ||
+                        "No description available"
+                      }
+                      postAuthor={post.author}
+                      postDate={post.date}
+                      postTopic={post.topic}
+                      postId={post.id || post._id}
+                    />
+                    {/* Insert ad between 3rd and 4th article */}
+                    {index === 2 && (
+                      <div className={styles.inlineAdContainer}>
+                        <div className={styles.inlineAdImage}>
+                          <Image
+                            src="/ads2.gif"
+                            alt="advertisement"
+                            width={728}
+                            height={90}
+                            className={styles.inlineAdImg}
+                          />
+                        </div>
+                        <Link href="/" className={styles.inlineAdLink}>
+                          Google-bigquery
+                        </Link>
+                      </div>
+                    )}
+                  </React.Fragment>
                 );
               })
             ) : (
@@ -281,14 +286,6 @@ const Featured = () => {
           </div>
           <div>
             <h3>Top Posts</h3>
-            <div style={{ display: "flex", width: "100%" }}>
-              <div
-                style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
-              ></div>
-              <div
-                style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}
-              ></div>
-            </div>
           </div>
           <div className={styles.topPosts}>
             <ol className={styles.noListStyle}>

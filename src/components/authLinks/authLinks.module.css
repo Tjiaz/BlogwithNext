@@ -1,5 +1,10 @@
 .link {
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  height: fit-content;
 }
 
 .burger {
@@ -43,10 +48,11 @@
 
 .searchContainer {
   position: fixed;
-  top: 90px; /* Adjust this value based on your nav height */
+  top: 90px; /* Default for large screens - will be adjusted in media queries */
   left: 0;
   width: 100%;
-  background-color: white;
+  background-color: var(--bg);
+  color: var(--textColor);
   z-index: 1000;
   padding: 15px 20px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -64,6 +70,19 @@
   border-radius: 4px;
   box-sizing: border-box;
   width: 100%;
+  background-color: var(--cardBg);
+  color: var(--textColor);
+  transition: all 0.3s ease;
+}
+
+.searchInput2:focus {
+  outline: none;
+  border-color: #2991ce;
+  box-shadow: 0 0 0 3px rgba(11, 115, 177, 0.1);
+}
+
+.searchInput2::placeholder {
+  color: var(--softTextColor);
 }
 .searchIconInsideInput {
   color: #0b73b1;
@@ -162,9 +181,10 @@
 }
 .responsiveMenu {
   position: absolute;
-  top: 90px;
+  top: 90px; /* Default for large screens - will be adjusted in media queries */
   left: 0;
   background-color: var(--bg);
+  color: var(--textColor);
   height: calc(100vh - 90px);
   width: 100vw;
   display: flex;
@@ -186,6 +206,10 @@
   height: calc(100vh - 90px);
   opacity: 1;
   transform: translateY(0);
+}
+
+.menuLink {
+  color: var(--textColor);
 }
 
 .menuLink {
@@ -218,13 +242,14 @@
   overflow-y: auto;
   padding-right: 40px;
   text-transform: uppercase;
+  color: var(--textColor);
 }
 
 .dropdownMenu::-webkit-scrollbar {
   width: 10px;
 }
 .dropdownMenu::-webkit-scrollbar-track {
-  background: #c2c2c2; /* Background of the scrollbar track */
+  background: var(--softBg); /* Background of the scrollbar track */
 }
 
 .dropdownMenu::-webkit-scrollbar-thumb {
@@ -237,16 +262,52 @@
 .dropdownItem {
   padding-bottom: 10px;
   border-bottom: 1px solid #0b73b1;
+  color: var(--textColor);
+}
+
+.dropdownItem a {
+  color: var(--textColor);
+}
+
+.dropdownItem a:hover {
+  color: #0b73b1;
 }
 
 .dropdownItem:hover {
   text-decoration: underline;
 }
 
+@media screen and (max-width: 768px) {
+  .searchContainer {
+    top: 75px; /* Match navbar height at 768px */
+  }
+
+  .responsiveMenu {
+    top: 75px;
+    height: calc(100vh - 75px);
+  }
+
+  .responsiveMenu.open {
+    height: calc(100vh - 75px);
+  }
+}
+
 @media screen and (max-width: 640px) {
+  .searchContainer {
+    top: 70px; /* Match navbar height at 640px */
+  }
+
+  .responsiveMenu {
+    top: 70px;
+    height: calc(100vh - 70px);
+  }
+
+  .responsiveMenu.open {
+    height: calc(100vh - 70px);
+  }
+
   .burger {
     display: flex;
-
     margin-right: 20px;
   }
 
@@ -344,7 +405,35 @@
   color: white !important;
 }
 
+@media screen and (max-width: 480px) {
+  .searchContainer {
+    top: 65px; /* Match navbar height at 480px */
+  }
+
+  .responsiveMenu {
+    top: 65px;
+    height: calc(100vh - 65px);
+  }
+
+  .responsiveMenu.open {
+    height: calc(100vh - 65px);
+  }
+}
+
 @media screen and (max-width: 430px) {
+  .searchContainer {
+    top: 65px; /* Match navbar height at 430px */
+  }
+
+  .responsiveMenu {
+    top: 65px;
+    height: calc(100vh - 65px);
+  }
+
+  .responsiveMenu.open {
+    height: calc(100vh - 65px);
+  }
+
   .searchIcon {
     display: block;
     margin-right: 5px;
@@ -357,6 +446,19 @@
 }
 
 @media screen and (max-width: 375px) {
+  .searchContainer {
+    top: 60px; /* Match navbar height at 375px */
+  }
+
+  .responsiveMenu {
+    top: 60px;
+    height: calc(100vh - 60px);
+  }
+
+  .responsiveMenu.open {
+    height: calc(100vh - 60px);
+  }
+
   .searchIcon {
     display: block;
     margin-right: 0;

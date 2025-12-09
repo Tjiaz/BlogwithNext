@@ -1,132 +1,390 @@
 .container {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px 20px;
   width: 100%;
   box-sizing: border-box;
-  margin-top: 100px;
+  margin-top: 90px;
+  min-height: calc(100vh - 90px);
+  background-color: var(--bg);
+}
+
+.header {
+  margin-bottom: 30px;
+  text-align: center;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--textColor);
+  margin: 0 0 10px;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--softTextColor);
+  margin: 0;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 25px;
   width: 100%;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--textColor);
+  margin-bottom: 4px;
 }
 
 .input,
 .select {
-  padding: 12px;
+  padding: 14px 16px;
   font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
   width: 100%;
   box-sizing: border-box;
-  margin-bottom: 10px;
+  background-color: var(--cardBg);
+  color: var(--textColor);
+  transition: all 0.3s ease;
+  font-family: inherit;
 }
 
-/* Quill Editor Responsive Styles */
-.ql-container {
-  height: 400px;
+.input::placeholder {
+  color: var(--softTextColor);
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: #0b73b1;
+  box-shadow: 0 0 0 3px rgba(11, 115, 177, 0.1);
+}
+
+.input:hover,
+.select:hover {
+  border-color: rgba(11, 115, 177, 0.3);
+}
+
+.select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+}
+
+.editorWrapper {
+  background-color: var(--cardBg);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.editorWrapper:focus-within {
+  border-color: #0b73b1;
+  box-shadow: 0 0 0 3px rgba(11, 115, 177, 0.1);
+}
+
+.editor {
+  background-color: var(--cardBg);
+}
+
+/* Quill Editor Dark Mode Styles - scoped to editorWrapper */
+.editorWrapper :global(.ql-container) {
   font-size: 16px;
-  margin-bottom: 20px;
+  font-family: inherit;
+  background-color: var(--cardBg);
+  color: var(--textColor);
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.ql-editor {
-  min-height: 300px;
+.editorWrapper :global(.ql-editor) {
+  min-height: 400px;
+  color: var(--textColor);
+  padding: 20px;
 }
 
-/* Make toolbar responsive */
-.ql-toolbar {
+.editorWrapper :global(.ql-editor.ql-blank::before) {
+  color: var(--softTextColor);
+  font-style: normal;
+}
+
+.editorWrapper :global(.ql-toolbar) {
+  background-color: var(--softBg);
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 12px;
   display: flex;
   flex-wrap: wrap;
-  padding: 8px !important;
+  gap: 4px;
 }
 
-.ql-toolbar button {
-  margin: 2px;
+.editorWrapper :global(.ql-toolbar .ql-stroke) {
+  stroke: var(--textColor);
+}
+
+.editorWrapper :global(.ql-toolbar .ql-fill) {
+  fill: var(--textColor);
+}
+
+.editorWrapper :global(.ql-toolbar button:hover),
+.editorWrapper :global(.ql-toolbar button.ql-active) {
+  background-color: rgba(11, 115, 177, 0.1);
+  color: #0b73b1;
+}
+
+.editorWrapper :global(.ql-toolbar button:hover .ql-stroke),
+.editorWrapper :global(.ql-toolbar button.ql-active .ql-stroke) {
+  stroke: #0b73b1;
+}
+
+.editorWrapper :global(.ql-toolbar button:hover .ql-fill),
+.editorWrapper :global(.ql-toolbar button.ql-active .ql-fill) {
+  fill: #0b73b1;
+}
+
+.editorWrapper :global(.ql-snow .ql-picker-label) {
+  color: var(--textColor);
+}
+
+.editorWrapper :global(.ql-snow .ql-picker-options) {
+  background-color: var(--cardBg);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.editorWrapper :global(.ql-snow .ql-picker-item) {
+  color: var(--textColor);
+}
+
+.editorWrapper :global(.ql-snow .ql-picker-item:hover) {
+  background-color: rgba(11, 115, 177, 0.1);
+  color: #0b73b1;
+}
+
+.editorLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background-color: var(--cardBg);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  min-height: 400px;
+}
+
+.editorLoading p {
+  margin-top: 20px;
+  color: var(--softTextColor);
+  font-size: 14px;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #0b73b1;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .button {
-  padding: 12px 24px;
+  padding: 16px 32px;
   font-size: 16px;
-  background-color: #0b73b1;
+  font-weight: 600;
+  background: linear-gradient(135deg, #0b73b1 0%, #2991ce 100%);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   width: 100%;
-  max-width: 200px;
-  margin: 0 auto;
-  transition: background-color 0.3s ease;
+  max-width: 250px;
+  margin: 10px auto 0;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.button:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .button:hover {
-  background-color: #2991ce;
+  background: linear-gradient(135deg, #2991ce 0%, #0b73b1 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(11, 115, 177, 0.3);
+}
+
+.button:active {
+  transform: translateY(0);
 }
 
 .button:disabled {
-  background-color: #cccccc;
+  background: #cccccc;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.button:disabled::before {
+  display: none;
+}
+
+.buttonSpinner {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-left-color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 0.8s linear infinite;
+}
+
+.loadingContainer,
+.authRequired {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 90px);
+  padding: 20px;
+  margin-top: 90px;
+  background-color: var(--bg);
+  color: var(--textColor);
+  text-align: center;
+}
+
+.authRequired h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: var(--textColor);
+}
+
+.authRequired p {
+  font-size: 1.1rem;
+  color: var(--softTextColor);
 }
 
 /* Media Queries */
 @media screen and (max-width: 768px) {
   .container {
-    padding: 15px;
+    margin-top: 75px;
+    padding: 20px 15px;
+  }
+
+  .title {
+    font-size: 2rem;
   }
 
   .input,
   .select {
-    padding: 10px;
-    font-size: 14px;
+    padding: 12px 14px;
+    font-size: 15px;
   }
 
-  .ql-container {
-    height: 300px;
+  .editorWrapper :global(.ql-editor) {
+    min-height: 300px;
+    padding: 15px;
+  }
+
+  .editorWrapper :global(.ql-container) {
+    font-size: 15px;
   }
 
   .button {
-    padding: 10px 20px;
-    font-size: 14px;
+    padding: 14px 28px;
+    font-size: 15px;
+    max-width: 100%;
   }
 }
 
 @media screen and (max-width: 480px) {
   .container {
-    padding: 10px;
+    margin-top: 65px;
+    padding: 15px 10px;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
   }
 
   .form {
-    gap: 15px;
+    gap: 20px;
   }
 
-  .ql-container {
-    height: 250px;
-  }
-
-  .ql-toolbar {
-    padding: 5px !important;
-  }
-
-  .button {
-    max-width: 100%;
-  }
-}
-
-/* Fix for mobile devices */
-@media screen and (max-width: 320px) {
-  .ql-toolbar button {
-    padding: 3px !important;
-  }
-}
-
-/* Ensure proper rendering on high-DPI screens */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .input,
-  .select,
+  .select {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .editorWrapper :global(.ql-editor) {
+    min-height: 250px;
+    padding: 12px;
+  }
+
+  .editorWrapper :global(.ql-container) {
+    font-size: 14px;
+  }
+
+  .editorWrapper :global(.ql-toolbar) {
+    padding: 8px !important;
+  }
+
+  .editorWrapper :global(.ql-toolbar button) {
+    padding: 4px !important;
+    margin: 1px;
+  }
+
   .button {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    padding: 12px 24px;
+    font-size: 14px;
   }
 }

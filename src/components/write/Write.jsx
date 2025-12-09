@@ -1,12 +1,28 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import "react-quill/dist/quill.snow.css";
 import styles from "./write.module.css";
 
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+// Fix dynamic import with proper loading and error handling
+const ReactQuill = dynamic(
+  () => import("react-quill").then((mod) => mod.default),
+  {
+    ssr: false,
+    loading: () => (
+      <div className={styles.editorLoading}>
+        <div className={styles.spinner}></div>
+        <p>Loading editor...</p>
+      </div>
+    ),
+  }
+);
+
+// Import Quill CSS dynamically
+if (typeof window !== "undefined") {
+  import("react-quill/dist/quill.snow.css");
+}
 
 const Write = () => {
   const { data: session, status } = useSession();
@@ -43,7 +59,6 @@ const Write = () => {
         description: description.trim(),
         content: content,
         topic: normalizedTopic,
-      
       };
 
       console.log("Submitting article data:", articleData); // Debug log
@@ -97,22 +112,29 @@ const Write = () => {
     }
   };
 
-  const modules = {
-    toolbar: [
-      [{ header: "1" }, { header: "2" }, { font: [] }],
-      [{ size: [] }],
-      ["bold", "italic", "underline", "strike", "blockquote"],
-      [
-        { list: "ordered" },
-        { list: "bullet" },
-        { indent: "-1" },
-        { indent: "+1" },
+  const modules = useMemo(
+    () => ({
+      toolbar: [
+        [{ header: "1" }, { header: "2" }, { header: "3" }, { font: [] }],
+        [{ size: [] }],
+        ["bold", "italic", "underline", "strike", "blockquote"],
+        [
+          { list: "ordered" },
+          { list: "bullet" },
+          { indent: "-1" },
+          { indent: "+1" },
+        ],
+        ["link", "image", "video"],
+        [{ align: [] }],
+        ["clean"],
+        ["code-block"],
       ],
-      ["link", "image", "video"],
-      ["clean"],
-      ["code-block"],
-    ],
-  };
+      clipboard: {
+        matchVisual: false,
+      },
+    }),
+    []
+  );
 
   const formats = [
     "header",
@@ -129,67 +151,119 @@ const Write = () => {
     "link",
     "image",
     "video",
+    "align",
     "code-block",
   ];
 
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}></div>
+        <p>Loading...</p>
+      </div>
+    );
   }
 
   if (status !== "authenticated") {
-    return <div>Please log in to write an article</div>;
+    return (
+      <div className={styles.authRequired}>
+        <h2>Authentication Required</h2>
+        <p>Please log in to write an article</p>
+      </div>
+    );
   }
 
   return (
     <div className={styles.container}>
-      <h1>Write an Article</h1>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Write an Article</h1>
+        <p className={styles.subtitle}>
+          Share your knowledge with the community
+        </p>
+      </div>
       <form onSubmit={handleSubmit} className={styles.form}>
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          className={styles.input}
-        />
-        <input
-          type="text"
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-          className={styles.input}
-        />
-        <ReactQuill
-          value={content}
-          onChange={setContent}
-          modules={modules}
-          formats={formats}
-          placeholder="Write your article content here..."
-        />
+        <div className={styles.formGroup}>
+          <label htmlFor="title" className={styles.label}>
+            Title
+          </label>
+          <input
+            id="title"
+            type="text"
+            placeholder="Enter article title..."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            className={styles.input}
+          />
+        </div>
 
-        <select
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          required
-          className={styles.select}
-        >
-          <option value="ai">AI</option>
-          <option value="career_advice">Career Advice</option>
-          <option value="computer_vision">Computer Vision</option>
-          <option value="data_engineer">Data Engineering</option>
-          <option value="data_science">Data Science</option>
-          <option value="language_models">Language Models</option>
-          <option value="machine_learning">Machine Learning</option>
-          <option value="machine_learning_ops">MLOps</option>
-          <option value="nlp">NLP</option>
-          <option value="programming">Programming</option>
-          <option value="python">Python</option>
-          <option value="sql">SQL</option>
-        </select>
+        <div className={styles.formGroup}>
+          <label htmlFor="description" className={styles.label}>
+            Description
+          </label>
+          <input
+            id="description"
+            type="text"
+            placeholder="Brief description of your article..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+            className={styles.input}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="content" className={styles.label}>
+            Content
+          </label>
+          <div className={styles.editorWrapper}>
+            <ReactQuill
+              theme="snow"
+              value={content}
+              onChange={setContent}
+              modules={modules}
+              formats={formats}
+              placeholder="Write your article content here..."
+              className={styles.editor}
+            />
+          </div>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="topic" className={styles.label}>
+            Topic
+          </label>
+          <select
+            id="topic"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            required
+            className={styles.select}
+          >
+            <option value="ai">AI</option>
+            <option value="career_advice">Career Advice</option>
+            <option value="computer_vision">Computer Vision</option>
+            <option value="data_engineer">Data Engineering</option>
+            <option value="data_science">Data Science</option>
+            <option value="language_models">Language Models</option>
+            <option value="machine_learning">Machine Learning</option>
+            <option value="machine_learning_ops">MLOps</option>
+            <option value="nlp">NLP</option>
+            <option value="programming">Programming</option>
+            <option value="python">Python</option>
+            <option value="sql">SQL</option>
+          </select>
+        </div>
 
         <button type="submit" className={styles.button} disabled={isSubmitting}>
-          {isSubmitting ? "Publishing..." : "Publish"}
+          {isSubmitting ? (
+            <>
+              <span className={styles.buttonSpinner}></span>
+              Publishing...
+            </>
+          ) : (
+            "Publish Article"
+          )}
         </button>
       </form>
     </div>

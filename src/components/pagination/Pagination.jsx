@@ -3,6 +3,7 @@
 import React from "react";
 import styles from "./pagination.module.css";
 import { useRouter } from "next/navigation";
+import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 
 const Pagination = ({ page, hasPrev, hasNext }) => {
   const router = useRouter();
@@ -18,20 +19,25 @@ const Pagination = ({ page, hasPrev, hasNext }) => {
   return (
     <div className={styles.container}>
       <button
-        className={styles.button}
+        className={`${styles.button} ${styles.prevButton}`}
         disabled={!hasPrev}
         onClick={() => handlePageChange(page - 1)}
         aria-label="Previous page"
       >
-        Previous
+        <BsChevronLeft className={styles.icon} />
+        <span>Previous</span>
       </button>
+      <div className={styles.pageInfo}>
+        <span className={styles.pageNumber}>Page {page}</span>
+      </div>
       <button
-        className={styles.button}
+        className={`${styles.button} ${styles.nextButton}`}
         disabled={!hasNext}
         onClick={() => handlePageChange(page + 1)}
         aria-label="Next page"
       >
-        Next
+        <span>Next</span>
+        <BsChevronRight className={styles.icon} />
       </button>
     </div>
   );

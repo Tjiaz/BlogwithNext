@@ -1,6 +1,9 @@
 .container {
   margin-top: 90px;
   padding: 20px;
+  background-color: var(--bg);
+  color: var(--textColor);
+  min-height: 100vh;
 }
 
 .advertsContainer {
@@ -12,28 +15,38 @@
   max-width: 1536px;
   margin: 0 auto;
   padding: 20px 0;
-
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .imageadvert {
   height: 100px;
   position: relative;
-  width: 70vw;
+  width: 100%;
   max-width: 1000px;
   display: block;
   margin: 0 auto;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Image styles only for advert container */
+.imageadvert .image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .advert {
-  width: 70vw;
+  width: 100%;
   max-width: 1000px;
   font-size: 14px;
   color: #0b73b1;
   text-align: center;
-  margin-top: 10px;
+  margin: 10px auto 0;
   text-decoration: none;
+  transition: text-decoration 0.2s ease;
 }
 .advert:hover {
   text-decoration: underline;
@@ -41,20 +54,44 @@
 
 .advertImgContainer {
   text-align: center;
+  margin: 20px 0;
+  padding: 15px;
+  background-color: var(--cardBg);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.advertImgContainer a {
+  color: #0b73b1;
+  text-decoration: none;
+  font-size: 14px;
+  margin-top: 10px;
+  display: block;
+  transition: text-decoration 0.2s ease;
+}
+
+.advertImgContainer a:hover {
+  text-decoration: underline;
 }
 
 .advertImg {
-  width: 85%;
+  width: 100%;
+  max-width: 300px;
   height: auto;
   margin: 0 auto;
   display: block;
+  border-radius: 4px;
 }
 
 .post {
-  margin-top: 60px;
+  margin-top: 40px;
   display: flex;
   align-content: center;
   gap: 50px;
+  max-width: 1536px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
 }
 .paragraph {
   color: var(--softTextColor);
@@ -74,12 +111,55 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 20px;
-  border-bottom: 1px solid#f2f2f2;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding-bottom: 20px;
 }
 
 .postImage {
   margin-right: 20px;
+  flex-shrink: 0;
+  width: 100px;
+  height: 100px;
+  min-width: 100px;
+  min-height: 100px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+/* Ensure all images inside postImage are constrained */
+.postImage img,
+.postImage .image,
+.postImage > * {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 8px;
+  display: block;
+}
+
+.postContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.postTitle {
+  font-size: 1.2em;
+  margin: 0 0 10px 0;
+  color: var(--textColor);
+}
+
+.postTitle a {
+  color: var(--textColor);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.postTitle a:hover {
+  color: #0b73b1;
+  text-decoration: underline;
 }
 
 .textContainer1 {
@@ -87,6 +167,10 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  background-color: var(--cardBg);
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .textContainer2 {
@@ -94,10 +178,26 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  background-color: var(--cardBg);
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .head {
   text-transform: capitalize;
+  color: var(--textColor);
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 15px;
+}
+
+.head span {
+  color: #0b73b1;
+  font-size: 0.7em;
+  font-weight: 400;
 }
 
 .topPosts {
@@ -109,19 +209,32 @@
   padding: 0;
   margin: 0;
 }
+
 .listItem {
-  border-bottom: 1px solid #f2f2f2;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   margin-bottom: 10px;
   padding-bottom: 10px;
-}
-.listItem:hover {
-  text-decoration: underline;
-  cursor: pointer;
+  color: var(--textColor);
+  transition: all 0.3s ease;
 }
 
-.postTitle {
-  font-size: 1.2em;
-  margin: 0 0 10px 0;
+.listItem a {
+  color: var(--textColor);
+  text-decoration: none;
+  display: block;
+  padding: 8px 0;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.listItem:hover {
+  background-color: rgba(11, 115, 177, 0.05);
+  padding-left: 10px;
+}
+
+.listItem a:hover {
+  color: #0b73b1;
+  text-decoration: underline;
 }
 
 .postDesc {
@@ -132,22 +245,60 @@
 .articleCard {
   margin-bottom: 15px;
   display: flex;
+  gap: 20px;
+  padding: 20px;
+  background-color: var(--cardBg);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.articleCard:hover {
+  border-color: rgba(11, 115, 177, 0.2);
+  transform: translateY(-2px);
 }
 .author {
   font-size: 0.9em;
-  color: #000;
+  color: var(--textColor);
+}
+
+.author a {
+  color: var(--textColor);
+  text-decoration: none;
+}
+
+.author a:hover {
+  color: #0b73b1;
+  text-decoration: underline;
 }
 
 .searchContainer {
   position: relative;
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 20px;
 }
 
 .searchInput {
   width: 100%;
-  padding: 10px;
-  padding-right: 40px;
+  padding: 10px 40px 10px 10px;
   font-size: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  outline: none;
+  background-color: var(--cardBg);
+  color: var(--textColor);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.searchInput:focus {
+  border-color: #0b73b1;
+  box-shadow: 0 0 0 3px rgba(11, 115, 177, 0.1);
+}
+
+.searchInput::placeholder {
+  color: var(--softTextColor);
 }
 
 .searchIcon {
@@ -155,9 +306,14 @@
   right: 10px;
   top: 50%;
   cursor: pointer;
-  color: grey;
+  color: var(--softTextColor);
   font-size: 24px;
   transform: translateY(-50%);
+  transition: color 0.3s ease;
+}
+
+.searchIcon:hover {
+  color: #0b73b1;
 }
 
 .button {
@@ -169,20 +325,50 @@
 
 .signupContainer {
   position: relative;
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: 20px;
+}
+
+.signupContainer input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  outline: none;
+  background-color: var(--cardBg);
+  color: var(--textColor);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.signupContainer input:focus {
+  border-color: #0b73b1;
+  box-shadow: 0 0 0 3px rgba(11, 115, 177, 0.1);
+}
+
+.signupContainer input::placeholder {
+  color: var(--softTextColor);
 }
 
 .signupbutton {
   background-color: #0b73b1;
   color: #fff;
-  padding: 10px 20px;
+  padding: 12px 20px;
   border: none;
+  border-radius: 4px;
   text-transform: uppercase;
   font-weight: bold;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.signupbutton:hover {
+  background-color: #085a8c;
 }
 
 .readMore {
@@ -265,20 +451,46 @@
 }
 
 @media screen and (max-width: 768px) {
-  .title {
-    font-size: 64px;
+  .container {
+    margin-top: 75px;
+    padding: 15px;
   }
+
+  .post {
+    flex-direction: column;
+    gap: 30px;
+    padding: 0 15px;
+  }
+
+  .textContainer1,
+  .textContainer2 {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .textContainer2 {
+    border-left: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 30px;
+    margin-top: 20px;
+  }
+
+  .head {
+    font-size: 2rem;
+  }
+
   .imageadvert {
-    width: 70vw;
+    width: 100%;
   }
+
   .advert {
-    font-size: small;
-    text-decoration: underline;
-    text-align: center;
+    font-size: 14px;
     padding-left: 0;
   }
-  .textContainer2 {
-    display: none;
+
+  .searchContainer,
+  .signupContainer {
+    max-width: 100%;
   }
 
   .author {
@@ -293,25 +505,67 @@
 }
 
 @media screen and (max-width: 640px) {
-  .title {
-    font-size: 48px;
+  .container {
+    margin-top: 70px;
+    padding: 12px;
   }
+
+  .head {
+    font-size: 1.75rem;
+  }
+
+  .post {
+    padding: 0 12px;
+  }
+
+  .textContainer1,
   .textContainer2 {
-    display: none;
+    padding: 15px;
   }
 
   .advert {
-    width: 90vw;
-    font-size: smaller;
-    height: 50px; /* Small height for small screens */
+    width: 100%;
+    font-size: 14px;
   }
 
   .imageadvert {
-    height: 100px; /* Smaller height for small screens */
+    height: 100px;
   }
-  .shareButton {
-    width: 100%; /* Ensure full width on smaller screens */
-    max-width: 150px; /* Limit max width */
-    font-size: 10px;
+}
+
+@media screen and (max-width: 480px) {
+  .container {
+    margin-top: 65px;
+    padding: 10px;
+  }
+
+  .head {
+    font-size: 1.5rem;
+  }
+
+  .post {
+    padding: 0 10px;
+    gap: 20px;
+  }
+
+  .textContainer1,
+  .textContainer2 {
+    padding: 15px;
+  }
+
+  .advertsContainer {
+    padding: 15px 0;
+  }
+
+  .postImage {
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    min-height: 80px;
+  }
+
+  .articleCard {
+    gap: 15px;
+    padding: 15px;
   }
 }

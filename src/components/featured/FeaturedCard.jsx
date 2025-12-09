@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./featured.module.css";
 import Image from "next/image";
 import Link from "next/link";
-import { RiRssFill } from "react-icons/ri";
+import { BsTwitterX, BsFacebook, BsLinkedin } from "react-icons/bs";
 import toast from "react-hot-toast";
 
 const useLinkedInShare = (isProcessingLinkedIn, setIsProcessingLinkedIn) => {
@@ -97,8 +97,6 @@ const FeaturedCard = ({
   postDate,
   postTopic,
   postId,
-  isRssPost,
-  rssLink,
 }) => {
   const [isSharingTwitter, setIsSharingTwitter] = useState(false);
   const [isSharingFacebook, setIsSharingFacebook] = useState(false);
@@ -161,11 +159,9 @@ const FeaturedCard = ({
   const shareToTwitter = async () => {
     setIsSharingTwitter(true);
     try {
-      const articleUrl = isRssPost
-        ? rssLink
-        : `${
-            process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
-          }/article_details/${postId}`;
+      const articleUrl = `${
+        process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
+      }/article_details/${postId}`;
 
       const response = await fetch("/api/social_share", {
         method: "POST",
@@ -176,7 +172,7 @@ const FeaturedCard = ({
           title: postTitle,
           link: articleUrl,
           description: postDesc,
-          platform: "twitter", // Pass as string, not object
+          platform: "twitter",
         }),
       });
 
@@ -187,10 +183,10 @@ const FeaturedCard = ({
         throw new Error(data.error || "Failed to share to Twitter");
       }
 
-      toast.success("Successfully shared to Twitter!");
+      toast.success("Successfully shared to X!");
     } catch (error) {
       console.error("Twitter share error:", error);
-      alert("Failed to share to Twitter. Please try again.");
+      toast.error("Failed to share to X. Please try again.");
     } finally {
       setIsSharingTwitter(false);
     }
@@ -199,11 +195,9 @@ const FeaturedCard = ({
   const shareToFacebook = async () => {
     setIsSharingFacebook(true);
     try {
-      const articleUrl = isRssPost
-        ? rssLink
-        : `${
-            process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
-          }/article_details/${postId}`;
+      const articleUrl = `${
+        process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
+      }/article_details/${postId}`;
 
       const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
         articleUrl
@@ -227,11 +221,9 @@ const FeaturedCard = ({
 
   const shareToLinkedIn = async () => {
     try {
-      const articleUrl = isRssPost
-        ? rssLink
-        : `${
-            process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
-          }/article_details/${postId}`;
+      const articleUrl = `${
+        process.env.NEXT_PUBLIC_DOMAIN || "https://azbytegems.com"
+      }/article_details/${postId}`;
 
       // Create LinkedIn share URL
       const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
@@ -291,20 +283,8 @@ const FeaturedCard = ({
     }
   };
 
-  // Determine the link based on post type
+  // Post link component
   const PostLink = ({ children }) => {
-    if (isRssPost) {
-      return (
-        <a
-          href={rssLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.postTitle}
-        >
-          {children}
-        </a>
-      );
-    }
     return (
       <Link href={`/article_details/${postId}`} className={styles.postTitle}>
         {children}
@@ -338,41 +318,49 @@ const FeaturedCard = ({
             </strong>{" "}
             on {formatDate(postDate)} in{" "}
             <strong>
-              {isRssPost ? (
-                <span>{postTopic}</span>
-              ) : (
-                <Link href={`/articles/${postTopic}`}>{postTopic}</Link>
-              )}
+              <Link href={`/articles/${postTopic}`}>{postTopic}</Link>
             </strong>
           </div>
           <div className={styles.badgeAndShare}>
-            {isRssPost && (
-              <span className={styles.sourceTag}>
-                <RiRssFill className={styles.rssIcon} />
-                External Source
-              </span>
-            )}
             <div className={styles.shareButtons}>
               <button
                 onClick={shareToTwitter}
                 disabled={isSharingTwitter}
                 className={`${styles.shareButton} ${styles.twitterButton}`}
+                aria-label="Share to X"
+                title="Share to X"
               >
-                {isSharingTwitter ? "..." : "Share to X"}
+                {isSharingTwitter ? (
+                  <span className={styles.loadingSpinner}>...</span>
+                ) : (
+                  <BsTwitterX className={styles.shareIcon} />
+                )}
               </button>
               <button
                 onClick={shareToFacebook}
                 disabled={isSharingFacebook}
                 className={`${styles.shareButton} ${styles.facebookButton}`}
+                aria-label="Share to Facebook"
+                title="Share to Facebook"
               >
-                {isSharingFacebook ? "..." : "Share to FB"}
+                {isSharingFacebook ? (
+                  <span className={styles.loadingSpinner}>...</span>
+                ) : (
+                  <BsFacebook className={styles.shareIcon} />
+                )}
               </button>
               <button
                 onClick={shareToLinkedIn}
                 disabled={isSharingLinkedIn}
                 className={`${styles.shareButton} ${styles.linkedinButton}`}
+                aria-label="Share to LinkedIn"
+                title="Share to LinkedIn"
               >
-                {isSharingLinkedIn ? "..." : "Share to LI"}
+                {isSharingLinkedIn ? (
+                  <span className={styles.loadingSpinner}>...</span>
+                ) : (
+                  <BsLinkedin className={styles.shareIcon} />
+                )}
               </button>
             </div>
           </div>

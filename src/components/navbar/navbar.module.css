@@ -8,6 +8,25 @@
   width: 100%;
   background-color: var(--bg);
   z-index: 1000;
+  border-bottom: 2px solid #0b73b1;
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    height: 75px;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .container {
+    height: 70px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .container {
+    height: 65px;
+  }
 }
 
 .navbarContent {
@@ -16,67 +35,127 @@
   justify-content: space-between;
   width: 100%;
   max-width: 1536px; /* Match the .wrapper max-width */
-  padding: 10px 80px; /* Match the .wrapper padding */
+  /* Default padding for large screens (> 1920px): 100px = wrapper 80px + featured container 20px */
+  /* This ensures social icons, join newsletter button, and logo align with "Latest Articles" title */
+  padding: 10px 100px;
   box-sizing: border-box;
-  border-bottom: 2px solid #0b73b1;
   margin: 0 auto;
+  position: relative;
+  gap: 20px; /* Add gap between sections */
+  height: 100%;
 }
 
 .social {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 8px; /* Reduced gap */
+  flex-shrink: 0;
+  z-index: 1;
+  height: 100%;
 }
 
 .social_icons {
   color: #0b73b1;
   transition: color 0.3s ease;
+  font-size: 18px; /* Slightly smaller icons */
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 .social_icons:hover {
   color: #2991ce;
 }
 
 .join_newsletter_button {
-  background-color: #2991ce;
-  border: 2px solid #0b73b1;
+  background: linear-gradient(135deg, #0b73b1 0%, #2991ce 100%);
+  border: none;
   color: #fff;
-  padding: 10px 20px;
-  font-size: 14px;
-  text-transform: uppercase;
+  padding: 10px 18px;
+  font-size: 13px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: 0.3s;
-  font-family: inherit;
+  font-weight: 600;
+  text-transform: lowercase;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(11, 115, 177, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  height: fit-content;
+}
+
+.join_newsletter_button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.join_newsletter_button:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .join_newsletter_button:hover {
-  background-color: transparent;
-  color: #0b73b1;
+  background: linear-gradient(135deg, #2991ce 0%, #0b73b1 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(11, 115, 177, 0.4);
+  color: #fff;
 }
 .logo {
-  flex: 1;
-  text-align: center;
+  flex: 0 0 auto;
+  text-align: left;
+  margin-left: 15px; /* Space after social icons */
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .logo img {
-  width: 174px;
-  height: 52px;
+  width: 140px; /* Reduced width */
+  height: 42px; /* Reduced height, maintaining aspect ratio */
+  object-fit: contain;
+  display: block;
 }
 
 .links {
   display: flex;
   align-items: center;
-  gap: 20px;
-  font-size: 16px;
+  justify-content: center;
+  gap: 12px; /* Reduced gap */
+  font-size: 14px; /* Smaller font */
   text-transform: uppercase;
+  flex-shrink: 0;
+  margin-left: auto;
+  height: 100%;
 }
 
 .link {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
   text-decoration: none;
   color: inherit;
   transition: color 0.3s ease;
+  line-height: 1;
+  height: fit-content;
 }
 
 .link:hover {
@@ -85,6 +164,9 @@
 
 .dropdown {
   position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 .dropdownMenu {
@@ -95,9 +177,10 @@
   background-color: var(--bg);
   border: 1px solid #ddd;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  padding: 8px; /* Reduced padding */
   z-index: 1000;
   animation: fadeIn 0.3s ease;
+  min-width: 180px; /* Ensure minimum width */
 }
 
 @keyframes fadeIn {
@@ -114,31 +197,37 @@
 .dropdownColumn {
   display: flex;
   flex-direction: column;
-  padding: 0 20px;
+  padding: 0 12px; /* Reduced padding */
+  width: 100%;
 }
 
 .dropdownItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 0;
+  padding: 6px 0; /* Slightly adjusted padding */
   text-decoration: none;
   color: var(--textColor);
   white-space: nowrap;
   border-bottom: 1px solid #2991ce;
-  margin-bottom: 5px;
-  font-size: small;
+  margin-bottom: 4px; /* Reduced margin */
+  font-size: 13px; /* Consistent with navbar font size */
+  text-transform: none; /* Dropdown items don't need uppercase */
+  transition: color 0.3s ease;
 }
 
 .dropdownItem:hover {
+  color: #2991ce;
   text-decoration: underline;
 }
 .rssLink {
-  margin-left: 10px;
+  margin-left: 8px; /* Reduced margin */
   color: #fcae7a; /* Classic RSS orange */
   display: inline-flex;
   align-items: center;
   transition: color 0.3s ease;
+  font-size: 14px; /* Consistent icon size */
+  flex-shrink: 0;
 }
 
 .rssLink:hover {
@@ -147,84 +236,283 @@
 }
 
 .themeToggleContainer {
-  margin-right: 20px;
+  margin-right: 0; /* Removed extra margin */
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 /* Responsive Styles */
-@media screen and (max-width: 1536px) {
+/* Default padding (100px) applies to screens > 1536px - aligns with wrapper 80px + featured 20px */
+
+/* Large screens 1920px and above - maintain default */
+@media screen and (min-width: 1920px) {
+  .navbarContent {
+    max-width: 1536px;
+    padding: 10px 100px;
+    gap: 20px;
+  }
+}
+
+/* Large screens 1600px to 1919px */
+@media screen and (max-width: 1919px) and (min-width: 1600px) {
+  .navbarContent {
+    max-width: 1536px;
+    padding: 10px 100px;
+    gap: 20px;
+  }
+}
+
+/* Large screens 1440px to 1599px */
+@media screen and (max-width: 1599px) and (min-width: 1440px) {
+  .navbarContent {
+    max-width: 1536px;
+    padding: 10px 100px;
+    gap: 18px;
+  }
+}
+
+/* Large screens 1366px to 1439px */
+@media screen and (max-width: 1439px) and (min-width: 1366px) {
   .navbarContent {
     max-width: 1366px;
-    padding: 10px 40px;
+    padding: 10px 60px; /* Align with title (wrapper 40px + featured container 20px) */
+    gap: 15px;
+  }
+
+  .logo img {
+    width: 130px;
+    height: 39px;
+  }
+
+  .join_newsletter_button {
+    padding: 9px 16px;
+    font-size: 12px;
+  }
+
+  .links {
+    gap: 12px;
+    font-size: 14px;
+  }
+
+  .social_icons {
+    font-size: 18px;
   }
 }
 
-@media screen and (max-width: 1280px) {
+/* Large screens 1280px to 1365px */
+@media screen and (max-width: 1365px) and (min-width: 1280px) {
   .navbarContent {
-    max-width: 1024px;
-    padding: 10px 30px;
+    max-width: 1366px;
+    padding: 10px 60px;
+    gap: 15px;
   }
-  .social {
-    display: none;
-  }
-  .logo {
-    text-align: left;
-  }
+
   .logo img {
-    width: 115px;
-    height: 45px;
-    margin-left: 0;
+    width: 120px;
+    height: 36px;
+  }
+
+  .join_newsletter_button {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .links {
+    gap: 11px;
+    font-size: 13px;
+  }
+
+  .social_icons {
+    font-size: 17px;
   }
 }
 
-@media screen and (max-width: 1024px) {
+/* Medium-large screens 1024px to 1279px */
+@media screen and (max-width: 1279px) and (min-width: 1024px) {
   .navbarContent {
-    max-width: 1024px;
-    padding: 10px;
+    max-width: 1280px;
+    padding: 10px 50px; /* Align with title (wrapper 30px + featured container 20px) */
+    gap: 12px;
   }
 
   .social {
-    display: none;
+    gap: 6px;
+  }
+
+  .social_icons {
+    font-size: 16px;
   }
 
   .logo {
-    text-align: left;
+    margin-left: 10px;
   }
+
   .logo img {
-    width: 80px;
-    height: 35px;
-    margin-left: 0;
+    width: 110px;
+    height: 33px;
+  }
+
+  .join_newsletter_button {
+    padding: 8px 14px;
+    font-size: 11px;
+  }
+
+  .links {
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .dropdownMenu {
+    padding: 6px;
+    min-width: 160px;
+  }
+
+  .dropdownColumn {
+    padding: 0 10px;
+  }
+
+  .dropdownItem {
+    font-size: 12px;
+    padding: 5px 0;
+  }
+
+  .rssLink {
+    font-size: 13px;
+    margin-left: 6px;
+  }
+}
+
+/* Tablets and smaller laptops 900px to 1023px */
+@media screen and (max-width: 1023px) and (min-width: 900px) {
+  .navbarContent {
+    max-width: 1024px;
+    padding: 10px 40px; /* Align with title (wrapper 20px + featured container 20px) */
+    gap: 10px;
+  }
+
+  .social {
+    gap: 5px;
+  }
+
+  .social_icons {
+    font-size: 16px;
+  }
+
+  .logo {
+    margin-left: 8px;
+  }
+
+  .logo img {
+    width: 100px;
+    height: 30px;
+  }
+
+  .join_newsletter_button {
+    padding: 7px 12px;
+    font-size: 11px;
+  }
+
+  .links {
+    gap: 9px;
+    font-size: 12px;
+  }
+
+  .dropdownMenu {
+    padding: 6px;
+    min-width: 150px;
+  }
+
+  .dropdownColumn {
+    padding: 0 8px;
+  }
+
+  .dropdownItem {
+    font-size: 11px;
+    padding: 4px 0;
+  }
+
+  .rssLink {
+    font-size: 12px;
+    margin-left: 5px;
   }
 }
 
 @media screen and (max-width: 768px) {
   .navbarContent {
     max-width: 768px;
-    padding: 10px 15px;
+    padding: 10px 30px; /* Align with title (wrapper 15px + featured container 15px) */
+    gap: 10px;
   }
 
   .social {
-    display: none;
+    display: none; /* Hide social icons and newsletter button on small screens */
   }
 
   .logo {
     text-align: left;
+    margin-left: 0;
   }
   .logo img {
-    width: 80px;
-    height: 35px;
-    margin-left: 0;
+    width: 100px;
+    height: 30px;
+  }
+
+  .links {
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .dropdownMenu {
+    padding: 5px;
+    min-width: 140px;
+  }
+
+  .dropdownColumn {
+    padding: 0 8px;
+  }
+
+  .dropdownItem {
+    font-size: 11px;
+    padding: 4px 0;
+    margin-bottom: 3px;
+  }
+
+  .rssLink {
+    font-size: 11px;
+    margin-left: 5px;
   }
 }
 
 /* Mobile-specific adjustments */
 @media screen and (max-width: 640px) {
+  .container {
+    height: 70px;
+  }
+
   .navbarContent {
-    padding: 16px 16px;
+    padding: 8px 24px; /* Align with title (wrapper 12px + featured container 12px) */
+    gap: 8px;
+  }
+
+  .social {
+    display: none; /* Hide social icons and newsletter button */
+  }
+
+  .logo {
+    margin-left: 0;
   }
 
   .logo img {
-    width: 100px; /* Smaller logo for mobile */
-    height: auto; /* Maintain aspect ratio */
+    width: 90px;
+    height: 27px;
+  }
+
+  .links {
+    gap: 6px;
+    font-size: 11px;
   }
 
   .link {
@@ -232,89 +520,87 @@
   }
 
   .themeToggleContainer {
-    margin-right: 10px;
+    margin-right: 5px;
   }
 }
+
 @media screen and (max-width: 540px) {
+  .container {
+    height: 70px;
+  }
+
   .navbarContent {
-    max-width: 100vw;
-    padding: 10px 15px;
+    padding: 8px 24px; /* Align with title (wrapper 12px + featured container 12px) */
+    gap: 6px;
+  }
+
+  .social {
+    display: none; /* Hide social icons and newsletter button */
+  }
+
+  .logo img {
+    width: 85px;
+    height: 25px;
   }
 
   .links {
-    justify-content: flex-end;
+    gap: 5px;
+    font-size: 10px;
   }
 
   .link {
     display: none;
-  }
-
-  .logo img {
-    width: 100px;
-    height: auto;
-    margin-left: 0;
   }
 }
 
-@media screen and (max-width: 430px) {
+@media screen and (max-width: 480px) {
+  .container {
+    height: 65px;
+  }
+
   .navbarContent {
-    max-width: 100vw;
-    padding: 10px 15px;
+    padding: 6px 20px; /* Align with title (wrapper 10px + featured container 10px) */
   }
 
-  .links {
-    justify-content: flex-end;
+  .social {
+    display: none; /* Hide social icons and newsletter button */
   }
 
-  .link {
-    display: none;
+  .logo {
+    margin-left: 0;
   }
 
   .logo img {
-    width: 100px;
-    height: auto;
-    margin-left: 0;
-  }
-}
-
-@media screen and (max-width: 412px) {
-  .navbarContent {
-    max-width: 100vw;
-    padding: 10px 15px;
+    width: 80px;
+    height: 24px;
   }
 
   .links {
-    justify-content: flex-end;
-  }
-
-  .link {
-    display: none;
-  }
-
-  .logo img {
-    width: 100px;
-    height: auto;
-    margin-left: 0;
+    gap: 4px;
+    font-size: 10px;
   }
 }
 
 @media screen and (max-width: 375px) {
+  .container {
+    height: 60px;
+  }
+
   .navbarContent {
-    max-width: 100vw;
-    padding: 10px 15px;
+    padding: 5px 20px; /* Align with title (wrapper 10px + featured container 10px) */
   }
 
-  .links {
-    justify-content: flex-end;
-  }
-
-  .link {
-    display: none;
+  .social {
+    display: none; /* Hide social icons and newsletter button */
   }
 
   .logo img {
-    width: 100px;
-    height: auto;
-    margin-left: 0;
+    width: 75px;
+    height: 22px;
+  }
+
+  .links {
+    gap: 4px;
+    font-size: 9px;
   }
 }

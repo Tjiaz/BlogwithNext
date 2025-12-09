@@ -1,12 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap");
-
 :root {
   --bg: white;
   --textColor: #242424;
   --softBg: #424242;
   --softTextColor: #121212;
   --AuthBorder: #0b73b1;
-  --fontFamily: "Funnel Sans", sans-serif;
+  --fontFamily: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 * {
@@ -67,26 +66,47 @@ a {
 @media screen and (max-width: 1536px) {
   .wrapper {
     max-width: 1366px;
+    padding-left: 40px;
+    padding-right: 40px;
   }
 }
+
 @media screen and (max-width: 1280px) {
   .wrapper {
     max-width: 1280px;
+    padding-left: 30px;
+    padding-right: 30px;
   }
 }
+
 @media screen and (max-width: 1024px) {
   .wrapper {
     max-width: 1024px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .wrapper {
     padding-left: 15px;
     padding-right: 15px;
   }
-}
-@media screen and (max-width: 768px) {
-  .wrapper {
-    padding-left: 4px;
-    padding-right: 4px;
-  }
   body {
-    font-size: 15px; /* Slightly larger base font size on mobile */
+    font-size: 15px;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .wrapper {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .wrapper {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }

@@ -60,7 +60,7 @@
 }
 
 .toggleInput:checked + .toggleLabel::before {
-  transform: translateX(16px);
+  transform: translateX(14px); /* Reduced from 16px to prevent overlap */
 }
 
 .light .toggleLabel {
@@ -84,7 +84,7 @@
 }
 
 .dark .toggleInput:checked + .toggleLabel::before {
-  transform: translateX(16px);
+  transform: translateX(14px); /* Reduced from 16px to prevent overlap */
 }
 
 /* Responsive Styles */
@@ -107,6 +107,8 @@
   }
 
   .toggleInput:checked + .toggleLabel::before {
-    transform: translateX(12px);
+    transform: translateX(
+      10px
+    ); /* Reduced from 12px to prevent overlap on mobile */
   }
 }

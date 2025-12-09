@@ -10,17 +10,18 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 15px;
-  border-radius: 8px;
+  padding: 20px;
+  border-radius: 12px;
   background-color: var(--cardBg);
   color: var(--textColor);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 }
 
 .item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  border-color: rgba(11, 115, 177, 0.2);
+  background-color: var(--cardBg);
 }
 
 .imageContainer {
@@ -91,9 +92,17 @@
 }
 
 .postTitle {
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--textColor);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  transition: color 0.3s ease;
+  margin: 0;
+}
+
+.postTitle:hover {
+  color: #0b73b1;
 }
 
 .detail {

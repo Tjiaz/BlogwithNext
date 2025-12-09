@@ -4,10 +4,18 @@ import styles from "./datasets.module.css";
 import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
+import {
+  FaFacebookF,
+  FaLinkedinIn,
+  FaRedditSquare,
+  FaTwitter,
+  FaYoutube,
+} from "react-icons/fa";
 import datasets from "@/Data2";
 
 const DatasetPage = () => {
   const [latestPosts, setLatestPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchArticles() {
@@ -30,7 +38,7 @@ const DatasetPage = () => {
   }, []);
   return (
     <div className={styles.container}>
-      <div className={styles.advertContainer}>
+      <div className={styles.advertsContainer}>
         <div className={styles.imageadvert}>
           <Image
             src="/Data-science-engineering.jpeg"
@@ -50,105 +58,80 @@ const DatasetPage = () => {
           </h1>
 
           <div className={styles.socialmedialinks}>
-            <a href="#">
-              <Image
-                src="/facebook.png"
-                alt=""
-                className={styles.socialmedia}
-                width={24}
-                height={24}
-              />
+            <a
+              href="https://www.facebook.com/profile.php?id=61572544476793"
+              className={`${styles.socialmedia} ${styles.facebook}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+            >
+              <FaFacebookF />
             </a>
-            <a href="#">
-              <Image
-                src="/twitter.png"
-                alt=""
-                className={styles.socialmedia}
-                width={24}
-                height={24}
-              />
+            <a
+              href="https://x.com/azbytegems"
+              className={`${styles.socialmedia} ${styles.twitter}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Twitter"
+            >
+              <FaTwitter />
             </a>
-            <a href="#">
-              <Image
-                src="/instagram.png"
-                alt=""
-                className={styles.socialmedia}
-                width={24}
-                height={24}
-              />
+            <a
+              href="#"
+              className={`${styles.socialmedia} ${styles.linkedin}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+            >
+              <FaLinkedinIn />
             </a>
-            <a href="#">
-              <Image
-                src="/youtube.png"
-                alt=""
-                width={24}
-                height={24}
-                className={styles.socialmedia}
-              />
+            <a
+              href="#"
+              className={styles.socialmedia}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube"
+            >
+              <FaYoutube />
             </a>
-            <a href="#">
-              <Image
-                src="/reddit.png"
-                alt=""
-                width={24}
-                height={24}
-                className={styles.socialmedia}
-              />
+            <a
+              href="#"
+              className={styles.socialmedia}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Reddit"
+            >
+              <FaRedditSquare />
             </a>
           </div>
-          <hr style={{ color: "#bbbbbb" }} />
+          <hr className={styles.divider} />
           <h2 className={styles.lightText}>
             <strong className={styles.boldText}>AzByteGems</strong> subscribers
             have access to the{" "}
             <strong className={styles.boldText}>WorldData.AI Partners</strong>{" "}
-            Check out the world’s largest external curated data platform,
+            Check out the world's largest external curated data platform,
             integrating data from all leading global sources.
           </h2>
 
-          <h2 style={{ textAlign: "center" }}>Data Repositories</h2>
-          <div style={{ display: "flex", width: "100%" }}>
-            <div
-              style={{ flex: "0 0 25%", borderBottom: "2.5px solid #0B73B1" }}
-            ></div>
-            <div style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}></div>
-          </div>
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "20px" }}
-          ></div>
-          {datasets.map((dataset) => (
-            <div
-              key={dataset.id}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "20px",
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-              }}
-            >
-              <div key={dataset.id}>
+          <h2 className={styles.sectionTitle}>Data Repositories</h2>
+          <div className={styles.titleUnderline}></div>
+          <div className={styles.datasetsContainer}>
+            {datasets.map((dataset) => (
+              <div key={dataset.id} className={styles.datasetCard}>
                 <a
                   href={dataset.link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.link}
                 >
-                  <h3
-                    style={{
-                      margin: "0 0 10px",
-                      color: "#0B73B1",
-                      cursor: "pointer",
-                    }}
-                  >
-                    {dataset.name}
-                  </h3>
+                  <h3 className={styles.datasetTitle}>{dataset.name}</h3>
                 </a>
-                <p style={{ margin: "0 0 10px", color: "#555" }}>
+                <p className={styles.datasetDescription}>
                   {dataset.description}
                 </p>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
         <div className={styles.textContainer2}>
           <div className={styles.searchContainer}>
@@ -159,26 +142,19 @@ const DatasetPage = () => {
             />
             <MdSearch className={styles.searchIcon} />
           </div>
-          <div className={styles.advertImageContainer}>
+          <div className={styles.advertImgContainer}>
             <Image
-              src="/dummy_Image.png"
+              src="/ads2.gif"
               alt="advert"
-              width={100}
-              height={100}
-              className={styles.advertImage}
+              width={300}
+              height={250}
+              className={styles.advertImg}
             />
             <Link href="/">Adverts</Link>
           </div>
           <div>
-            <h3>Latest Posts</h3>
-            <div style={{ display: "flex", width: "100%" }}>
-              <div
-                style={{ flex: "0 0 25%", borderBottom: "3px solid #0B73B1" }}
-              ></div>
-              <div
-                style={{ flex: "1", borderBottom: "2px solid #0B73B1" }}
-              ></div>
-            </div>
+            <h3 className={styles.latestPostsTitle}>Latest Posts</h3>
+            <div className={styles.titleUnderline}></div>
           </div>
           <div className={styles.topPosts}>
             <ol className={styles.noListStyle}>
@@ -193,13 +169,13 @@ const DatasetPage = () => {
               )}
             </ol>
           </div>
-          <div className={styles.advertImageContainer}>
+          <div className={styles.advertImgContainer}>
             <Image
-              src="/dummy_Image.png"
+              src="/ads2.gif"
               alt="advert"
-              width={100}
-              height={100}
-              className={styles.advertImage}
+              width={300}
+              height={250}
+              className={styles.advertImg}
             />
             <Link href="/">Adverts</Link>
           </div>
