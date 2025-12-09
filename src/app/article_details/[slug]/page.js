@@ -19,45 +19,6 @@ async function getTopicDetails(slug) {
   return response.json();
 }
 
-// Metadata generation function
-export async function generateMetadata({ params }) {
-  try {
-    const article = await getTopicDetails(params.slug);
-
-    return {
-      title: article.title,
-      description: article.description || article.title,
-      openGraph: {
-        title: article.title,
-        description: article.description || article.title,
-        url: `https://azbytegems.com/article_details/${params.slug}`,
-        images: [
-          {
-            url:
-              article.filtered_images?.[0] || article.image || "/azbyte.jpeg",
-            width: 800,
-            height: 600,
-          },
-        ],
-      },
-      twitter: {
-        card: "summary_large_image",
-        title: article.title,
-        description: article.description || article.title,
-        images: [
-          article.filtered_images?.[0] || article.image || "/azbyte.jpeg",
-        ],
-      },
-    };
-  } catch (error) {
-    console.error("Metadata generation error:", error);
-    return {
-      title: "Article Not Found",
-      description: "The requested article could not be found",
-    };
-  }
-}
-
 export default function ArticleDetails() {
   const { slug } = useParams();
 
