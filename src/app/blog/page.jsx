@@ -15,8 +15,6 @@ import {
 import ShareButtons from "@/components/share_buttons/ShareButtons";
 import Head from "next/head";
 
-
-
 const BlogPage = () => {
   const [loading, setLoading] = useState(true);
   const [topPosts, setTopPosts] = useState([]);
@@ -50,8 +48,11 @@ const BlogPage = () => {
         const response = await fetch(`/api/latest_articles`);
         const data = await response.json();
 
+        // Handle response format: { articles: [...] } or direct array
         if (Array.isArray(data)) {
-          setLatestPosts(data); // If already an array, use it directly
+          setLatestPosts(data);
+        } else if (data.articles && Array.isArray(data.articles)) {
+          setLatestPosts(data.articles);
         } else {
           console.error("Unexpected data format", data);
         }

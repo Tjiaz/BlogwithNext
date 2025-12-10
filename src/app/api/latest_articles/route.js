@@ -1,6 +1,6 @@
 import { connectToDatabase } from "@/utils/mongodb";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -10,10 +10,10 @@ export async function GET(req) {
 
   try {
     const { db } = await connectToDatabase();
-    
+
     // Use Articles collection (flattened, faster) with aggregation pipeline
     const collection = db.collection("Articles");
-    
+
     // Aggregation pipeline to:
     // 1. Handle different date formats and create sortable date
     // 2. Sort by date (newest first)
@@ -67,6 +67,7 @@ export async function GET(req) {
     // Process results
     const processedResults = articles.map((article) => ({
       id: article._id.toString(),
+      _id: article._id.toString(), // Include _id for backward compatibility
       title: article.title,
       description: article.description,
       author: article.author,
@@ -92,7 +93,10 @@ export async function GET(req) {
   } catch (error) {
     console.error("Error fetching articles:", error);
     return new Response(
-      JSON.stringify({ message: "Error fetching articles", error: error.message }),
+      JSON.stringify({
+        message: "Error fetching articles",
+        error: error.message,
+      }),
       { status: 500 }
     );
   }

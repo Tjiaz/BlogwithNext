@@ -16,13 +16,14 @@ const NewsletterPopup = () => {
     const popupDismissed = localStorage.getItem("newsletterPopupDismissed");
     const lastPopupTime = localStorage.getItem("lastPopupTime");
     const now = Date.now();
-    
+
     // Show popup if:
     // 1. Not dismissed, or dismissed more than 7 days ago
     // 2. And no popup shown in last 24 hours
     const shouldShow =
-      (!popupDismissed || (now - parseInt(popupDismissed || 0)) > 7 * 24 * 60 * 60 * 1000) &&
-      (!lastPopupTime || (now - parseInt(lastPopupTime)) > 24 * 60 * 60 * 1000);
+      (!popupDismissed ||
+        now - parseInt(popupDismissed || 0) > 7 * 24 * 60 * 60 * 1000) &&
+      (!lastPopupTime || now - parseInt(lastPopupTime) > 24 * 60 * 60 * 1000);
 
     if (shouldShow) {
       // Show popup after 3 seconds delay
@@ -97,13 +98,15 @@ const NewsletterPopup = () => {
         >
           <IoMdClose />
         </button>
-        
+
         <div className={styles.iconContainer}>
           <HiOutlineMail className={styles.emailIcon} />
         </div>
 
         <h2 className={styles.title}>
-          Get the FREE ebook 'AzByteGems Tech Insights Guide' along with the leading newsletter on Data Science, Machine Learning, AI & Programming straight to your inbox.
+          Get the FREE ebook &apos;AzByteGems Tech Insights Guide&apos; along
+          with the leading newsletter on Data Science, Machine Learning, AI &
+          Programming straight to your inbox.
         </h2>
 
         <form onSubmit={handleSubmit} className={styles.form}>
@@ -154,4 +157,3 @@ const NewsletterPopup = () => {
 };
 
 export default NewsletterPopup;
-

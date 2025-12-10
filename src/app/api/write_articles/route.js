@@ -2,7 +2,8 @@ import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
 import prisma from "@/utils/connect";
 import { authOptions } from "@/utils/auth";
-import { MongoClient, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
+import { connectToDatabase } from "@/utils/mongodb";
 
 // Helper function to extract images from content
 const extractImagesFromContent = (content) => {
@@ -78,7 +79,17 @@ export async function POST(req) {
       );
     }
 
-    const body = await req.json();
+    let body;
+    try {
+      body = await req.json();
+    } catch (parseError) {
+      console.error("Failed to parse request body:", parseError);
+      return NextResponse.json(
+        { message: "Invalid request data", error: parseError.message },
+        { status: 400 }
+      );
+    }
+
     const { title, description, content, topic } = body;
 
     // Validate required fields
@@ -100,121 +111,126 @@ export async function POST(req) {
     }
 
     // Extract and normalize images
-    const extractedImages = extractImagesFromContent(content);
-    const normalizedImages = extractedImages.map((img) =>
-      img.startsWith("/")
-        ? `${
-            process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"
-          }${img}`
-        : img
+    let extractedImages = [];
+    let normalizedImages = [];
+    try {
+      extractedImages = extractImagesFromContent(content);
+      normalizedImages = extractedImages.map((img) =>
+        img.startsWith("/")
+          ? `${
+              process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"
+            }${img}`
+          : img
+      );
+      console.log(`Extracted ${extractedImages.length} images from content`);
+    } catch (imageError) {
+      console.error("Error extracting images:", imageError);
+      // Continue without images if extraction fails
+    }
+
+    // Connect to MongoDB using connection pool
+    console.log("Connecting to MongoDB...");
+    const { db } = await connectToDatabase();
+    const topicsCollection = db.collection("Topic");
+    const articlesCollection = db.collection("Articles");
+
+    // Create article document once
+    const articleId = new ObjectId();
+    const articleDate = new Date().toISOString();
+    const normalizedTopic = topic.toLowerCase();
+
+    const articleDocument = {
+      _id: articleId,
+      title,
+      description,
+      content: content,
+      date: articleDate,
+      author: session.user.email,
+      topic: normalizedTopic,
+      filtered_images: normalizedImages || [],
+      createdAt: new Date(),
+    };
+
+    // Prepare operations to run in parallel
+    const operations = [];
+
+    // 1. Insert article into Articles collection (most important - for latest_articles API)
+    operations.push(
+      articlesCollection.insertOne(articleDocument).then(() => {
+        console.log("Article inserted into Articles collection");
+      })
     );
 
-    // Connect to MongoDB
-    const mongoClient = new MongoClient(process.env.DATABASE_URL);
+    // 2. Update/Create topic document (for backward compatibility)
+    operations.push(
+      topicsCollection
+        .updateOne(
+          {
+            $or: [
+              { name: `${normalizedTopic}_articles` },
+              { title: `${normalizedTopic}_articles` },
+            ],
+          },
+          {
+            $push: { articles: articleDocument },
+            $set: { updatedAt: new Date() },
+          },
+          { upsert: true } // Create if doesn't exist
+        )
+        .then((result) => {
+          console.log("Topic update result:", result);
+        })
+    );
 
-    try {
-      await mongoClient.connect();
-      const db = mongoClient.db("ARTICLES");
-      const topicsCollection = db.collection("Topic");
+    // 3. Create article in Prisma (run in parallel too)
+    operations.push(
+      prisma.article
+        .create({
+          data: {
+            title,
+            description,
+            content:
+              typeof content === "object" ? JSON.stringify(content) : content,
+            topic: normalizedTopic,
+            date: articleDate,
+            author: session.user.email,
+            userId: user.id,
+            filtered_images:
+              normalizedImages.length > 0
+                ? JSON.stringify(normalizedImages)
+                : null,
+          },
+        })
+        .then((prismaArticle) => {
+          console.log("Article created in Prisma:", prismaArticle.id);
+          return prismaArticle;
+        })
+    );
 
-      // Find the topic document (try both name and title)
-      const topicDocument = await topicsCollection.findOne({
-        $or: [
-          { name: `${topic.toLowerCase()}_articles` },
-          { title: `${topic.toLowerCase()}_articles` },
-        ],
-      });
+    // Execute all operations in parallel
+    const results = await Promise.all(operations);
+    const prismaArticle = results[2]; // Prisma is the 3rd operation
 
-      if (!topicDocument) {
-        // If topic doesn't exist, create it
-        const newTopicResult = await topicsCollection.insertOne({
-          name: `${topic.toLowerCase()}_articles`,
-          title: `${topic.toLowerCase()}_articles`,
-          articles: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+    console.log("All database operations completed successfully");
 
-        console.log("New topic created:", newTopicResult);
-      }
-
-      // Create the new article document
-      const articleDocument = {
-        _id: new ObjectId(),
-        title,
-        description,
-        content: content,
-        date: new Date().toISOString(),
-        author: session.user.email,
-        filtered_images: normalizedImages,
-        createdAt: new Date(),
-      };
-
-      console.log("Full content being stored:", content);
-      console.log("Article document being created:", articleDocument);
-
-      // Update the topic by pushing the new article
-      const updateResult = await topicsCollection.updateOne(
-        {
-          $or: [
-            { name: `${topic.toLowerCase()}_articles` },
-            { title: `${topic.toLowerCase()}_articles` },
-          ],
-        },
-        {
-          $push: { articles: articleDocument },
-          $set: { updatedAt: new Date() },
-        }
-      );
-
-      console.log("Topic update result:", updateResult);
-
-      // Verify the update
-      const updatedTopic = await topicsCollection.findOne({
-        $or: [
-          { name: `${topic.toLowerCase()}_articles` },
-          { title: `${topic.toLowerCase()}_articles` },
-        ],
-      });
-
-      console.log("Updated topic:", updatedTopic);
-
-      // Also create the article in Prisma
-      const prismaArticle = await prisma.article.create({
-        data: {
-          title,
-          description,
-          content:
-            typeof content === "object" ? JSON.stringify(content) : content,
-          topic: topic.toLowerCase(),
-          date: new Date().toISOString(),
-          author: session.user.email,
-          userId: user.id,
-          filtered_images: normalizedImages
-            ? JSON.stringify(normalizedImages)
-            : null,
-        },
-      });
-
-      return NextResponse.json(
-        {
-          message: "Article published successfully",
-          mongoId: articleDocument._id,
-          prismaId: prismaArticle.id,
-          extractedImages: normalizedImages,
-          topicUpdateResult: updateResult,
-        },
-        { status: 201 }
-      );
-    } finally {
-      await mongoClient.close();
-    }
+    return NextResponse.json(
+      {
+        message: "Article published successfully",
+        mongoId: articleId.toString(),
+        prismaId: prismaArticle?.id || null,
+        extractedImages: normalizedImages,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Article creation error:", error);
+    console.error("Error stack:", error.stack);
     return NextResponse.json(
       {
         message: "Failed to create article",
-        error: error.message,
+        error: error.message || "Unknown error occurred",
+        details:
+          process.env.NODE_ENV === "development" ? error.stack : undefined,
       },
       { status: 500 }
     );

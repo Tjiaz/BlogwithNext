@@ -61,30 +61,68 @@ const Write = () => {
         topic: normalizedTopic,
       };
 
-      console.log("Submitting article data:", articleData); // Debug log
+      console.log("Submitting article data:", {
+        title: articleData.title,
+        description: articleData.description,
+        topic: articleData.topic,
+        contentLength: articleData.content?.length || 0,
+      }); // Debug log
 
-      const response = await fetch("/api/write_articles", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(articleData),
-        credentials: "include",
-      });
+      // Add timeout to fetch request (60 seconds)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-      const data = await response.json();
+      let response;
+      try {
+        response = await fetch("/api/write_articles", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(articleData),
+          credentials: "include",
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === "AbortError") {
+          throw new Error(
+            "Request timed out. Please check your connection and try again."
+          );
+        }
+        throw new Error(`Network error: ${fetchError.message}`);
+      }
+
+      let data;
+      try {
+        const text = await response.text();
+        console.log("Raw response:", text.substring(0, 200)); // Log first 200 chars
+        data = JSON.parse(text);
+      } catch (parseError) {
+        console.error("Failed to parse response:", parseError);
+        throw new Error("Invalid response from server. Please try again.");
+      }
+
       console.log("Response data:", data); // Debug log
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to publish article");
+        throw new Error(
+          data.message ||
+            data.error ||
+            `Failed to publish article (${response.status})`
+        );
       }
 
-      alert("Article published successfully");
+      alert("Article published successfully!");
       router.push("/");
       router.refresh();
     } catch (error) {
       console.error("Submission error:", error);
-      alert(error.message || "Failed to publish article");
+      const errorMessage =
+        error.message ||
+        "Failed to publish article. Please check the browser console for details.";
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
