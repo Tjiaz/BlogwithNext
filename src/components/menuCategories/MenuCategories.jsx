@@ -6,37 +6,37 @@ const MenuCategories = () => {
   return (
     <div className={styles.categoryList}>
       <Link
-        href="/blog?cat=data"
+        href="/articles/data_science"
         className={`${styles.categoryItem} ${styles.data}`}
       >
         Data Science
       </Link>
       <Link
-        href="/blog?cat=nlp"
+        href="/articles/nlp"
         className={`${styles.categoryItem} ${styles.nlp}`}
       >
         NLP
       </Link>
       <Link
-        href="/blog?cat=sql"
+        href="/articles/sql"
         className={`${styles.categoryItem} ${styles.sql}`}
       >
         SQL
       </Link>
       <Link
-        href="/blog?cat=python"
+        href="/articles/python"
         className={`${styles.categoryItem} ${styles.python}`}
       >
         Python
       </Link>
       <Link
-        href="/blog?cat=coding"
+        href="/articles/programming"
         className={`${styles.categoryItem} ${styles.coding}`}
       >
-        Coding
+        Programming
       </Link>
       <Link
-        href="/blog?cat=ai"
+        href="/articles/ai"
         className={`${styles.categoryItem} ${styles.ai}`}
       >
         AI

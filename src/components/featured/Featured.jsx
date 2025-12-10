@@ -7,7 +7,6 @@ import { MdSearch } from "react-icons/md";
 import FeaturedCard from "./FeaturedCard";
 import Pagination from "../pagination/Pagination";
 import { useSearchParams } from "next/navigation";
-import SubscribeModal from "../subscribeModal/SubscribeModal";
 import LoadingPlaceholder from "./LoadingPlaceholder";
 
 const POSTS_PER_PAGE = 8;
@@ -64,22 +63,12 @@ const Featured = () => {
 
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null);
-  const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Get the page from query params
   const searchParams = useSearchParams();
   const pageParam = searchParams.get("page");
   const page = parseInt(pageParam, 10) || 1;
-
-  // Check for first visit using localStorage
-  useEffect(() => {
-    const hasVisited = localStorage.getItem("hasVisited");
-    if (!hasVisited) {
-      setShowModal(true);
-      localStorage.setItem("hasVisited", "true");
-    }
-  }, []);
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -360,9 +349,6 @@ const Featured = () => {
             </p>
           </div>
         </div>
-      </div>
-      <div>
-        <SubscribeModal show={showModal} onClose={() => setShowModal(false)} />
       </div>
     </div>
   );

@@ -12,9 +12,10 @@ const extractImagesFromContent = (content) => {
   const extractImagesFromString = (str) => {
     // Regex for various image formats
     const imageRegexes = [
-      /!$$.*?$$$$(.*?)$$/g, // Markdown image syntax
-      /<img[^>]+src="?([^"\s]+)"?\s*\/?>]/gi, // HTML image tag
+      /!\[.*?\]\((.*?)\)/g, // Markdown image syntax
+      /<img[^>]+src=["']([^"'>]+)["'][^>]*>/gi, // HTML image tag (handles both single and double quotes, and base64)
       /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/gi, // Direct image URLs
+      /data:image\/[^;]+;base64,[^"\s<>]+/gi, // Base64 encoded images
     ];
 
     imageRegexes.forEach((regex) => {

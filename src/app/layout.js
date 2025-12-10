@@ -7,6 +7,7 @@ import ThemeProvider from "@/providers/ThemeProvider";
 import AuthProvider from "@/providers/AuthProvider";
 import CookieConsentBanner from "@/components/cookies/CookieConsentBanner";
 import ToastProvider from "@/providers/ToastProvider";
+import NewsletterPopup from "@/components/newsletterPopup/NewsletterPopup";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -47,6 +48,7 @@ export default function RootLayout({ children }) {
                   {children}
                   <Footer />
                   <CookieConsentBanner />
+                  <NewsletterPopup />
                 </div>
               </div>
             </ThemeProvider>

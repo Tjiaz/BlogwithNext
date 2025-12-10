@@ -1,5 +1,24 @@
 .container {
-  margin-top: 90px;
+  margin-top: 0; /* Remove top margin, spacing handled by advertContainer */
+  padding-top: 110px; /* Account for fixed navbar (90px) + spacing (20px) */
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    padding-top: 95px; /* Account for fixed navbar (75px) + spacing (20px) */
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .container {
+    padding-top: 90px; /* Account for fixed navbar (70px) + spacing (20px) */
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .container {
+    padding-top: 85px; /* Account for fixed navbar (65px) + spacing (20px) */
+  }
 }
 
 .imageadvert {
@@ -61,14 +80,26 @@
   margin: 0 auto; /* Center the container */
 }
 
+.advertContainer {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 1536px; /* Match your body max-width */
+  padding-top: 20px; /* Add spacing after navbar */
+  margin: 0 auto; /* Center the container */
+}
+
 .advert {
   width: 70vw;
   max-width: 1000px; /* Match the imageadvert max-width */
   font-size: small;
   text-decoration: underline;
   text-align: center;
-  padding-left: 0;
-  margin: 0 auto;
+  padding: 0;
+  margin: 10px auto 0; /* Center the link and add top margin */
+  display: block; /* Ensure it's a block element for centering */
 }
 
 .textContainer1 {
@@ -266,7 +297,13 @@
     font-size: small;
     text-decoration: underline;
     text-align: center;
-    padding-left: 200px;
+    padding: 0;
+    margin: 10px auto 0; /* Center the link */
+    display: block;
+  }
+  .advertContainer {
+    padding-top: 20px; /* Reduce padding on mobile */
+    margin-top: 15px;
   }
 }
 
