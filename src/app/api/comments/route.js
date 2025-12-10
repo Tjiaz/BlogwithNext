@@ -1,4 +1,5 @@
-import { getAuthSession } from "@/utils/auth";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/utils/auth";
 import prisma from "@/utils/connect";
 import { NextResponse } from "next/server";
 
@@ -24,7 +25,7 @@ export const GET = async (req) => {
 
 //CREATE COMMENTS
 export const POST = async (req) => {
-  const session = await getAuthSession();
+  const session = await getServerSession(authOptions);
 
   if (!session) {
     return new NextResponse(
@@ -32,6 +33,7 @@ export const POST = async (req) => {
     );
   }
 
+  const { searchParams } = new URL(req.url);
   const postSlug = searchParams.get("postSlug");
 
   try {

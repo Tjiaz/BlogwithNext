@@ -1,6 +1,7 @@
 "use client";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import styles from "./topic.module.css";
 
 export default function TopicPage() {
@@ -55,9 +56,11 @@ export default function TopicPage() {
               </span>
             </div>
             {article.image && (
-              <img
+              <Image
                 src={article.image}
                 alt={article.title}
+                width={800}
+                height={400}
                 className={styles.image}
               />
             )}
