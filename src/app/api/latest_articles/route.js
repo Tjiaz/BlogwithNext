@@ -18,7 +18,7 @@ export async function GET(req) {
           page: 1,
           totalPages: 0,
         }),
-        { 
+        {
           status: 200,
           headers: {
             "Content-Type": "application/json",
@@ -29,31 +29,64 @@ export async function GET(req) {
 
     const { db } = await connectToDatabase();
 
-    // Use Articles collection (flattened, faster) with simple query
+    // Use Articles collection (flattened, faster) with optimized aggregation
     const collection = db.collection("Articles");
 
-    // Use simple find with sort - much faster than aggregation
-    // MongoDB will use index if available on date field
+    // Use aggregation but optimize it - only convert dates for sorting, not all fields
+    // This is faster than processing all documents but ensures correct date sorting
+    const pipeline = [
+      {
+        // Add a sortable date field
+        $addFields: {
+          sortDate: {
+            $cond: {
+              if: { $eq: [{ $type: "$date" }, "date"] },
+              then: "$date",
+              else: {
+                $cond: {
+                  if: { $eq: [{ $type: "$date" }, "string"] },
+                  then: {
+                    $dateFromString: {
+                      dateString: "$date",
+                      onError: new Date(0), // Default to epoch for invalid dates
+                    },
+                  },
+                  else: new Date(0), // Default for other types
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $sort: { sortDate: -1 }, // Sort by converted date
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+      {
+        // Remove the temporary sortDate field and project only needed fields
+        $project: {
+          _id: 1,
+          title: 1,
+          description: 1,
+          author: 1,
+          date: 1,
+          topic: 1,
+          filtered_images: 1,
+        },
+      },
+    ];
+
+    // Execute query with timeout
     const articles = await Promise.race([
-      collection
-        .find({}, {
-          projection: {
-            _id: 1,
-            title: 1,
-            description: 1,
-            author: 1,
-            date: 1,
-            topic: 1,
-            filtered_images: 1,
-          }
-        })
-        .sort({ date: -1 }) // Sort by date descending (MongoDB handles mixed types)
-        .skip(skip)
-        .limit(limit)
-        .toArray(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Query timeout')), 8000)
-      )
+      collection.aggregate(pipeline).toArray(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Query timeout")), 8000)
+      ),
     ]);
 
     // Skip totalCount to save time - can be calculated client-side if needed
@@ -86,7 +119,11 @@ export async function GET(req) {
       }
     );
   } catch (error) {
-    console.error("Error fetching latest articles:", error.message, error.stack);
+    console.error(
+      "Error fetching latest articles:",
+      error.message,
+      error.stack
+    );
     // Return empty array instead of error to prevent frontend issues
     return new Response(
       JSON.stringify({
@@ -94,9 +131,10 @@ export async function GET(req) {
         totalCount: 0,
         page: 1,
         totalPages: 0,
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        error:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
       }),
-      { 
+      {
         status: 200,
         headers: {
           "Content-Type": "application/json",
