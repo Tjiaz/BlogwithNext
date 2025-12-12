@@ -27,34 +27,32 @@ export async function GET(req) {
     const pipeline = [
       {
         // Add a sortable date field that handles multiple date formats
+        // Date format in DB: "Mar 22, 2024" (human-readable)
         $addFields: {
           sortDate: {
             $cond: {
               // If it's already a Date object, use it directly
               if: { $eq: [{ $type: "$date" }, "date"] },
               then: "$date",
-              // If it's a string, try to parse it (MongoDB will auto-detect format)
+              // If it's a string, try to parse it
               else: {
                 $cond: {
                   if: { $eq: [{ $type: "$date" }, "string"] },
                   then: {
+                    // Try parsing "Mar 22, 2024" format
+                    // MongoDB format: %b = abbreviated month, %d = day, %Y = 4-digit year
                     $dateFromString: {
                       dateString: "$date",
-                      onError: new Date(0), // Default to epoch for invalid dates
+                      format: "%b %d, %Y", // Format: "Mar 22, 2024"
+                      onError: new Date("1970-01-01"), // Use old date for invalid formats (appears last)
                     },
                   },
-                  // For null, missing, or other types, use epoch
-                  else: new Date(0),
+                  // For null, missing, or other types, use a very old date (so they appear last)
+                  else: new Date("1970-01-01"),
                 },
               },
             },
           },
-        },
-      },
-      {
-        // Filter out documents with invalid dates (epoch dates) to prioritize valid dates
-        $match: {
-          sortDate: { $ne: new Date(0) },
         },
       },
       {
