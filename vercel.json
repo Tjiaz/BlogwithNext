@@ -17,5 +17,10 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "src/app/api/**/*.js": {
+      "maxDuration": 20
+    }
+  }
 }

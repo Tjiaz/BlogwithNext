@@ -77,10 +77,16 @@ export async function GET(req) {
       },
     ];
 
-    const articles = await collection.aggregate(pipeline).toArray();
+    // Execute query with timeout
+    const articles = await Promise.race([
+      collection.aggregate(pipeline).toArray(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Query timeout')), 10000)
+      )
+    ]);
 
-    // Get total count for pagination info (optional, can be removed if not needed)
-    const totalCount = await collection.countDocuments();
+    // Skip totalCount to save time - can be calculated client-side if needed
+    // const totalCount = await collection.countDocuments();
 
     // Process results
     const processedResults = articles.map((article) => ({
@@ -97,9 +103,9 @@ export async function GET(req) {
     return new Response(
       JSON.stringify({
         articles: processedResults,
-        totalCount,
+        totalCount: processedResults.length, // Approximate count
         page,
-        totalPages: Math.ceil(totalCount / limit),
+        totalPages: Math.ceil(processedResults.length / limit),
       }),
       {
         status: 200,

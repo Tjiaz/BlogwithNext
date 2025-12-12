@@ -63,7 +63,13 @@ export async function GET(req) {
       },
     ];
 
-    const articles = await collection.aggregate(pipeline).toArray();
+    // Execute query with timeout
+    const articles = await Promise.race([
+      collection.aggregate(pipeline).toArray(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Query timeout')), 10000)
+      )
+    ]);
 
     const processedResults = articles.map((article) => ({
       id: article._id.toString(),
