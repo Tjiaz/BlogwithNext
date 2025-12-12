@@ -7,27 +7,72 @@ import { useSearchParams } from "next/navigation";
 import CatCard from "./CatCard";
 import MenuCategories from "../menuCategories/MenuCategories";
 import MenuPostCard from "../menuPosts/MenuPostCard";
+import { fetchWithCache, getCachedData, getCacheKey } from "@/utils/cache";
 
 const CategoryList = () => {
-  const [moreRecentPosts, setMoreRecentPosts] = useState([]);
-  const [menuPosts, setMenuPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const searchParam = useSearchParams();
   const moreParam = searchParam.get("page");
   const page = parseInt(moreParam) || 1;
 
+  // Load cached data immediately on mount for instant display
+  // Use page 1 for initial load (most common case)
+  const [moreRecentPosts, setMoreRecentPosts] = useState(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const cache = getCachedData(getCacheKey(`/api/moreRecent_articles`, { page: 1 }));
+      return Array.isArray(cache) ? cache : [];
+    } catch (error) {
+      console.warn('Error loading cache:', error);
+      return [];
+    }
+  });
+
+  const [menuPosts, setMenuPosts] = useState(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const cache = getCachedData(getCacheKey(`/api/categories`, { page: 1 }));
+      return Array.isArray(cache) ? cache : [];
+    } catch (error) {
+      console.warn('Error loading cache:', error);
+      return [];
+    }
+  });
+
+  const [loading, setLoading] = useState(() => {
+    // Only show loading if we have no cached data
+    if (typeof window === 'undefined') return true;
+    try {
+      const recentCache = getCachedData(getCacheKey(`/api/moreRecent_articles`, { page: 1 }));
+      const menuCache = getCachedData(getCacheKey(`/api/categories`, { page: 1 }));
+      return (!recentCache || recentCache.length === 0) && (!menuCache || menuCache.length === 0);
+    } catch (error) {
+      return true;
+    }
+  });
+
   useEffect(() => {
     async function fetchRecentPosts() {
       try {
-        const response = await fetch(`/api/moreRecent_articles?page=${page}`);
-        const data = await response.json();
+        const result = await fetchWithCache(
+          `/api/moreRecent_articles`,
+          { params: { page } },
+          5 * 60 * 1000 // 5 min cache
+        );
+        
+        if (result.fromCache) {
+          console.log('More recent posts loaded from cache');
+        }
+        
+        const data = result.data;
         if (Array.isArray(data)) {
           setMoreRecentPosts(data);
         } else {
           console.error("Unexpected data format", data);
+          setMoreRecentPosts([]);
         }
       } catch (error) {
         console.error("Failed to fetch more recent articles", error);
+        setMoreRecentPosts([]);
       } finally {
         setLoading(false);
       }
@@ -38,15 +83,26 @@ const CategoryList = () => {
   useEffect(() => {
     async function fetchMenuArticles() {
       try {
-        const response = await fetch(`/api/categories?page=${page}`);
-        const data = await response.json();
+        const result = await fetchWithCache(
+          `/api/categories`,
+          { params: { page } },
+          5 * 60 * 1000 // 5 min cache
+        );
+        
+        if (result.fromCache) {
+          console.log('Most popular articles loaded from cache');
+        }
+        
+        const data = result.data;
         if (Array.isArray(data)) {
           setMenuPosts(data);
         } else {
           console.error("Unexpected data format", data);
+          setMenuPosts([]);
         }
       } catch (error) {
         console.error("Failed to fetch articles", error);
+        setMenuPosts([]);
       } finally {
         setLoading(false);
       }

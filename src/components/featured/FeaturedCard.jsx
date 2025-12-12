@@ -36,15 +36,30 @@ const SafeImage = ({ src, alt, ...props }) => {
 
     // Normalize the URL
     const normalizeUrl = (url) => {
+      // Reject base64 data URIs that are too long (they cause 414 errors)
+      if (url && url.startsWith("data:image")) {
+        // Base64 data URIs should be under 2MB (roughly 2.6M characters)
+        // If longer, reject it to avoid 414 URI Too Long errors
+        if (url.length > 2000000) {
+          console.warn("Base64 image too large, using default image");
+          return "/azbyte.jpeg";
+        }
+        // For valid base64, return as is (don't prepend site URL)
+        return url;
+      }
+
       // If it's an absolute URL, return as is
-      if (url.startsWith("http://") || url.startsWith("https://")) {
+      if (url && (url.startsWith("http://") || url.startsWith("https://"))) {
         return url;
       }
 
       // If it's a relative URL, prepend the site URL
-      return `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${
-        url.startsWith("/") ? url : "/" + url
-      }`;
+      if (url && url.startsWith("/")) {
+        return `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${url}`;
+      }
+
+      // Invalid URL, return default
+      return "/azbyte.jpeg";
     };
 
     // Try to validate the image

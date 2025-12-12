@@ -8,6 +8,7 @@ import FeaturedCard from "./FeaturedCard";
 import Pagination from "../pagination/Pagination";
 import { useSearchParams } from "next/navigation";
 import LoadingPlaceholder from "./LoadingPlaceholder";
+import { fetchWithCache, getCachedData, getCacheKey } from "@/utils/cache";
 
 const POSTS_PER_PAGE = 8;
 
@@ -15,10 +16,9 @@ const extractImageFromContent = (content) => {
   try {
     // If content is a string or array
     const imageRegexes = [
-      /!$$.*?$$$$(.*?)$$/, // Custom Markdown syntax
-      /!$$.*?$$$$(.*?)$$/, // Standard Markdown image syntax
-      /<img[^>]+src="([^">]+)"/, // HTML img tag
-      /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/, // Direct image URLs
+      /!\[.*?\]\((.*?)\)/, // Markdown image syntax
+      /<img[^>]+src=["']([^"'>]+)["'][^>]*>/i, // HTML img tag
+      /https?:\/\/\S+\.(?:jpg|jpeg|gif|png|webp)/i, // Direct image URLs
     ];
 
     // Handle different content types
@@ -36,12 +36,22 @@ const extractImageFromContent = (content) => {
     for (let regex of imageRegexes) {
       const match = contentString.match(regex);
       if (match && match[1]) {
-        // Normalize the URL
-        const normalizedUrl = match[1].startsWith("/")
-          ? `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${
-              match[1]
-            }`
-          : match[1];
+        const imageUrl = match[1];
+        
+        // Reject base64 data URIs that are too long (they cause 414 errors)
+        if (imageUrl.startsWith("data:image")) {
+          if (imageUrl.length > 2000000) {
+            console.warn("Base64 image too large, skipping");
+            continue; // Skip this image, try next one
+          }
+          // For valid base64, return as is (don't normalize)
+          return imageUrl;
+        }
+        
+        // Normalize regular URLs
+        const normalizedUrl = imageUrl.startsWith("/")
+          ? `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${imageUrl}`
+          : imageUrl;
         return normalizedUrl;
       }
     }
@@ -54,37 +64,87 @@ const extractImageFromContent = (content) => {
 };
 
 const Featured = () => {
-  const [state, setState] = useState({
-    latestPosts: [],
-    topPosts: [],
-    rssPosts: [],
-    loading: true,
+  // Get the page from query params
+  const searchParams = useSearchParams();
+  const pageParam = searchParams.get("page");
+  const page = parseInt(pageParam, 10) || 1;
+
+  // Load cached data immediately on mount for instant display
+  const [state, setState] = useState(() => {
+    if (typeof window === 'undefined') {
+      return { latestPosts: [], topPosts: [], rssPosts: [], loading: true };
+    }
+    
+    try {
+      // Use page 1 for initial cache load (most common case)
+      const initialPage = 1;
+      const latestCache = getCachedData(getCacheKey(`/api/latest_articles`, { page: initialPage }));
+      const topPostsCache = getCachedData(getCacheKey(`/api/topArticles`, { page: 1 }));
+      const rssCache = getCachedData(getCacheKey(`/api/rss`, {}));
+      
+      // Handle both optimized (array) and full (object with articles) formats
+      let latestArticles = [];
+      if (Array.isArray(latestCache)) {
+        latestArticles = latestCache;
+      } else if (latestCache?.articles && Array.isArray(latestCache.articles)) {
+        latestArticles = latestCache.articles;
+      }
+      
+      const topPostsArray = Array.isArray(topPostsCache) ? topPostsCache : [];
+      const rssArray = Array.isArray(rssCache) ? rssCache : [];
+      
+      const hasCache = latestArticles.length > 0 || topPostsArray.length > 0;
+      
+      return {
+        latestPosts: latestArticles,
+        topPosts: topPostsArray.slice(0, 7),
+        rssPosts: rssArray,
+        loading: !hasCache, // Only show loading if no cache at all
+      };
+    } catch (error) {
+      console.warn('Error loading cache:', error);
+      return { latestPosts: [], topPosts: [], rssPosts: [], loading: true };
+    }
   });
 
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Get the page from query params
-  const searchParams = useSearchParams();
-  const pageParam = searchParams.get("page");
-  const page = parseInt(pageParam, 10) || 1;
+  // Load cache immediately on mount if not already loaded
+  useEffect(() => {
+    // Only fetch if we don't have cached data already displayed
+    if (state.latestPosts.length > 0 || state.topPosts.length > 0) {
+      // We already have cache, just refresh in background
+      return;
+    }
+  }, []);
 
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const [mongoResponse, rssResponse, topPostsResponse] =
-          await Promise.all([
-            fetch(`/api/latest_articles?page=${page}`),
-            fetch("/api/rss"),
-            fetch(`/api/topArticles?page=1`),
-          ]);
-
-        const [mongoData, rssData, topPostsData] = await Promise.all([
-          mongoResponse.json(),
-          rssResponse.json(),
-          topPostsResponse.json(),
+        // Use cached fetch for better performance
+        const [mongoResult, rssResult, topPostsResult] = await Promise.all([
+          fetchWithCache(`/api/latest_articles`, { params: { page } }, 5 * 60 * 1000), // 5 min cache
+          fetchWithCache(`/api/rss`, {}, 10 * 60 * 1000), // 10 min cache for RSS
+          fetchWithCache(`/api/topArticles`, { params: { page: 1 } }, 5 * 60 * 1000), // 5 min cache
         ]);
+
+        // Log cache hits for debugging
+        if (mongoResult.fromCache) {
+          console.log('Latest articles loaded from cache (async)');
+        } else {
+          console.log('Latest articles fetched fresh');
+        }
+        if (topPostsResult.fromCache) {
+          console.log('Top posts loaded from cache (async)');
+        } else {
+          console.log('Top posts fetched fresh');
+        }
+
+        const mongoData = mongoResult.data;
+        const rssData = rssResult.data || [];
+        const topPostsData = topPostsResult.data || [];
 
         // Handle new API response format (object with articles array) or old format (direct array)
         const mongoArticles = Array.isArray(mongoData) ? mongoData : (mongoData.articles || []);
@@ -95,7 +155,9 @@ const Featured = () => {
           return imgMatch ? imgMatch[1] : null;
         };
 
-        const transformedRssData = rssData.map((item) => ({
+        // Ensure rssData is an array
+        const rssDataArray = Array.isArray(rssData) ? rssData : [];
+        const transformedRssData = rssDataArray.map((item) => ({
           ...item,
           id: item.guid,
           title: item.title?.trim(),
@@ -116,9 +178,11 @@ const Featured = () => {
         const uniquePosts = new Set();
 
         // Add MongoDB posts
-        mongoArticles.forEach((post) => {
-          uniquePosts.add(post.id || post._id);
-        });
+        if (Array.isArray(mongoArticles)) {
+          mongoArticles.forEach((post) => {
+            uniquePosts.add(post.id || post._id);
+          });
+        }
 
         // Add RSS posts, avoiding duplicates
         const uniqueRssPosts = transformedRssData.filter((post) => {
@@ -130,15 +194,36 @@ const Featured = () => {
         });
 
         // MongoDB posts are already paginated by the API, so use them directly
-        setState({
-          latestPosts: mongoArticles, // Already paginated by API
-          topPosts: topPostsData.slice(0, 7),
-          rssPosts: transformedRssData,
-          loading: false,
+        // Ensure topPostsData is an array
+        const topPostsArray = Array.isArray(topPostsData) ? topPostsData : [];
+        
+        // Only update state if data has changed or we're loading fresh data
+        setState(prevState => {
+          // Check if data actually changed to avoid unnecessary re-renders
+          const latestChanged = JSON.stringify(prevState.latestPosts) !== JSON.stringify(mongoArticles);
+          const topChanged = JSON.stringify(prevState.topPosts) !== JSON.stringify(topPostsArray.slice(0, 7));
+          const rssChanged = JSON.stringify(prevState.rssPosts) !== JSON.stringify(transformedRssData);
+          
+          if (latestChanged || topChanged || rssChanged || prevState.loading) {
+            return {
+              latestPosts: mongoArticles, // Already paginated by API
+              topPosts: topPostsArray.slice(0, 7),
+              rssPosts: Array.isArray(transformedRssData) ? transformedRssData : [],
+              loading: false,
+            };
+          }
+          
+          // Data hasn't changed, just update loading state
+          return { ...prevState, loading: false };
         });
       } catch (error) {
         console.error("Error fetching data:", error);
-        setState((prev) => ({ ...prev, loading: false }));
+        setState({
+          latestPosts: [],
+          topPosts: [],
+          rssPosts: [],
+          loading: false,
+        });
       }
     };
 
@@ -194,12 +279,24 @@ const Featured = () => {
           <Suspense fallback={<LoadingPlaceholder count={8} />}>
             {filteredPosts && filteredPosts.length > 0 ? (
               filteredPosts.map((post, index) => {
-                const imageToUse =
-                  post.filtered_images && post.filtered_images.length > 0
-                    ? post.filtered_images[0]
-                    : extractImageFromContent(post.content)
-                    ? extractImageFromContent(post.content)
-                    : "/azbyte.jpeg";
+                // Get image, filtering out invalid base64 URIs
+                let imageToUse = "/azbyte.jpeg";
+                if (post.filtered_images && post.filtered_images.length > 0) {
+                  const firstImage = post.filtered_images[0];
+                  // Reject base64 data URIs that are too long
+                  if (firstImage && firstImage.startsWith("data:image")) {
+                    if (firstImage.length <= 2000000) {
+                      imageToUse = firstImage;
+                    }
+                  } else if (firstImage) {
+                    imageToUse = firstImage;
+                  }
+                } else if (post.content) {
+                  const extracted = extractImageFromContent(post.content);
+                  if (extracted) {
+                    imageToUse = extracted;
+                  }
+                }
 
                 return (
                   <React.Fragment key={post._id || post.id}>

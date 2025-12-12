@@ -9,6 +9,16 @@ export async function GET(req) {
   const skip = (page - 1) * limit;
 
   try {
+    if (!process.env.DATABASE_URL) {
+      console.error("DATABASE_URL environment variable is not set");
+      return new Response(JSON.stringify([]), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    }
+
     const { db } = await connectToDatabase();
     const collection = db.collection("Articles");
 
@@ -73,9 +83,15 @@ export async function GET(req) {
     });
   } catch (error) {
     console.error("Error fetching articles:", error);
+    // Return empty array instead of error to prevent frontend issues
     return new Response(
-      JSON.stringify({ message: "Error fetching articles", error: error.message }),
-      { status: 500 }
+      JSON.stringify([]),
+      { 
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
   }
 }

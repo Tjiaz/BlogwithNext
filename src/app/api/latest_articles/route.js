@@ -9,6 +9,24 @@ export async function GET(req) {
   const skip = (page - 1) * limit;
 
   try {
+    if (!process.env.DATABASE_URL) {
+      console.error("DATABASE_URL environment variable is not set");
+      return new Response(
+        JSON.stringify({
+          articles: [],
+          totalCount: 0,
+          page: 1,
+          totalPages: 0,
+        }),
+        { 
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
     const { db } = await connectToDatabase();
 
     // Use Articles collection (flattened, faster) with aggregation pipeline
@@ -92,12 +110,21 @@ export async function GET(req) {
     );
   } catch (error) {
     console.error("Error fetching articles:", error);
+    // Return empty array instead of error to prevent frontend issues
     return new Response(
       JSON.stringify({
-        message: "Error fetching articles",
-        error: error.message,
+        articles: [],
+        totalCount: 0,
+        page: 1,
+        totalPages: 0,
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
       }),
-      { status: 500 }
+      { 
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
   }
 }
