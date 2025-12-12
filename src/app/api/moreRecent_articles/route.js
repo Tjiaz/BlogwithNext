@@ -22,52 +22,27 @@ export async function GET(req) {
     const { db } = await connectToDatabase();
     const collection = db.collection("Articles");
 
-    // Use aggregation pipeline for efficient sorting and pagination
-    const pipeline = [
-      {
-        $project: {
-          _id: 1,
-          title: 1,
-          description: 1,
-          author: 1,
-          date: 1,
-          topic: 1,
-          filtered_images: 1,
-          sortDate: {
-            $cond: {
-              if: { $eq: [{ $type: "$date" }, "date"] },
-              then: "$date",
-              else: {
-                $dateFromString: {
-                  dateString: "$date",
-                  onError: new Date(0),
-                },
-              },
-            },
-          },
-        },
-      },
-      {
-        $sort: { sortDate: -1 },
-      },
-      {
-        $skip: skip,
-      },
-      {
-        $limit: limit,
-      },
-      {
-        $project: {
-          sortDate: 0,
-        },
-      },
-    ];
-
-    // Execute query with timeout
+    // Use simple find with sort - much faster than aggregation
+    // MongoDB will use index if available on date field
     const articles = await Promise.race([
-      collection.aggregate(pipeline).toArray(),
+      collection
+        .find({}, {
+          projection: {
+            _id: 1,
+            title: 1,
+            description: 1,
+            author: 1,
+            date: 1,
+            topic: 1,
+            filtered_images: 1,
+          }
+        })
+        .sort({ date: -1 }) // Sort by date descending (MongoDB handles mixed types)
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
       new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Query timeout')), 10000)
+        setTimeout(() => reject(new Error('Query timeout')), 8000)
       )
     ]);
 
@@ -88,7 +63,7 @@ export async function GET(req) {
       },
     });
   } catch (error) {
-    console.error("Error fetching articles:", error);
+    console.error("Error fetching more recent articles:", error.message, error.stack);
     // Return empty array instead of error to prevent frontend issues
     return new Response(
       JSON.stringify([]),
