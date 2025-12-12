@@ -23,15 +23,17 @@ export async function GET(req) {
     const collection = db.collection("Articles");
 
     // Use aggregation but optimize it - only convert dates for sorting
-    // This ensures correct date sorting while being reasonably fast
+    // This handles multiple date formats (Date objects, ISO strings, various string formats)
     const pipeline = [
       {
-        // Add a sortable date field
+        // Add a sortable date field that handles multiple date formats
         $addFields: {
           sortDate: {
             $cond: {
+              // If it's already a Date object, use it directly
               if: { $eq: [{ $type: "$date" }, "date"] },
               then: "$date",
+              // If it's a string, try to parse it (MongoDB will auto-detect format)
               else: {
                 $cond: {
                   if: { $eq: [{ $type: "$date" }, "string"] },
@@ -41,11 +43,18 @@ export async function GET(req) {
                       onError: new Date(0), // Default to epoch for invalid dates
                     },
                   },
-                  else: new Date(0), // Default for other types
+                  // For null, missing, or other types, use epoch
+                  else: new Date(0),
                 },
               },
             },
           },
+        },
+      },
+      {
+        // Filter out documents with invalid dates (epoch dates) to prioritize valid dates
+        $match: {
+          sortDate: { $ne: new Date(0) },
         },
       },
       {
