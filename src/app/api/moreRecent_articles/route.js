@@ -22,87 +22,54 @@ export async function GET(req) {
     const { db } = await connectToDatabase();
     const collection = db.collection("Articles");
 
-    // Use aggregation but optimize it - only convert dates for sorting
-    // This handles multiple date formats (Date objects, ISO strings, various string formats)
-    const pipeline = [
-      {
-        // Add a sortable date field that handles multiple date formats
-        // Date format in DB: "Mar 22, 2024" (human-readable)
-        $addFields: {
-          sortDate: {
-            $cond: {
-              // If it's already a Date object, use it directly
-              if: { $eq: [{ $type: "$date" }, "date"] },
-              then: "$date",
-              // If it's a string, try to parse it
-              else: {
-                $cond: {
-                  if: { $eq: [{ $type: "$date" }, "string"] },
-                  then: {
-                    // Try parsing date - handle both ISO format and human-readable format
-                    $cond: {
-                      // Check if it looks like ISO format (contains 'T' or starts with YYYY-MM-DD)
-                      if: {
-                        $or: [
-                          { $gt: [{ $indexOfCP: ["$date", "T"] }, -1] }, // Contains 'T'
-                          { $eq: [{ $substr: ["$date", 4, 1] }, "-"] }, // Has '-' at position 4 (YYYY-MM-DD)
-                        ],
-                      },
-                      then: {
-                        // Parse ISO format (auto-detect)
-                        $dateFromString: {
-                          dateString: "$date",
-                          onError: new Date("1970-01-01"),
-                        },
-                      },
-                      else: {
-                        // Parse human-readable format "Mar 22, 2024" or "Nov 15, 2025"
-                        $dateFromString: {
-                          dateString: "$date",
-                          format: "%b %d, %Y",
-                          onError: new Date("1970-01-01"),
-                        },
-                      },
-                    },
-                  },
-                  // For null, missing, or other types, use a very old date (so they appear last)
-                  else: new Date("1970-01-01"),
-                },
-              },
+    // Fetch articles with projection (faster than aggregation for mixed date types)
+    const allArticles = await Promise.race([
+      collection
+        .find(
+          {},
+          {
+            projection: {
+              _id: 1,
+              title: 1,
+              description: 1,
+              author: 1,
+              date: 1,
+              topic: 1,
+              filtered_images: 1,
             },
-          },
-        },
-      },
-      {
-        $sort: { sortDate: -1 }, // Sort by converted date
-      },
-      {
-        $skip: skip,
-      },
-      {
-        $limit: limit,
-      },
-      {
-        // Remove the temporary sortDate field and project only needed fields
-        $project: {
-          _id: 1,
-          title: 1,
-          description: 1,
-          author: 1,
-          date: 1,
-          topic: 1,
-          filtered_images: 1,
-        },
-      },
-    ];
-
-    // Execute query with timeout
-    const articles = await Promise.race([
-      collection.aggregate(pipeline).toArray(),
+          }
+        )
+        .toArray(),
       new Promise((_, reject) =>
         setTimeout(() => reject(new Error("Query timeout")), 8000)
       ),
     ]);
+
+    // Sort articles by date in JavaScript (handles mixed date formats reliably)
+    const sortedArticles = allArticles.sort((a, b) => {
+      const parseDate = (dateValue) => {
+        if (!dateValue) return new Date(0);
+        if (dateValue instanceof Date) return dateValue;
+        if (typeof dateValue === "string") {
+          // Try ISO format first
+          if (dateValue.includes("T") || /^\d{4}-\d{2}-\d{2}/.test(dateValue)) {
+            const isoDate = new Date(dateValue);
+            if (!isNaN(isoDate.getTime())) return isoDate;
+          }
+          // Try human-readable format "Mar 22, 2024"
+          const humanDate = new Date(dateValue);
+          if (!isNaN(humanDate.getTime())) return humanDate;
+        }
+        return new Date(0); // Fallback
+      };
+
+      const dateA = parseDate(a.date);
+      const dateB = parseDate(b.date);
+      return dateB.getTime() - dateA.getTime(); // Descending (newest first)
+    });
+
+    // Apply pagination
+    const articles = sortedArticles.slice(skip, skip + limit);
 
     const processedResults = articles.map((article) => ({
       id: article._id.toString(),
