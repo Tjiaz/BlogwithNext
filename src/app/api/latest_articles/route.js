@@ -49,15 +49,13 @@ export async function GET(req) {
                 $cond: {
                   if: { $eq: [{ $type: "$date" }, "string"] },
                   then: {
-                    // Try parsing different date formats
-                    // Format 1: ISO format (from write_articles): "2025-11-15T10:30:00.000Z"
-                    // Format 2: Human-readable: "Mar 22, 2024" or "Nov 15, 2025" or "Dec 01, 2025"
+                    // Try parsing date - handle both ISO format and human-readable format
                     $cond: {
-                      // Check if it's ISO format (contains 'T' or starts with 4 digits)
+                      // Check if it looks like ISO format (contains 'T' or starts with YYYY-MM-DD)
                       if: {
                         $or: [
-                          { $regexMatch: { input: "$date", regex: "^\\d{4}-\\d{2}-\\d{2}" } }, // ISO date format
-                          { $regexMatch: { input: "$date", regex: "T" } }, // Contains 'T' (ISO datetime)
+                          { $gt: [{ $indexOfCP: ["$date", "T"] }, -1] }, // Contains 'T'
+                          { $eq: [{ $substr: ["$date", 4, 1] }, "-"] }, // Has '-' at position 4 (YYYY-MM-DD)
                         ],
                       },
                       then: {
@@ -69,11 +67,10 @@ export async function GET(req) {
                       },
                       else: {
                         // Parse human-readable format "Mar 22, 2024" or "Nov 15, 2025"
-                        // MongoDB format: %b = abbreviated month (Jan-Dec), %d = day, %Y = 4-digit year
                         $dateFromString: {
                           dateString: "$date",
-                          format: "%b %d, %Y", // Format: "Mar 22, 2024" or "Nov 15, 2025" or "Dec 01, 2025"
-                          onError: new Date("1970-01-01"), // Use old date for invalid formats (appears last)
+                          format: "%b %d, %Y",
+                          onError: new Date("1970-01-01"),
                         },
                       },
                     },
