@@ -49,12 +49,33 @@ export async function GET(req) {
                 $cond: {
                   if: { $eq: [{ $type: "$date" }, "string"] },
                   then: {
-                    // Try parsing "Mar 22, 2024" format
-                    // MongoDB format: %b = abbreviated month, %d = day, %Y = 4-digit year
-                    $dateFromString: {
-                      dateString: "$date",
-                      format: "%b %d, %Y", // Format: "Mar 22, 2024"
-                      onError: new Date("1970-01-01"), // Use old date for invalid formats (appears last)
+                    // Try parsing different date formats
+                    // Format 1: ISO format (from write_articles): "2025-11-15T10:30:00.000Z"
+                    // Format 2: Human-readable: "Mar 22, 2024" or "Nov 15, 2025" or "Dec 01, 2025"
+                    $cond: {
+                      // Check if it's ISO format (contains 'T' or starts with 4 digits)
+                      if: {
+                        $or: [
+                          { $regexMatch: { input: "$date", regex: "^\\d{4}-\\d{2}-\\d{2}" } }, // ISO date format
+                          { $regexMatch: { input: "$date", regex: "T" } }, // Contains 'T' (ISO datetime)
+                        ],
+                      },
+                      then: {
+                        // Parse ISO format (auto-detect)
+                        $dateFromString: {
+                          dateString: "$date",
+                          onError: new Date("1970-01-01"),
+                        },
+                      },
+                      else: {
+                        // Parse human-readable format "Mar 22, 2024" or "Nov 15, 2025"
+                        // MongoDB format: %b = abbreviated month (Jan-Dec), %d = day, %Y = 4-digit year
+                        $dateFromString: {
+                          dateString: "$date",
+                          format: "%b %d, %Y", // Format: "Mar 22, 2024" or "Nov 15, 2025" or "Dec 01, 2025"
+                          onError: new Date("1970-01-01"), // Use old date for invalid formats (appears last)
+                        },
+                      },
                     },
                   },
                   // For null, missing, or other types, use a very old date (so they appear last)
