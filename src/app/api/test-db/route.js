@@ -49,7 +49,10 @@ export async function GET() {
     );
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: error.message, stack: error.stack }),
+      JSON.stringify({
+        error: error.message,
+        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },

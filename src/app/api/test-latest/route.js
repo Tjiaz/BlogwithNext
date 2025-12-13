@@ -32,7 +32,7 @@ export async function GET() {
     return new Response(
       JSON.stringify({
         error: error.message,
-        stack: error.stack,
+        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
       }),
       {
         status: 500,
