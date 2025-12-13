@@ -8,7 +8,12 @@ import FeaturedCard from "./FeaturedCard";
 import Pagination from "../pagination/Pagination";
 import { useSearchParams } from "next/navigation";
 import LoadingPlaceholder from "./LoadingPlaceholder";
-import { fetchWithCache, getCachedData, getCacheKey } from "@/utils/cache";
+import {
+  fetchWithCache,
+  getCachedData,
+  getCacheKey,
+  clearCache,
+} from "@/utils/cache";
 
 const POSTS_PER_PAGE = 8;
 
@@ -37,7 +42,7 @@ const extractImageFromContent = (content) => {
       const match = contentString.match(regex);
       if (match && match[1]) {
         const imageUrl = match[1];
-        
+
         // Reject base64 data URIs that are too long (they cause 414 errors)
         if (imageUrl.startsWith("data:image")) {
           if (imageUrl.length > 2000000) {
@@ -47,10 +52,12 @@ const extractImageFromContent = (content) => {
           // For valid base64, return as is (don't normalize)
           return imageUrl;
         }
-        
+
         // Normalize regular URLs
         const normalizedUrl = imageUrl.startsWith("/")
-          ? `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${imageUrl}`
+          ? `${
+              process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"
+            }${imageUrl}`
           : imageUrl;
         return normalizedUrl;
       }
@@ -71,30 +78,41 @@ const Featured = () => {
 
   // Load cached data immediately on mount for instant display
   const [state, setState] = useState(() => {
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       return { latestPosts: [], topPosts: [], rssPosts: [], loading: true };
     }
-    
+
     try {
       // Use page 1 for initial cache load (most common case)
       const initialPage = 1;
-      const latestCache = getCachedData(getCacheKey(`/api/latest_articles`, { page: initialPage }));
-      const topPostsCache = getCachedData(getCacheKey(`/api/topArticles`, { page: 1 }));
+      const latestCache = getCachedData(
+        getCacheKey(`/api/latest_articles`, { page: initialPage })
+      );
+      const topPostsCache = getCachedData(
+        getCacheKey(`/api/topArticles`, { page: 1 })
+      );
       const rssCache = getCachedData(getCacheKey(`/api/rss`, {}));
-      
+
       // Handle both optimized (array) and full (object with articles) formats
       let latestArticles = [];
       if (Array.isArray(latestCache)) {
         latestArticles = latestCache;
       } else if (latestCache?.articles && Array.isArray(latestCache.articles)) {
         latestArticles = latestCache.articles;
+      } else if (latestCache && typeof latestCache === "object") {
+        // Try to extract articles from any object structure
+        console.warn(
+          "Unexpected cache format, attempting to extract articles:",
+          Object.keys(latestCache)
+        );
+        latestArticles = [];
       }
-      
+
       const topPostsArray = Array.isArray(topPostsCache) ? topPostsCache : [];
       const rssArray = Array.isArray(rssCache) ? rssCache : [];
-      
+
       const hasCache = latestArticles.length > 0 || topPostsArray.length > 0;
-      
+
       return {
         latestPosts: latestArticles,
         topPosts: topPostsArray.slice(0, 7),
@@ -102,7 +120,7 @@ const Featured = () => {
         loading: !hasCache, // Only show loading if no cache at all
       };
     } catch (error) {
-      console.warn('Error loading cache:', error);
+      console.warn("Error loading cache:", error);
       return { latestPosts: [], topPosts: [], rssPosts: [], loading: true };
     }
   });
@@ -125,29 +143,85 @@ const Featured = () => {
       try {
         // Use cached fetch for better performance
         const [mongoResult, rssResult, topPostsResult] = await Promise.all([
-          fetchWithCache(`/api/latest_articles`, { params: { page } }, 5 * 60 * 1000), // 5 min cache
+          fetchWithCache(
+            `/api/latest_articles`,
+            { params: { page } },
+            5 * 60 * 1000
+          ), // 5 min cache
           fetchWithCache(`/api/rss`, {}, 10 * 60 * 1000), // 10 min cache for RSS
-          fetchWithCache(`/api/topArticles`, { params: { page: 1 } }, 5 * 60 * 1000), // 5 min cache
+          fetchWithCache(
+            `/api/topArticles`,
+            { params: { page: 1 } },
+            5 * 60 * 1000
+          ), // 5 min cache
         ]);
 
         // Log cache hits for debugging
         if (mongoResult.fromCache) {
-          console.log('Latest articles loaded from cache (async)');
+          console.log("Latest articles loaded from cache (async)");
         } else {
-          console.log('Latest articles fetched fresh');
+          console.log("Latest articles fetched fresh");
         }
         if (topPostsResult.fromCache) {
-          console.log('Top posts loaded from cache (async)');
+          console.log("Top posts loaded from cache (async)");
         } else {
-          console.log('Top posts fetched fresh');
+          console.log("Top posts fetched fresh");
         }
 
         const mongoData = mongoResult.data;
         const rssData = rssResult.data || [];
         const topPostsData = topPostsResult.data || [];
 
+        // Debug logging
+        console.log("Latest articles API response:", {
+          isArray: Array.isArray(mongoData),
+          hasArticles: mongoData?.articles,
+          dataKeys: mongoData ? Object.keys(mongoData) : [],
+          dataLength: Array.isArray(mongoData)
+            ? mongoData.length
+            : mongoData?.articles?.length || 0,
+          sample: Array.isArray(mongoData)
+            ? mongoData[0]
+            : mongoData?.articles?.[0],
+        });
+
         // Handle new API response format (object with articles array) or old format (direct array)
-        const mongoArticles = Array.isArray(mongoData) ? mongoData : (mongoData.articles || []);
+        let mongoArticles = [];
+        if (Array.isArray(mongoData)) {
+          // Direct array format
+          mongoArticles = mongoData;
+        } else if (mongoData && typeof mongoData === "object") {
+          // Object format - try to extract articles
+          if (mongoData.articles && Array.isArray(mongoData.articles)) {
+            mongoArticles = mongoData.articles;
+          } else {
+            // If it's an object but no articles property, check if it's an array-like object
+            console.warn(
+              "API returned object but no articles property. Keys:",
+              Object.keys(mongoData)
+            );
+            // Try to find any array property
+            for (const key in mongoData) {
+              if (Array.isArray(mongoData[key])) {
+                console.log(
+                  `Found array in key "${key}", using it as articles`
+                );
+                mongoArticles = mongoData[key];
+                break;
+              }
+            }
+          }
+        }
+
+        console.log("Processed mongoArticles:", mongoArticles.length);
+        if (mongoArticles.length === 0 && mongoData) {
+          console.error("Failed to extract articles from response:", mongoData);
+          // Clear cache if data is malformed
+          if (mongoResult.fromCache) {
+            console.log("Clearing potentially corrupted cache...");
+            clearCache(getCacheKey(`/api/latest_articles`, { page }));
+          }
+        }
 
         const getFirstImageFromContent = (content) => {
           if (!content) return null;
@@ -196,23 +270,31 @@ const Featured = () => {
         // MongoDB posts are already paginated by the API, so use them directly
         // Ensure topPostsData is an array
         const topPostsArray = Array.isArray(topPostsData) ? topPostsData : [];
-        
+
         // Only update state if data has changed or we're loading fresh data
-        setState(prevState => {
+        setState((prevState) => {
           // Check if data actually changed to avoid unnecessary re-renders
-          const latestChanged = JSON.stringify(prevState.latestPosts) !== JSON.stringify(mongoArticles);
-          const topChanged = JSON.stringify(prevState.topPosts) !== JSON.stringify(topPostsArray.slice(0, 7));
-          const rssChanged = JSON.stringify(prevState.rssPosts) !== JSON.stringify(transformedRssData);
-          
+          const latestChanged =
+            JSON.stringify(prevState.latestPosts) !==
+            JSON.stringify(mongoArticles);
+          const topChanged =
+            JSON.stringify(prevState.topPosts) !==
+            JSON.stringify(topPostsArray.slice(0, 7));
+          const rssChanged =
+            JSON.stringify(prevState.rssPosts) !==
+            JSON.stringify(transformedRssData);
+
           if (latestChanged || topChanged || rssChanged || prevState.loading) {
             return {
               latestPosts: mongoArticles, // Already paginated by API
               topPosts: topPostsArray.slice(0, 7),
-              rssPosts: Array.isArray(transformedRssData) ? transformedRssData : [],
+              rssPosts: Array.isArray(transformedRssData)
+                ? transformedRssData
+                : [],
               loading: false,
             };
           }
-          
+
           // Data hasn't changed, just update loading state
           return { ...prevState, loading: false };
         });

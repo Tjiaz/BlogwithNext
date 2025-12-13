@@ -3,7 +3,9 @@ import { MongoClient } from "mongodb";
 const uri = process.env.DATABASE_URL;
 
 if (!uri) {
-  throw new Error("Please add your MongoDB connection string to the DATABASE_URL environment variable");
+  throw new Error(
+    "Please add your MongoDB connection string to the DATABASE_URL environment variable"
+  );
 }
 
 // Global connection cache
@@ -11,48 +13,61 @@ let cachedClient = null;
 let cachedDb = null;
 
 export async function connectToDatabase() {
-  // Check if we have a cached connection (skip ping to save time)
+  // Check if we have a cached connection and verify it's still alive
   if (cachedClient && cachedDb) {
-    // Return cached connection immediately without ping check
-    // The connection will fail naturally if it's dead, and we'll reconnect then
-    return { client: cachedClient, db: cachedDb };
+    try {
+      // Quick health check - ping the server
+      await cachedClient.db("admin").command({ ping: 1 });
+      return { client: cachedClient, db: cachedDb };
+    } catch (error) {
+      // Connection is dead, clear cache and reconnect
+      console.log("[mongodb] Cached connection is dead, reconnecting...");
+      cachedClient = null;
+      cachedDb = null;
+    }
   }
 
   try {
     const client = new MongoClient(uri, {
-      maxPoolSize: 5, // Reduced pool size for faster connection
-      minPoolSize: 0, // Don't maintain minimum connections (saves time)
-      serverSelectionTimeoutMS: 5000, // Reduced to 5 seconds
-      socketTimeoutMS: 10000, // Reduced socket timeout
-      connectTimeoutMS: 5000, // Reduced connection timeout to 5 seconds
+      maxPoolSize: 10, // Increased pool size
+      minPoolSize: 1, // Maintain at least 1 connection
+      serverSelectionTimeoutMS: 30000, // Increased to 30 seconds for slow networks
+      socketTimeoutMS: 45000, // Increased socket timeout to 45 seconds
+      connectTimeoutMS: 30000, // Increased connection timeout to 30 seconds
       retryWrites: true,
       retryReads: true,
       // Add these for better performance
       directConnection: false,
       maxIdleTimeMS: 30000,
+      heartbeatFrequencyMS: 10000, // Check connection health every 10 seconds
     });
 
-    // Connect with timeout
+    // Connect with longer timeout
     await Promise.race([
       client.connect(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Connection timeout')), 5000)
-      )
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Connection timeout after 30 seconds")),
+          30000
+        )
+      ),
     ]);
 
     const db = client.db("ARTICLES");
 
-    // Skip ping check to save time - connection will fail naturally if needed
+    // Verify connection works by pinging
+    await client.db("admin").command({ ping: 1 });
+    console.log("[mongodb] Successfully connected to MongoDB");
+
     cachedClient = client;
     cachedDb = db;
 
     return { client, db };
   } catch (error) {
-    console.error("Failed to connect to MongoDB:", error);
+    console.error("[mongodb] Failed to connect to MongoDB:", error.message);
     // Clear cache on error
     cachedClient = null;
     cachedDb = null;
     throw error;
   }
 }
-

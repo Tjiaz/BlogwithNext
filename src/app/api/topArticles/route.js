@@ -1,6 +1,6 @@
 import { connectToDatabase } from "@/utils/mongodb";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -20,35 +20,30 @@ export async function GET(req) {
     }
 
     const { db } = await connectToDatabase();
-    const collection = db.collection("Articles");
+    const collection = db.collection("final_articles");
 
-    // Use aggregation to get top article from each topic
+    // Use aggregation to get top article from each topic (excluding RSS feeds)
+    // Only filter by source, not by topic - articles with topic "RSS Feed" but source "html_source" are legitimate
     const pipeline = [
       {
-        $project: {
-          _id: 1,
-          title: 1,
-          description: 1,
-          author: 1,
-          date: 1,
-          topic: 1,
-          filtered_images: 1,
+        $match: {
+          // Only exclude articles where source is explicitly "rss_source"
+          $or: [
+            { source: { $ne: "rss_source" } },
+            { source: { $exists: false } }, // Include documents where source doesn't exist
+            { source: null }, // Include documents where source is null
+          ],
+        },
+      },
+      {
+        $addFields: {
           sortDate: {
-            $cond: {
-              if: { $eq: [{ $type: "$date" }, "date"] },
-              then: "$date",
-              else: {
-                $dateFromString: {
-                  dateString: "$date",
-                  onError: new Date(0),
-                },
-              },
-            },
+            $ifNull: ["$published_at", "$created_at"], // Use published_at, fallback to created_at
           },
         },
       },
       {
-        $sort: { sortDate: -1 }, // Sort by date descending
+        $sort: { sortDate: -1 }, // Sort by sortDate descending (newest first)
       },
       {
         $group: {
@@ -61,7 +56,15 @@ export async function GET(req) {
       },
       {
         $project: {
-          sortDate: 0, // Remove the temporary sortDate field
+          _id: 1,
+          title: 1,
+          description: 1,
+          author: 1,
+          date: 1, // Human-readable format for display
+          topic: 1,
+          filtered_images: 1,
+          hero_image: 1,
+          // Don't include sortDate in projection (it's automatically excluded)
         },
       },
       {
@@ -72,23 +75,23 @@ export async function GET(req) {
       },
     ];
 
-    // Execute query with timeout
-    const articles = await Promise.race([
-      collection.aggregate(pipeline).toArray(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Query timeout')), 10000)
-      )
-    ]);
+    // Execute query - removed timeout to let MongoDB handle it
+    const articles = await collection.aggregate(pipeline).toArray();
+
+    console.log(
+      `[topArticles] Found ${articles.length} articles from aggregation`
+    );
 
     // Process results
     const processedResults = articles.map((article) => ({
       id: article._id.toString(),
       title: article.title,
       description: article.description,
-      author: article.author,
-      date: article.date,
-      topic: article.topic,
+      author: article.author || "",
+      date: article.date || "",
+      topic: article.topic || "",
       filtered_images: article.filtered_images || [],
+      hero_image: article.hero_image || null,
     }));
 
     return new Response(JSON.stringify(processedResults), {
@@ -100,14 +103,11 @@ export async function GET(req) {
   } catch (error) {
     console.error("Error fetching top articles:", error);
     // Return empty array instead of error to prevent frontend issues
-    return new Response(
-      JSON.stringify([]),
-      { 
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    return new Response(JSON.stringify([]), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   }
 }

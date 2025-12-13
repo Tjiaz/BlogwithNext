@@ -1,6 +1,6 @@
 import { connectToDatabase } from "@/utils/mongodb";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 function formatTopicName(topicName) {
   return topicName
@@ -27,45 +27,71 @@ export async function GET(req) {
     }
 
     const { db } = await connectToDatabase();
-    const collection = db.collection("Articles");
+    const collection = db.collection("final_articles");
 
-    // Get all unique topics with timeout
+    // Get all unique topics (excluding RSS feeds) with timeout
     const topics = await Promise.race([
-      collection.distinct("topic"),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Query timeout')), 8000)
-      )
+      collection.distinct("topic", {
+        // Exclude RSS feed articles
+        $and: [
+          { topic: { $nin: ["RSS Feed", "rss", ""], $exists: true } },
+          {
+            $or: [
+              { source: { $ne: "rss_source" } },
+              { source: { $exists: false } }, // Include documents where source doesn't exist
+              { source: null }, // Include documents where source is null
+            ],
+          },
+        ],
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Query timeout")), 8000)
+      ),
     ]);
-    
-    // For each topic, get a random article (limit to avoid too many queries)
+
+    // For each topic, get the newest article (sorted by published_at)
     const articles = [];
     const topicsToProcess = topics.slice(skip, skip + limit);
-    
+
     // Process topics in parallel with timeout
     const articlePromises = topicsToProcess.map(async (topic) => {
       try {
         const topicArticles = await Promise.race([
           collection
-            .find({ topic: topic })
+            .find({
+              $and: [
+                { topic: topic },
+                {
+                  $or: [
+                    { source: { $ne: "rss_source" } },
+                    { source: { $exists: false } }, // Include documents where source doesn't exist
+                    { source: null }, // Include documents where source is null
+                  ],
+                },
+              ],
+            })
             .project({
               _id: 1,
               title: 1,
               description: 1,
               author: 1,
-              date: 1,
+              date: 1, // Human-readable format for display
+              published_at: 1,
+              created_at: 1,
               topic: 1,
               filtered_images: 1,
+              hero_image: 1,
             })
-            .limit(10) // Limit results for faster query
+            .sort({ published_at: -1, created_at: -1 }) // Get newest article first, fallback to created_at
+            .limit(1) // Only need one article per topic
             .toArray(),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Query timeout')), 5000)
-          )
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Query timeout")), 5000)
+          ),
         ]);
-        
+
         if (topicArticles.length > 0) {
-          const randomIndex = Math.floor(Math.random() * topicArticles.length);
-          return topicArticles[randomIndex] || topicArticles[0];
+          return topicArticles[0];
         }
         return null;
       } catch (error) {
@@ -73,19 +99,20 @@ export async function GET(req) {
         return null;
       }
     });
-    
+
     const results = await Promise.all(articlePromises);
-    articles.push(...results.filter(article => article !== null));
+    articles.push(...results.filter((article) => article !== null));
 
     // Format topic names and process results
     const processedResults = articles.map((article) => ({
       id: article._id.toString(),
       title: article.title,
       description: article.description,
-      author: article.author,
-      date: article.date,
+      author: article.author || "",
+      date: article.date || "",
       topic: formatTopicName(article.topic || ""),
       filtered_images: article.filtered_images || [],
+      hero_image: article.hero_image || null,
     }));
 
     return new Response(JSON.stringify(processedResults), {
@@ -97,14 +124,11 @@ export async function GET(req) {
   } catch (error) {
     console.error("Error fetching articles:", error);
     // Return empty array instead of error to prevent frontend issues
-    return new Response(
-      JSON.stringify([]),
-      { 
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    return new Response(JSON.stringify([]), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   }
 }

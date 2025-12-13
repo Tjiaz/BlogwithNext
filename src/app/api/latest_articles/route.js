@@ -29,60 +29,182 @@ export async function GET(req) {
 
     const { db } = await connectToDatabase();
 
-    // Use Articles collection - fetch all and sort in JavaScript for reliability
-    const collection = db.collection("Articles");
+    // Try final_articles first, fallback to Articles if no results
+    let collection = db.collection("final_articles");
+    let articles = [];
 
-    // Fetch articles with projection (faster than aggregation for mixed date types)
-    const allArticles = await Promise.race([
-      collection
-        .find(
-          {},
-          {
-            projection: {
-              _id: 1,
-              title: 1,
-              description: 1,
-              author: 1,
-              date: 1,
-              topic: 1,
-              filtered_images: 1,
-            },
-          }
-        )
-        .toArray(),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Query timeout")), 8000)
-      ),
-    ]);
+    try {
+      console.log(
+        `[latest_articles] Starting query at ${new Date().toISOString()}`
+      );
 
-    // Sort articles by date in JavaScript (handles mixed date formats reliably)
-    const sortedArticles = allArticles.sort((a, b) => {
-      const parseDate = (dateValue) => {
-        if (!dateValue) return new Date(0);
-        if (dateValue instanceof Date) return dateValue;
-        if (typeof dateValue === "string") {
-          // Try ISO format first
-          if (dateValue.includes("T") || /^\d{4}-\d{2}-\d{2}/.test(dateValue)) {
-            const isoDate = new Date(dateValue);
-            if (!isNaN(isoDate.getTime())) return isoDate;
-          }
-          // Try human-readable format "Mar 22, 2024"
-          const humanDate = new Date(dateValue);
-          if (!isNaN(humanDate.getTime())) return humanDate;
+      // Get articles with absolute minimal query
+      // Fetch more articles to account for RSS filtering (fetch 3x the limit to ensure we have enough after filtering)
+      const queryStart = Date.now();
+      articles = await collection.find({}).limit(150).toArray();
+      const queryTime = Date.now() - queryStart;
+
+      console.log(
+        `[latest_articles] Query took ${queryTime}ms, fetched ${articles.length} articles from final_articles`
+      );
+
+      // If query returned 0, check if collection exists and has data
+      if (articles.length === 0) {
+        const totalCount = await collection.countDocuments({});
+        console.log(
+          `[latest_articles] Collection has ${totalCount} total documents, but query returned 0`
+        );
+      }
+
+      if (articles.length > 0) {
+        console.log(`[latest_articles] First article sample:`, {
+          _id: articles[0]._id?.toString(),
+          title: articles[0].title?.substring(0, 50),
+          topic: articles[0].topic,
+          source: articles[0].source,
+        });
+      }
+
+      // If no articles from final_articles, try Articles collection
+      if (articles.length === 0) {
+        console.log(
+          `[latest_articles] No articles in final_articles, trying Articles collection`
+        );
+        collection = db.collection("Articles");
+        articles = await collection.find({}).limit(50).toArray();
+        console.log(
+          `[latest_articles] Fetched ${articles.length} articles from Articles collection`
+        );
+      }
+
+      // Filter out RSS feeds in JavaScript (only once)
+      const beforeFilter = articles.length;
+      console.log(
+        `[latest_articles] Before RSS filter: ${articles.length} articles`
+      );
+
+      // Debug: Show sample before filtering
+      const sampleBefore = articles.slice(0, 10).map((a) => ({
+        title: a.title?.substring(0, 40),
+        topic: a.topic,
+        source: a.source,
+      }));
+      console.log(`[latest_articles] Sample before filter:`, sampleBefore);
+
+      // Debug: Count by topic and source
+      const topicCount = {};
+      const sourceCount = {};
+      articles.forEach((a) => {
+        topicCount[a.topic] = (topicCount[a.topic] || 0) + 1;
+        sourceCount[a.source] = (sourceCount[a.source] || 0) + 1;
+      });
+      console.log(`[latest_articles] Topic distribution:`, topicCount);
+      console.log(`[latest_articles] Source distribution:`, sourceCount);
+
+      const filteredOut = [];
+      articles = articles.filter((article) => {
+        const topic = (article.topic || "").toLowerCase().trim();
+        const source = (article.source || "").toLowerCase().trim();
+
+        // Filter out:
+        // 1. Articles where source is explicitly "rss_source" (actual RSS feeds)
+        // 2. Articles with topic "RSS Feed" (these should only appear in RSS section, not latest articles)
+        // This ensures we show articles from ALL other topics (Data Engineering, SQL, NLP, etc.)
+        const isRss = source === "rss_source" || topic === "rss feed";
+
+        if (isRss) {
+          filteredOut.push({
+            title: article.title?.substring(0, 50),
+            topic,
+            source,
+          });
         }
-        return new Date(0); // Fallback
-      };
+        return !isRss; // Return true to keep article, false to filter out
+      });
 
-      const dateA = parseDate(a.date);
-      const dateB = parseDate(b.date);
-      return dateB.getTime() - dateA.getTime(); // Descending (newest first)
+      if (filteredOut.length > 0) {
+        console.log(
+          `[latest_articles] Filtered out ${filteredOut.length} RSS articles:`,
+          filteredOut.slice(0, 5)
+        );
+      }
+
+      // Debug: Show sample of remaining articles
+      if (articles.length > 0) {
+        console.log(
+          `[latest_articles] Sample remaining articles:`,
+          articles.slice(0, 5).map((a) => ({
+            title: a.title?.substring(0, 40),
+            topic: a.topic,
+            source: a.source,
+          }))
+        );
+      }
+
+      console.log(
+        `[latest_articles] After RSS filter: ${
+          articles.length
+        } articles (filtered out ${
+          beforeFilter - articles.length
+        } RSS articles)`
+      );
+
+      // Sort in JavaScript (more reliable than MongoDB sort on mixed types)
+      articles.sort((a, b) => {
+        // Handle both new format (published_at) and old format (date)
+        const dateA = a.published_at || a.date || a.created_at || new Date(0);
+        const dateB = b.published_at || b.date || b.created_at || new Date(0);
+        return new Date(dateB) - new Date(dateA); // Descending (newest first)
+      });
+
+      // Debug: Show topic distribution after sorting
+      const topicsAfterSort = {};
+      articles.forEach((a) => {
+        const topic = a.topic || "No topic";
+        topicsAfterSort[topic] = (topicsAfterSort[topic] || 0) + 1;
+      });
+      console.log(`[latest_articles] Topics after sorting:`, topicsAfterSort);
+    } catch (error) {
+      console.error(
+        "[latest_articles] Query error:",
+        error.message,
+        error.stack
+      );
+      articles = [];
+    }
+
+    // Apply pagination after filtering and sorting
+    console.log(
+      `[latest_articles] Before pagination: ${articles.length} articles (page ${page}, skip ${skip}, limit ${limit})`
+    );
+
+    // Debug: Show topic distribution of articles before pagination
+    const topicsBeforePagination = {};
+    articles.forEach((a) => {
+      const topic = a.topic || "No topic";
+      topicsBeforePagination[topic] = (topicsBeforePagination[topic] || 0) + 1;
     });
+    console.log(
+      `[latest_articles] Topics before pagination:`,
+      topicsBeforePagination
+    );
 
-    // Apply pagination
-    const articles = sortedArticles.slice(skip, skip + limit);
+    articles = articles.slice(skip, skip + limit);
 
-    // Skip totalCount to save time - can be calculated client-side if needed
-    // const totalCount = await collection.countDocuments();
+    // Debug: Show what topics are being returned after pagination
+    const topicsAfterPagination = {};
+    articles.forEach((a) => {
+      const topic = a.topic || "No topic";
+      topicsAfterPagination[topic] = (topicsAfterPagination[topic] || 0) + 1;
+    });
+    console.log(
+      `[latest_articles] Topics after pagination (what's being returned):`,
+      topicsAfterPagination
+    );
+
+    console.log(
+      `[latest_articles] After pagination: ${articles.length} articles`
+    );
 
     // Process results
     const processedResults = articles.map((article) => ({
@@ -90,11 +212,30 @@ export async function GET(req) {
       _id: article._id.toString(), // Include _id for backward compatibility
       title: article.title,
       description: article.description,
-      author: article.author,
-      date: article.date,
-      topic: article.topic,
+      author: article.author || "",
+      date: article.date || article.published_at?.toString() || "",
+      topic: article.topic || "",
       filtered_images: article.filtered_images || [],
+      hero_image: article.hero_image || null,
     }));
+
+    console.log(
+      `[latest_articles] Returning ${processedResults.length} processed articles`
+    );
+    if (processedResults.length > 0) {
+      console.log(
+        `[latest_articles] First article:`,
+        JSON.stringify(
+          {
+            id: processedResults[0].id,
+            title: processedResults[0].title,
+            topic: processedResults[0].topic,
+          },
+          null,
+          2
+        )
+      );
+    }
 
     return new Response(
       JSON.stringify({
