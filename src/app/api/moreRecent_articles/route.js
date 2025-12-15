@@ -26,9 +26,22 @@ export async function GET(req) {
     let articles = [];
 
     try {
-      // Get articles with absolute minimal query
-      // Fetch more articles to account for RSS filtering (fetch 3x the limit to ensure we have enough after filtering)
-      articles = await collection.find({}).limit(150).toArray();
+      // Get articles with proper sorting and filtering
+      // Filter for 2025 articles and sort by published_at descending (newest first)
+      const startOf2025 = new Date("2025-01-01T00:00:00.000Z");
+      const startOf2026 = new Date("2026-01-01T00:00:00.000Z");
+      
+      articles = await collection
+        .find({
+          published_at: {
+            $gte: startOf2025,
+            $lt: startOf2026,
+          },
+          topic: { $nin: ["Rss Feed", "RSS Feed", "rss feed", "rss"] },
+        })
+        .sort({ published_at: -1 }) // Sort by published_at descending (newest first)
+        .limit(150)
+        .toArray();
 
       console.log(
         `[moreRecent_articles] Fetched ${articles.length} articles from final_articles`
@@ -40,7 +53,17 @@ export async function GET(req) {
           `[moreRecent_articles] No articles in final_articles, trying Articles collection`
         );
         collection = db.collection("Articles");
-        articles = await collection.find({}).limit(50).toArray();
+        articles = await collection
+          .find({
+            published_at: {
+              $gte: startOf2025,
+              $lt: startOf2026,
+            },
+            topic: { $nin: ["Rss Feed", "RSS Feed", "rss feed", "rss"] },
+          })
+          .sort({ published_at: -1 })
+          .limit(150)
+          .toArray();
         console.log(
           `[moreRecent_articles] Fetched ${articles.length} articles from Articles collection`
         );
