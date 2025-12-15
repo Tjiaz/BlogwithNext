@@ -51,8 +51,8 @@ const Navbar = () => {
 
       sessionStorage.setItem("rssData", JSON.stringify(data));
 
-      // Navigate to the new page with only the topic in the URL
-      router.push(`/rssfeed/${topic}`);
+      // Navigate to the new page with properly encoded topic in the URL
+      router.push(`/rssfeed/${encodeURIComponent(topic)}`);
     } catch (error) {
       console.error("Error fetching RSS feed:", error);
     }

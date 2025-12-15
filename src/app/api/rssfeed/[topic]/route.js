@@ -4,7 +4,8 @@ import { topicFeeds } from "@/config/topicFeeds";
 const parser = new Parser();
 
 export async function GET(req, { params }) {
-  const { topic } = params;
+  // Decode the topic parameter to handle URL-encoded spaces and special characters
+  const topic = decodeURIComponent(params.topic);
 
   try {
     const feedUrl = topicFeeds[topic];
