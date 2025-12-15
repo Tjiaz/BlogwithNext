@@ -118,8 +118,8 @@ export async function GET(req, { params }) {
               content: article.content,
               author: article.author,
               topic: article.topic,
-              date: article.date
-                ? new Date(article.date).toLocaleDateString("en-US", {
+              date: article.published_at || article.date
+                ? new Date(article.published_at || article.date).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -155,7 +155,7 @@ export async function GET(req, { params }) {
         content: article.content,
         author: article.author,
         topic: article.topic,
-        date: article.date,
+        date: article.published_at?.toString() || article.date || "",
         id: article._id?.toString() || article._id,
       }),
       {

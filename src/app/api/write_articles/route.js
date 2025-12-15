@@ -144,7 +144,8 @@ export async function POST(req) {
       title,
       description,
       content: content,
-      date: articleDate,
+      date: articleDate, // Keep for backward compatibility
+      published_at: new Date(articleDate), // Primary date field
       author: session.user.email,
       topic: normalizedTopic,
       filtered_images: normalizedImages || [],

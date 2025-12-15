@@ -120,11 +120,11 @@ export async function GET(req, { params }) {
             _id: article._id ? article._id.toString() : null,
           }));
 
-          // Sort articles by date (newest first)
+          // Sort articles by published_at (newest first), fallback to date
           articles.sort((a, b) => {
-            const dateA = new Date(a.date);
-            const dateB = new Date(b.date);
-            return dateB - dateA;
+            const dateA = a.published_at || a.date || new Date(0);
+            const dateB = b.published_at || b.date || new Date(0);
+            return new Date(dateB) - new Date(dateA);
           });
 
           topicTitle = topic.title || topic.name;

@@ -109,7 +109,7 @@ export async function GET(req) {
       title: article.title,
       description: article.description,
       author: article.author || "",
-      date: article.date || "",
+      date: article.published_at?.toString() || article.date || "",
       topic: formatTopicName(article.topic || ""),
       filtered_images: article.filtered_images || [],
       hero_image: article.hero_image || null,
