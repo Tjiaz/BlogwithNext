@@ -525,16 +525,26 @@
 
   .head {
     font-size: 1.5rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .post {
     padding: 0 10px;
     gap: 20px;
+    flex-direction: column;
   }
 
   .textContainer1,
   .textContainer2 {
     padding: 15px;
+    width: 100%;
+  }
+
+  .textContainer2 {
+    border-left: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
   }
 
   .advertsContainer {
@@ -544,9 +554,34 @@
   .socialmedialinks {
     justify-content: center;
     flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .socialmedia {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
   }
 
   .cheatsheetCard {
     padding: 1rem;
+  }
+
+  .cheatsheetCard h3 {
+    font-size: 1.1rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .cheatsheetCard p {
+    font-size: 0.85rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .latestPostsTitle {
+    font-size: 1.3rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 }

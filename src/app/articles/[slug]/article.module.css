@@ -541,16 +541,26 @@
 
   .head {
     font-size: 1.5rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .post {
     padding: 0 10px;
     gap: 20px;
+    flex-direction: column;
   }
 
   .textContainer1,
   .textContainer2 {
     padding: 15px;
+    width: 100%;
+  }
+
+  .textContainer2 {
+    border-left: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
   }
 
   .advertsContainer {
@@ -567,5 +577,18 @@
   .articleCard {
     gap: 15px;
     padding: 15px;
+    flex-direction: column;
+  }
+
+  .postTitle {
+    font-size: 1rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .postDesc {
+    font-size: 0.85rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 }

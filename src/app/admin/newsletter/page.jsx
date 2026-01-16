@@ -17,6 +17,8 @@ export default function NewsletterAdmin() {
   const [loading, setLoading] = useState(false);
   const [fetchingSubscribers, setFetchingSubscribers] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState("welcome");
+  const [showSubscriberList, setShowSubscriberList] = useState(false);
 
   const [formStatus, setFormStatus] = useState({ type: "", message: "" });
 
@@ -143,6 +145,20 @@ export default function NewsletterAdmin() {
     setShowPreview(!showPreview);
   };
 
+  const handleTemplateChange = (templateName) => {
+    setSelectedTemplate(templateName);
+    if (templateName === "welcome") {
+      setContent(templates.welcome);
+      setSubject("Welcome to AZbyteGems!");
+    } else if (templateName === "digest") {
+      setContent(templates.digest);
+      setSubject("Your Weekly Digest from AZbyteGems");
+    } else {
+      setContent("");
+      setSubject("");
+    }
+  };
+
   if (authStatus === "loading" || fetchingSubscribers) {
     return (
       <div className={styles.loadingContainer}>
@@ -169,10 +185,68 @@ export default function NewsletterAdmin() {
       <h1>Newsletter Management</h1>
 
       <div className={styles.stats}>
-        <p>Total Subscribers: {subscribers.length}</p>
+        <div className={styles.statsGrid}>
+          <div className={styles.statCard}>
+            <h3>{subscribers.length}</h3>
+            <p>Total Subscribers</p>
+          </div>
+          <div className={styles.statCard}>
+            <h3>{subscribers.filter(s => s.active !== false).length}</h3>
+            <p>Active Subscribers</p>
+          </div>
+        </div>
         {subscribers.length === 0 && (
           <p className={styles.warning}>No subscribers available</p>
         )}
+        {subscribers.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowSubscriberList(!showSubscriberList)}
+            className={styles.toggleButton}
+          >
+            {showSubscriberList ? "Hide" : "Show"} Subscriber List
+          </button>
+        )}
+        {showSubscriberList && subscribers.length > 0 && (
+          <div className={styles.subscriberList}>
+            <h4>Subscribers ({subscribers.length})</h4>
+            <div className={styles.subscriberGrid}>
+              {subscribers.map((sub, index) => (
+                <div key={index} className={styles.subscriberItem}>
+                  {sub.email}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Template Selection */}
+      <div className={styles.templateSection}>
+        <h3>Quick Templates</h3>
+        <div className={styles.templateButtons}>
+          <button
+            type="button"
+            onClick={() => handleTemplateChange("welcome")}
+            className={`${styles.templateButton} ${selectedTemplate === "welcome" ? styles.active : ""}`}
+          >
+            Welcome Email
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTemplateChange("digest")}
+            className={`${styles.templateButton} ${selectedTemplate === "digest" ? styles.active : ""}`}
+          >
+            Weekly Digest
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTemplateChange("custom")}
+            className={`${styles.templateButton} ${selectedTemplate === "custom" ? styles.active : ""}`}
+          >
+            Custom
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>

@@ -145,6 +145,27 @@
   fill: var(--textColor);
 }
 
+/* Light mode specific styles for Quill icons */
+:global(body:not(.dark)) .editorWrapper :global(.ql-toolbar .ql-stroke) {
+  stroke: #333;
+}
+
+:global(body:not(.dark)) .editorWrapper :global(.ql-toolbar .ql-fill) {
+  fill: #333;
+}
+
+:global(body:not(.dark)) .editorWrapper :global(.ql-toolbar button) {
+  color: #333;
+}
+
+:global(body:not(.dark)) .editorWrapper :global(.ql-snow .ql-picker-label) {
+  color: #333;
+}
+
+:global(body:not(.dark)) .editorWrapper :global(.ql-snow .ql-picker-item) {
+  color: #333;
+}
+
 .editorWrapper :global(.ql-toolbar button:hover),
 .editorWrapper :global(.ql-toolbar button.ql-active) {
   background-color: rgba(11, 115, 177, 0.1);

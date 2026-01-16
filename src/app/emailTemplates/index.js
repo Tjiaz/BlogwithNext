@@ -1,9 +1,11 @@
 import { welcomeTemplate } from "./welcome";
 import { digestTemplate } from "./digest";
+import { newArticleTemplate } from "./newArticle";
 
 export const templates = {
   welcome: welcomeTemplate,
   digest: digestTemplate,
+  newArticle: newArticleTemplate,
   // Add more templates here as needed
 };
 

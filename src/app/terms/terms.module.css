@@ -354,7 +354,45 @@
   }
 }
 
+@media screen and (max-width: 768px) {
+  .container {
+    margin-top: 75px;
+  }
+
+  .post {
+    flex-direction: column;
+    gap: 30px;
+    padding: 0 15px;
+  }
+
+  .textContainer1,
+  .textContainer2 {
+    width: 100%;
+  }
+
+  .textContainer2 {
+    order: -1;
+    margin-bottom: 20px;
+  }
+
+  .head {
+    font-size: 2rem;
+  }
+
+  .imageadvert {
+    width: 100%;
+  }
+
+  .advert {
+    width: 100%;
+  }
+}
+
 @media screen and (max-width: 640px) {
+  .container {
+    margin-top: 70px;
+  }
+
   .textContainer2 {
     display: none;
   }
@@ -365,13 +403,59 @@
 
   .termsContainer h1 {
     font-size: 1.75rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .termsContainer h2 {
     font-size: 1.25rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .termsContainer p {
     font-size: 14px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .head {
+    font-size: 1.75rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .imageadvert {
+    height: 80px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .container {
+    margin-top: 65px;
+  }
+
+  .termsContainer {
+    padding: 12px;
+  }
+
+  .termsContainer h1 {
+    font-size: 1.5rem;
+  }
+
+  .termsContainer h2 {
+    font-size: 1.15rem;
+  }
+
+  .termsContainer p {
+    font-size: 13px;
+  }
+
+  .head {
+    font-size: 1.5rem;
+  }
+
+  .imageadvert {
+    height: 70px;
   }
 }

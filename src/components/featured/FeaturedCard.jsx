@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BsTwitterX, BsFacebook, BsLinkedin } from "react-icons/bs";
 import toast from "react-hot-toast";
+import { formatTopic } from "@/utils/formatTopic";
 
 const useLinkedInShare = (isProcessingLinkedIn, setIsProcessingLinkedIn) => {
   useEffect(() => {
@@ -333,7 +334,7 @@ const FeaturedCard = ({
             </strong>{" "}
             on {formatDate(postDate)} in{" "}
             <strong>
-              <Link href={`/articles/${postTopic}`}>{postTopic}</Link>
+              <Link href={`/articles/${postTopic}`}>{formatTopic(postTopic)}</Link>
             </strong>
           </div>
           <div className={styles.badgeAndShare}>

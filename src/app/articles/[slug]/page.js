@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MdSearch } from "react-icons/md";
 import ArticleCard from "./ArticleCard";
+import { formatTopic } from "@/utils/formatTopic";
 
 const ArticlePage = ({ params }) => {
   const { slug } = params; // Destructure slug from params
@@ -78,7 +79,7 @@ const ArticlePage = ({ params }) => {
       <div className={styles.post}>
         <div className={styles.textContainer1}>
           <h2 className={styles.head}>
-            {topicTitle}
+            {formatTopic(topicTitle)}
             <span
               style={{
                 marginLeft: "10px",

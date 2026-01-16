@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -32,6 +32,7 @@ const Write = () => {
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
   const [topic, setTopic] = useState("AI"); // Set a default value
+  const [authorName, setAuthorName] = useState(session?.user?.name || "");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +42,7 @@ const Write = () => {
       return;
     }
 
-    if (!title || !description || !content || !topic) {
+    if (!title || !description || !content || !topic || !authorName) {
       alert("Please fill in all fields");
       return;
     }
@@ -49,8 +50,12 @@ const Write = () => {
     setIsSubmitting(true);
 
     try {
-      // Normalize the topic name
+      // Normalize the topic name - keep it lowercase without underscores for consistency
+      // The dropdown values are already lowercase (e.g., "python", "data_engineering")
+      // But handle any spaces or special cases
       const normalizedTopic = topic.trim().toLowerCase().replace(/\s+/g, "_");
+      console.log(`[Write] Original topic: "${topic}", Normalized: "${normalizedTopic}"`);
+      
       // Extract images from content
       const extractedImages = extractImageFromContent(content);
 
@@ -59,6 +64,7 @@ const Write = () => {
         description: description.trim(),
         content: content,
         topic: normalizedTopic,
+        authorName: authorName.trim(),
       };
 
       console.log("Submitting article data:", {
@@ -115,6 +121,21 @@ const Write = () => {
       }
 
       alert("Article published successfully!");
+      
+      // Clear cache to ensure new article appears immediately
+      if (typeof window !== "undefined") {
+        // Clear localStorage cache for latest articles and topic pages
+        const cacheKeys = Object.keys(localStorage);
+        cacheKeys.forEach((key) => {
+          if (key.startsWith("azbytegems_cache_")) {
+            if (key.includes("latest_articles") || key.includes("articles/")) {
+              localStorage.removeItem(key);
+              console.log(`[Write] Cleared cache: ${key}`);
+            }
+          }
+        });
+      }
+      
       router.push("/");
       router.refresh();
     } catch (error) {
@@ -193,6 +214,13 @@ const Write = () => {
     "code-block",
   ];
 
+  // Update author name when session loads
+  useEffect(() => {
+    if (session?.user?.name && !authorName) {
+      setAuthorName(session.user.name);
+    }
+  }, [session, authorName]);
+
   if (status === "loading") {
     return (
       <div className={styles.loadingContainer}>
@@ -251,6 +279,21 @@ const Write = () => {
         </div>
 
         <div className={styles.formGroup}>
+          <label htmlFor="authorName" className={styles.label}>
+            Author Name
+          </label>
+          <input
+            id="authorName"
+            type="text"
+            placeholder="Enter your name..."
+            value={authorName}
+            onChange={(e) => setAuthorName(e.target.value)}
+            required
+            className={styles.input}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
           <label htmlFor="content" className={styles.label}>
             Content
           </label>
@@ -281,7 +324,7 @@ const Write = () => {
             <option value="ai">AI</option>
             <option value="career_advice">Career Advice</option>
             <option value="computer_vision">Computer Vision</option>
-            <option value="data_engineer">Data Engineering</option>
+            <option value="data_engineering">Data Engineering</option>
             <option value="data_science">Data Science</option>
             <option value="language_models">Language Models</option>
             <option value="machine_learning">Machine Learning</option>

@@ -18,20 +18,22 @@ export async function GET(req, { params }) {
     const normalizedSlug = slug.toLowerCase().replace(/-/g, "_");
     const normalizedSlugWithSpaces = slug.toLowerCase().replace(/-/g, " ");
     const topicVariations = [
-      normalizedSlug,
-      `${normalizedSlug}_articles`,
+      normalizedSlug, // e.g., "python"
+      `${normalizedSlug}_articles`, // e.g., "python_articles"
       // Handle "Data Engineering" format (capitalize first letter of each word)
       normalizedSlugWithSpaces
         .split(" ")
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" "),
+        .join(" "), // e.g., "Data Engineering"
       // Also try with underscores
       normalizedSlugWithSpaces
         .split(" ")
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join("_"),
+        .join("_"), // e.g., "Data_Engineering"
       // Original capitalized version
-      normalizedSlug.charAt(0).toUpperCase() + normalizedSlug.slice(1),
+      normalizedSlug.charAt(0).toUpperCase() + normalizedSlug.slice(1), // e.g., "Python"
+      // Also try lowercase with spaces (for topics like "data engineering")
+      normalizedSlugWithSpaces, // e.g., "data engineering"
     ];
 
     const finalArticlesCollection = db.collection("final_articles");
@@ -76,8 +78,20 @@ export async function GET(req, { params }) {
         hero_image: 1,
         content: 1,
       })
-      .sort({ published_at: -1 }) // Sort by ISO date descending (newest first)
       .toArray();
+    
+    // Sort in JavaScript (more reliable than MongoDB sort on mixed types)
+    articles.sort((a, b) => {
+      // Handle both new format (published_at) and old format (date)
+      const dateA = a.published_at || a.date || a.created_at || new Date(0);
+      const dateB = b.published_at || b.date || b.created_at || new Date(0);
+      const dateAObj = dateA instanceof Date ? dateA : new Date(dateA);
+      const dateBObj = dateB instanceof Date ? dateB : new Date(dateB);
+      // Handle invalid dates
+      if (isNaN(dateAObj.getTime())) return 1;
+      if (isNaN(dateBObj.getTime())) return -1;
+      return dateBObj - dateAObj; // Descending (newest first)
+    });
 
     console.log(
       `[articles/${slug}] Found ${articles.length} articles in final_articles`

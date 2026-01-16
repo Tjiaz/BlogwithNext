@@ -1,38 +1,61 @@
 // app/api/subscribers/route.js
 import { MongoClient } from "mongodb";
+import prisma from "@/utils/connect";
+import { connectToDatabase } from "@/utils/mongodb";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("Please add your MongoDB connection string to .env file");
 }
 
-const client = new MongoClient(process.env.DATABASE_URL);
-
-async function connectToDatabase() {
-  try {
-    if (!client.topology || !client.topology.isConnected()) {
-      await client.connect();
-      console.log("Connected to database successfully");
-    }
-    return client.db("ARTICLES");
-  } catch (error) {
-    console.error("Database connection error:", error);
-    throw error;
-  }
-}
-
 export async function GET() {
   try {
     console.log("Starting to fetch subscribers...");
-    const db = await connectToDatabase();
+    
+    // Get subscribers from both Prisma and MongoDB
+    const [prismaSubscribers, mongoSubscribers] = await Promise.all([
+      // Get subscribers from Prisma
+      prisma.subscriber.findMany({
+        where: { active: true },
+        select: { email: true, createdAt: true, active: true },
+      }).catch(() => {
+        console.warn("Failed to fetch Prisma subscribers, continuing...");
+        return [];
+      }),
+      
+      // Get subscribers from MongoDB
+      (async () => {
+        try {
+          const { db } = await connectToDatabase();
+          const subscribers = await db.collection("subscriptions")
+            .find({ active: { $ne: false } })
+            .toArray();
+          return subscribers.map(sub => ({
+            email: sub.email,
+            createdAt: sub.subscribedAt || sub.createdAt,
+            active: sub.active !== false,
+          }));
+        } catch (error) {
+          console.warn("Failed to fetch MongoDB subscribers, continuing...");
+          return [];
+        }
+      })(),
+    ]);
 
-    const subscribers = await db.collection("subscriptions").find().toArray();
-    console.log("Found subscribers:", subscribers);
+    // Combine and deduplicate subscribers
+    const allSubscribers = [...prismaSubscribers, ...mongoSubscribers];
+    const uniqueEmails = new Set();
+    const uniqueSubscribers = [];
 
-    // Log the response being sent
-    const response = JSON.stringify(subscribers);
-    console.log("Sending response:", response);
+    allSubscribers.forEach(sub => {
+      if (sub.email && !uniqueEmails.has(sub.email.toLowerCase())) {
+        uniqueEmails.add(sub.email.toLowerCase());
+        uniqueSubscribers.push(sub);
+      }
+    });
 
-    return new Response(response, {
+    console.log(`Found ${uniqueSubscribers.length} unique subscribers`);
+
+    return new Response(JSON.stringify(uniqueSubscribers), {
       status: 200,
       headers: {
         "Content-Type": "application/json",

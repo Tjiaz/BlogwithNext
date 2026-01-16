@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import styles from "./menusPosts.module.css";
+import { formatTopic } from "@/utils/formatTopic";
 
 const MenuPostCard = ({ withImage, topic, title, author, date, image }) => {
   return (
@@ -18,7 +19,7 @@ const MenuPostCard = ({ withImage, topic, title, author, date, image }) => {
               styles[topic.replace(/\s+/g, "_").toLowerCase()]
             }`}
           >
-            {topic}
+            {formatTopic(topic)}
           </span>
           <h3 className={styles.postTitle}>{title}</h3>
           <div className={styles.detail}>

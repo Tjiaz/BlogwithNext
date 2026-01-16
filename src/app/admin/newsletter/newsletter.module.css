@@ -32,19 +32,47 @@
 
 .stats {
   background: var(--cardBg);
-  padding: 20px;
+  padding: 25px;
   border-radius: 12px;
   margin-bottom: 30px;
-  text-align: center;
-  font-size: 1.1rem;
   border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.statCard {
+  background: linear-gradient(135deg, #0b73b1 0%, #2991ce 100%);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  color: white;
+}
+
+.statCard h3 {
+  margin: 0 0 8px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.statCard p {
+  margin: 0;
+  font-size: 0.95rem;
+  opacity: 0.9;
+  color: white;
 }
 
 .stats p {
   margin: 0;
   color: var(--textColor);
   font-weight: 500;
+  text-align: center;
 }
 
 .warning {
@@ -379,4 +407,102 @@
   .textarea {
     min-height: 250px;
   }
+}
+
+.templateSection {
+  background: var(--cardBg);
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.templateSection h3 {
+  margin: 0 0 15px;
+  color: var(--textColor);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.templateButtons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.templateButton {
+  padding: 10px 20px;
+  border: 2px solid rgba(11, 115, 177, 0.3);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--textColor);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.templateButton:hover {
+  border-color: #0b73b1;
+  background: rgba(11, 115, 177, 0.05);
+  transform: translateY(-2px);
+}
+
+.templateButton.active {
+  background: linear-gradient(135deg, #0b73b1 0%, #2991ce 100%);
+  color: white;
+  border-color: #0b73b1;
+}
+
+.toggleButton {
+  margin-top: 15px;
+  padding: 8px 16px;
+  border: 1px solid rgba(11, 115, 177, 0.3);
+  border-radius: 6px;
+  background: var(--bg);
+  color: #0b73b1;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.toggleButton:hover {
+  background: rgba(11, 115, 177, 0.05);
+  border-color: #0b73b1;
+}
+
+.subscriberList {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.subscriberList h4 {
+  margin: 0 0 15px;
+  color: var(--textColor);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.subscriberGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  background: var(--softBg);
+  border-radius: 8px;
+}
+
+.subscriberItem {
+  padding: 8px 12px;
+  background: var(--cardBg);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: var(--textColor);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }

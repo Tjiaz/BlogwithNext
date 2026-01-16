@@ -14,6 +14,7 @@ import {
   getCacheKey,
   clearCache,
 } from "@/utils/cache";
+import { formatTopic } from "@/utils/formatTopic";
 
 const POSTS_PER_PAGE = 8;
 
@@ -362,8 +363,37 @@ const Featured = () => {
             {filteredPosts && filteredPosts.length > 0 ? (
               filteredPosts.map((post, index) => {
                 // Get image, filtering out invalid base64 URIs
+                // Priority: hero_image > filtered_images[0] > extract from content > default
                 let imageToUse = "/azbyte.jpeg";
-                if (post.filtered_images && post.filtered_images.length > 0) {
+                
+                // Debug logging for image selection (always log to help debug)
+                console.log(`[Featured] Article "${post.title?.substring(0, 30)}":`, {
+                  hasHeroImage: !!post.hero_image,
+                  heroImage: post.hero_image?.substring(0, 50),
+                  hasFilteredImages: !!post.filtered_images,
+                  filteredImagesLength: post.filtered_images?.length || 0,
+                  filteredImagesType: Array.isArray(post.filtered_images) ? "array" : typeof post.filtered_images,
+                  filteredImagesFirst: post.filtered_images?.[0]?.substring(0, 50),
+                  hasContent: !!post.content,
+                  contentLength: post.content?.length || 0,
+                });
+                
+                // First check hero_image
+                if (post.hero_image) {
+                  const heroImg = post.hero_image;
+                  if (heroImg.startsWith("data:image")) {
+                    if (heroImg.length <= 2000000) {
+                      imageToUse = heroImg;
+                    }
+                  } else {
+                    // Normalize relative URLs
+                    imageToUse = heroImg.startsWith("/") 
+                      ? `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${heroImg}`
+                      : heroImg;
+                  }
+                }
+                // Then check filtered_images array
+                else if (post.filtered_images && Array.isArray(post.filtered_images) && post.filtered_images.length > 0) {
                   const firstImage = post.filtered_images[0];
                   // Reject base64 data URIs that are too long
                   if (firstImage && firstImage.startsWith("data:image")) {
@@ -371,14 +401,27 @@ const Featured = () => {
                       imageToUse = firstImage;
                     }
                   } else if (firstImage) {
-                    imageToUse = firstImage;
+                    // Normalize the URL if it's relative
+                    if (firstImage.startsWith("/")) {
+                      imageToUse = `${process.env.NEXT_PUBLIC_SITE_URL || "https://azbytegems.com"}${firstImage}`;
+                    } else if (firstImage.startsWith("http://") || firstImage.startsWith("https://")) {
+                      imageToUse = firstImage;
+                    } else {
+                      // If it's not a valid URL format, try to normalize it
+                      imageToUse = firstImage;
+                    }
                   }
-                } else if (post.content) {
+                } 
+                // Fallback to extracting from content
+                else if (post.content) {
                   const extracted = extractImageFromContent(post.content);
                   if (extracted) {
                     imageToUse = extracted;
                   }
                 }
+                
+                // Final debug log
+                console.log(`[Featured] Selected image for "${post.title?.substring(0, 30)}":`, imageToUse.substring(0, 100));
 
                 return (
                   <React.Fragment key={post._id || post.id}>

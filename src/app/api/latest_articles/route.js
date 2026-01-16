@@ -39,21 +39,20 @@ export async function GET(req) {
       );
 
       // Get articles with proper sorting and filtering
-      // Filter for 2025 articles and sort by published_at descending (newest first)
+      // Fetch articles without strict date restriction, then sort in JavaScript
+      // This ensures recently posted articles are included
       const queryStart = Date.now();
-      const startOf2025 = new Date("2025-01-01T00:00:00.000Z");
-      const startOf2026 = new Date("2026-01-01T00:00:00.000Z");
       
+      // Fetch articles (excluding RSS feeds) and sort by date in JavaScript
       articles = await collection
         .find({
-          published_at: {
-            $gte: startOf2025,
-            $lt: startOf2026,
-          },
-          topic: { $nin: ["Rss Feed", "RSS Feed", "rss feed", "rss"] },
+          $and: [
+            {
+              topic: { $nin: ["Rss Feed", "RSS Feed", "rss feed", "rss"] },
+            },
+          ],
         })
-        .sort({ published_at: -1 }) // Sort by published_at descending (newest first)
-        .limit(150)
+        .limit(500) // Get more articles to sort in JavaScript
         .toArray();
       const queryTime = Date.now() - queryStart;
 
@@ -177,8 +176,21 @@ export async function GET(req) {
         // Handle both new format (published_at) and old format (date)
         const dateA = a.published_at || a.date || a.created_at || new Date(0);
         const dateB = b.published_at || b.date || b.created_at || new Date(0);
-        return new Date(dateB) - new Date(dateA); // Descending (newest first)
+        const dateAObj = dateA instanceof Date ? dateA : new Date(dateA);
+        const dateBObj = dateB instanceof Date ? dateB : new Date(dateB);
+        // Handle invalid dates
+        if (isNaN(dateAObj.getTime())) return 1;
+        if (isNaN(dateBObj.getTime())) return -1;
+        return dateBObj - dateAObj; // Descending (newest first)
       });
+      
+      // Filter to recent articles after sorting (optional - keep all for now)
+      // articles = articles.filter((article) => {
+      //   const articleDate = article.published_at || article.date || article.created_at;
+      //   if (!articleDate) return true; // Keep articles without dates
+      //   const dateObj = articleDate instanceof Date ? articleDate : new Date(articleDate);
+      //   return dateObj >= startOfRecent && dateObj < endOfNextYear;
+      // });
 
       // Debug: Show topic distribution after sorting
       const topicsAfterSort = {};
@@ -197,8 +209,9 @@ export async function GET(req) {
     }
 
     // Apply pagination after filtering and sorting
+    const totalCount = articles.length; // Total count before pagination
     console.log(
-      `[latest_articles] Before pagination: ${articles.length} articles (page ${page}, skip ${skip}, limit ${limit})`
+      `[latest_articles] Before pagination: ${totalCount} articles (page ${page}, skip ${skip}, limit ${limit})`
     );
 
     // Debug: Show topic distribution of articles before pagination
@@ -230,17 +243,35 @@ export async function GET(req) {
     );
 
     // Process results
-    const processedResults = articles.map((article) => ({
-      id: article._id.toString(),
-      _id: article._id.toString(), // Include _id for backward compatibility
-      title: article.title,
-      description: article.description,
-      author: article.author || "",
-      date: article.published_at?.toString() || article.date || "",
-      topic: article.topic || "",
-      filtered_images: article.filtered_images || [],
-      hero_image: article.hero_image || null,
-    }));
+    const processedResults = articles.map((article) => {
+      // Handle filtered_images - it might be stored as a string (JSON) or array
+      let filteredImages = [];
+      if (article.filtered_images) {
+        if (Array.isArray(article.filtered_images)) {
+          filteredImages = article.filtered_images;
+        } else if (typeof article.filtered_images === "string") {
+          try {
+            filteredImages = JSON.parse(article.filtered_images);
+          } catch (e) {
+            // If parsing fails, try treating it as a single image URL
+            filteredImages = [article.filtered_images];
+          }
+        }
+      }
+      
+      return {
+        id: article._id.toString(),
+        _id: article._id.toString(), // Include _id for backward compatibility
+        title: article.title,
+        description: article.description,
+        author: article.author || "",
+        date: article.published_at?.toString() || article.date || "",
+        topic: article.topic || "",
+        filtered_images: filteredImages,
+        hero_image: article.hero_image || null,
+        content: article.content || null, // Include content for image extraction fallback
+      };
+    });
 
     console.log(
       `[latest_articles] Returning ${processedResults.length} processed articles`
@@ -263,9 +294,9 @@ export async function GET(req) {
     return new Response(
       JSON.stringify({
         articles: processedResults,
-        totalCount: processedResults.length, // Approximate count
+        totalCount: totalCount, // Total count before pagination
         page,
-        totalPages: Math.ceil(processedResults.length / limit),
+        totalPages: Math.ceil(totalCount / limit),
       }),
       {
         status: 200,

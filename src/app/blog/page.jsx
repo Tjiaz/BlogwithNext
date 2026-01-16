@@ -68,16 +68,26 @@ const BlogPage = () => {
   useEffect(() => {
     async function fetchYearlyArticles() {
       try {
+        setLoading(true);
         const response = await fetch(`/api/top_post_years`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log("[blog] Top posts by year data:", data);
 
         if (Array.isArray(data)) {
           setYearPosts(data); // If already an array, use it directly
+          console.log(`[blog] Set ${data.length} years of posts`);
         } else {
           console.error("Unexpected data format", data);
+          setYearPosts([]);
         }
       } catch (error) {
-        console.error("Failed to fetch articles", error);
+        console.error("Failed to fetch yearly articles", error);
+        setYearPosts([]);
       } finally {
         setLoading(false);
       }
@@ -211,42 +221,56 @@ const BlogPage = () => {
               ></div>
             </div>
 
-            {yearPosts.map((yearData) => (
-              <div
-                key={yearData.year}
-                style={{ marginBottom: "2rem" }}
-                className={styles.yearlyArticle}
-              >
-                <h3>Top Posts of {yearData.year}</h3>
-                {yearData.articles.length > 0 ? (
-                  <ul className={styles.noListStyle}>
-                    {yearData.articles.map((article) => (
-                      <li
-                        key={article.id}
-                        style={{ marginBottom: "1rem" }}
-                        className={styles.yearlistItem}
-                      >
-                        <h4>{article.title}</h4>
-                        <p>{article.description}</p>
-                        <p>
-                          <strong>Author:</strong> {article.author}
-                        </p>
-                        <p>
-                          <strong>Date:</strong>{" "}
-                          {new Date(article.date).toLocaleDateString()}
-                        </p>
-                        <p>
-                          <strong>Topic:</strong> {article.topic}
-                        </p>
-                        <ShareButtons isTopPostPage={true} />
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No articles available for {yearData.year}.</p>
-                )}
-              </div>
-            ))}
+            {yearPosts && yearPosts.length > 0 ? (
+              yearPosts.map((yearData) => (
+                <div
+                  key={yearData.year}
+                  style={{ marginBottom: "2rem" }}
+                  className={styles.yearlyArticle}
+                >
+                  <h3>Top Posts of {yearData.year}</h3>
+                  {yearData.articles && yearData.articles.length > 0 ? (
+                    <ul className={styles.noListStyle}>
+                      {yearData.articles.map((article) => (
+                        <li
+                          key={article.id}
+                          style={{ marginBottom: "1rem" }}
+                          className={styles.yearlistItem}
+                        >
+                          <Link href={`/article_details/${article.id}`}>
+                            <h4>{article.title}</h4>
+                          </Link>
+                          {article.description && <p>{article.description}</p>}
+                          <p>
+                            <strong>Author:</strong> {article.author || "Anonymous"}
+                          </p>
+                          {article.date && (
+                            <p>
+                              <strong>Date:</strong>{" "}
+                              {new Date(article.date).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
+                            </p>
+                          )}
+                          {article.topic && (
+                            <p>
+                              <strong>Topic:</strong> {article.topic}
+                            </p>
+                          )}
+                          <ShareButtons post={article} isTopPostPage={true} />
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No articles available for {yearData.year}.</p>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p>Loading top posts by year...</p>
+            )}
           </div>
 
           <div style={{ display: "flex", width: "100%" }}>
