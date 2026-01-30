@@ -58,7 +58,8 @@ async function getPost(slug: string): Promise<any | null> {
     if (!post) {
       console.log("🔍 [getPost] Trying to find by _id as string");
       try {
-        post = await collection.findOne({ _id: slug });
+        // Use type assertion since MongoDB can accept string _id values
+        post = await collection.findOne({ _id: slug as any });
         if (post) {
           console.log(
             "✅ [getPost] Found post by _id (string):",

@@ -37,7 +37,8 @@ async function getPost(slug: string): Promise<any | null> {
     // Try by string _id (for documents with string IDs like Prisma CUIDs)
     if (!post) {
       try {
-        post = await collection.findOne({ _id: slug });
+        // Use type assertion since MongoDB can accept string _id values
+        post = await collection.findOne({ _id: slug as any });
         if (post) {
           console.log("✅ Found post by _id (string)");
         }
