@@ -1,65 +1,187 @@
-import Image from "next/image";
+import HeroSection from "../components/home/HeroSection";
+import Sidebar from "../components/layout/Sidebar";
+import MoreRecentPosts from "../components/blog/MoreRecentPosts";
+import MostPopularArticles from "../components/home/MostPopularArticles";
+import DiscoverTopics from "../components/home/DiscoverTopics";
+import clientPromise from "@/lib/mongodb";
+import { extractFirstImageFromContent, getBestImage } from "@/lib/utils";
 
-export default function Home() {
+// Fetch recent posts server-side
+async function getRecentPosts() {
+  try {
+    const client = await clientPromise;
+    const db = client.db("ARTICLES");
+    const collection = db.collection("final_articles");
+
+    const posts = await collection
+      .find({})
+      .sort({ date: -1, publishedAt: -1, createdAt: -1 })
+      .limit(8)
+      .toArray();
+
+    // Sort by date in descending order
+    posts.sort((a: any, b: any) => {
+      const dateA = new Date(
+        a.date || a.publishedAt || a.createdAt || 0,
+      ).getTime();
+      const dateB = new Date(
+        b.date || b.publishedAt || b.createdAt || 0,
+      ).getTime();
+      return dateB - dateA;
+    });
+
+    return posts.map((post: any) => ({
+      _id: post._id.toString(),
+      title: post.title,
+      slug: post.slug || post._id.toString(),
+      description: post.description,
+      excerpt: post.excerpt,
+      topic: post.topic,
+      category: post.category,
+      date: post.date || post.publishedAt,
+      publishedAt: post.publishedAt,
+      author: post.author,
+      img: getBestImage(post, post.content),
+      featuredImage: post.featuredImage,
+      image: post.image,
+    }));
+  } catch (error) {
+    console.error("Failed to fetch recent posts:", error);
+    return [];
+  }
+}
+
+// Fetch popular articles server-side
+async function getPopularArticles() {
+  try {
+    const client = await clientPromise;
+    const db = client.db("ARTICLES");
+    const collection = db.collection("final_articles");
+
+    const articles = await collection
+      .find({})
+      .sort({ date: -1, publishedAt: -1, createdAt: -1 })
+      .limit(4)
+      .toArray();
+
+    // Sort by date in descending order
+    articles.sort((a: any, b: any) => {
+      const dateA = new Date(
+        a.date || a.publishedAt || a.createdAt || 0,
+      ).getTime();
+      const dateB = new Date(
+        b.date || b.publishedAt || b.createdAt || 0,
+      ).getTime();
+      return dateB - dateA;
+    });
+
+    return articles.map((article: any) => ({
+      id: article._id.toString(),
+      _id: article._id.toString(),
+      title: article.title,
+      description: article.description,
+      author: article.author || "",
+      date: article.date || article.publishedAt || "",
+      topic: article.topic || "",
+      img: getBestImage(article, article.content),
+    }));
+  } catch (error) {
+    console.error("Failed to fetch popular articles:", error);
+    return [];
+  }
+}
+
+// Fetch hero posts server-side
+async function getHeroPosts() {
+  try {
+    const client = await clientPromise;
+    const db = client.db("ARTICLES");
+    const collection = db.collection("final_articles");
+
+    const posts = await collection
+      .find({})
+      .sort({ date: -1, publishedAt: -1, createdAt: -1 })
+      .limit(10)
+      .toArray();
+
+    // Sort by date in descending order
+    posts.sort((a: any, b: any) => {
+      const dateA = new Date(
+        a.date || a.publishedAt || a.createdAt || 0,
+      ).getTime();
+      const dateB = new Date(
+        b.date || b.publishedAt || b.createdAt || 0,
+      ).getTime();
+      return dateB - dateA;
+    });
+
+    return posts.map((p: any) => ({
+      id: p._id?.toString() ?? p.id ?? p.slug,
+      title: p.title ?? "",
+      author: p.author ?? p.authorName ?? "Unknown",
+      date: p.publishedAt ?? p.date ?? p.createdAt ?? null,
+      excerpt: p.excerpt ?? p.description ?? p.summary ?? "",
+      topic: p.topic ?? p.category ?? "",
+      image: getBestImage(p, p.content),
+    }));
+  } catch (error) {
+    console.error("Failed to fetch hero posts:", error);
+    return [];
+  }
+}
+
+export default async function Home() {
+  // Fetch data server-side for immediate rendering
+  const [recentPosts, popularArticles, heroPosts] = await Promise.all([
+    getRecentPosts(),
+    getPopularArticles(),
+    getHeroPosts(),
+  ]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+      {/* Top Ad Banner - reduced width */}
+      <div className="w-full flex justify-center py-4">
+        <div className="w-full max-w-4xl px-4 sm:px-6 lg:px-8">
+          <div className="w-full h-20 rounded-lg overflow-hidden">
+            <img
+              src="/images/Adverts/ads.gif"
+              alt="Top Ad Banner"
+              className="w-full h-full object-cover"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
         </div>
-      </main>
+      </div>
+
+      {/* Hero with sidebar - both start at same level */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            <HeroSection initialPosts={heroPosts} />
+          </div>
+          <Sidebar />
+        </div>
+      </div>
+
+      {/* Two-Column Section: More Recent Posts | Most Popular Articles */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column: More Recent Posts */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+            <MoreRecentPosts initialPosts={recentPosts} />
+          </div>
+
+          {/* Right Column: Most Popular Articles */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+            <MostPopularArticles initialArticles={popularArticles} />
+          </div>
+        </div>
+      </div>
+
+      {/* Discover by Topics Section */}
+      <div className="bg-white dark:bg-gray-800">
+        <DiscoverTopics />
+      </div>
     </div>
   );
 }

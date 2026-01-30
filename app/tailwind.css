@@ -1,0 +1,7 @@
+/* app/tailwind.css */
+@import "tailwindcss";
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
+
+/* Or use the shorthand */
+/* @import "tailwindcss/theme.css"; */
