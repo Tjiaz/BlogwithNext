@@ -40,11 +40,14 @@ export default function SocialShare({
 
   useEffect(() => {
     setMounted(true);
-    if (typeof window !== "undefined") {
+    // Only update URL if we're on the client and no URL was provided
+    if (typeof window !== "undefined" && !url) {
       setShareUrl(window.location.href);
-      setHasNativeShare(typeof navigator !== "undefined" && !!navigator.share);
     }
-  }, []);
+    if (typeof window !== "undefined" && typeof navigator !== "undefined") {
+      setHasNativeShare(!!navigator.share);
+    }
+  }, [url]);
   const encodedTitle = encodeURIComponent(title);
   const encodedDescription = encodeURIComponent(description || title);
   const encodedUrl = encodeURIComponent(shareUrl);

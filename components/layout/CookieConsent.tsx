@@ -6,16 +6,20 @@ import Link from "next/link";
 
 export default function CookieConsent() {
   const [showModal, setShowModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Check if user has already made a choice
-    const consent = localStorage.getItem("cookieConsent");
-    if (!consent) {
-      // Show modal after a short delay for better UX
-      const timer = setTimeout(() => {
-        setShowModal(true);
-      }, 1000);
-      return () => clearTimeout(timer);
+    if (typeof window !== "undefined") {
+      const consent = localStorage.getItem("cookieConsent");
+      if (!consent) {
+        // Show modal after a short delay for better UX
+        const timer = setTimeout(() => {
+          setShowModal(true);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
     }
   }, []);
 
@@ -31,7 +35,8 @@ export default function CookieConsent() {
     setShowModal(false);
   };
 
-  if (!showModal) return null;
+  // Don't render until mounted to prevent hydration mismatch
+  if (!mounted || !showModal) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 pointer-events-none">

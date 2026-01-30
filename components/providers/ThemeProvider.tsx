@@ -16,6 +16,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   const applyTheme = (newTheme: Theme) => {
+    if (typeof document === "undefined") return;
     const root = document.documentElement;
     if (newTheme === "dark") {
       root.classList.add("dark");
@@ -27,16 +28,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMounted(true);
     // Check localStorage for saved theme preference
-    const savedTheme = localStorage.getItem("theme") as Theme;
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    
-    const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
-    setTheme(initialTheme);
-    applyTheme(initialTheme);
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("theme") as Theme | null;
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      
+      const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
+      setTheme(initialTheme);
+      applyTheme(initialTheme);
+    }
   }, []);
 
   useEffect(() => {
-    if (mounted) {
+    if (mounted && typeof document !== "undefined") {
       applyTheme(theme);
     }
   }, [theme, mounted]);

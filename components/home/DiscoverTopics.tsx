@@ -64,22 +64,41 @@ const getTopicColor = (topicName: string): string => {
   return defaultColors[Math.abs(hash) % defaultColors.length];
 };
 
-// Fisher-Yates shuffle algorithm to randomly shuffle array
-const shuffleArray = <T,>(array: T[]): T[] => {
+// Deterministic shuffle using a seed based on array content
+// This ensures the same topics always produce the same shuffle order (no hydration mismatch)
+const deterministicShuffle = <T,>(array: T[]): T[] => {
   const shuffled = [...array];
+  // Create a seed from the array content
+  let seed = 0;
+  for (let i = 0; i < array.length; i++) {
+    const str = String(array[i]);
+    for (let j = 0; j < str.length; j++) {
+      seed = ((seed << 5) - seed) + str.charCodeAt(j);
+      seed = seed & seed; // Convert to 32-bit integer
+    }
+  }
+  
+  // Simple pseudo-random generator using seed
+  let random = seed;
+  const nextRandom = () => {
+    random = (random * 9301 + 49297) % 233280;
+    return random / 233280;
+  };
+  
+  // Fisher-Yates shuffle with deterministic random
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(nextRandom() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
 };
 
-// Get random 6 topics from the array
+// Get first 6 topics from deterministically shuffled array
 const getRandomTopics = (allTopics: string[], count: number = 6): string[] => {
   if (allTopics.length <= count) {
     return allTopics;
   }
-  const shuffled = shuffleArray(allTopics);
+  const shuffled = deterministicShuffle(allTopics);
   return shuffled.slice(0, count);
 };
 
