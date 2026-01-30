@@ -3,6 +3,7 @@ import Sidebar from "../components/layout/Sidebar";
 import MoreRecentPosts from "../components/blog/MoreRecentPosts";
 import MostPopularArticles from "../components/home/MostPopularArticles";
 import DiscoverTopics from "../components/home/DiscoverTopics";
+import AdSenseBanner from "../components/ads/AdSenseBanner";
 import clientPromise from "@/lib/mongodb";
 import { extractFirstImageFromContent, getBestImage } from "@/lib/utils";
 
@@ -140,14 +141,13 @@ export default async function Home() {
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
-      {/* Top Ad Banner - reduced width */}
+      {/* Top Ad Banner - Google AdSense */}
       <div className="w-full flex justify-center py-4">
         <div className="w-full max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="w-full h-20 rounded-lg overflow-hidden">
-            <img
-              src="/images/Adverts/ads.gif"
-              alt="Top Ad Banner"
-              className="w-full h-full object-cover"
+          <div className="w-full min-h-[90px] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+            <AdSenseBanner
+              format="horizontal"
+              style={{ display: "block", width: "100%", height: "90px" }}
             />
           </div>
         </div>

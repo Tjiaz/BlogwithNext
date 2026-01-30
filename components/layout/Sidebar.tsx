@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "../ui/Button";
 import { getPostSlug } from "@/lib/utils";
 import toast from "react-hot-toast";
+import AdSenseSidebar from "../ads/AdSenseSidebar";
 
 const Sidebar = () => {
   const [email, setEmail] = useState("");
@@ -102,13 +103,9 @@ const Sidebar = () => {
           </p>
         </div>
 
-        {/* Side Ad */}
-        <div className="w-72 h-80 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-          <img
-            src="/images/Adverts/ads1.i.gif"
-            alt="Side Ad"
-            className="w-full h-full object-cover"
-          />
+        {/* Side Ad - Google AdSense */}
+        <div className="w-72 min-h-[250px] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center p-2">
+          <AdSenseSidebar />
         </div>
 
         {/* Top Posts Section */}
@@ -141,13 +138,9 @@ const Sidebar = () => {
           )}
         </div>
 
-        {/* Secondary Ad */}
-        <div className="w-72 h-32 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-          <img
-            src="/images/Adverts/ads2.gif"
-            alt="Secondary Ad"
-            className="w-full h-full object-cover"
-          />
+        {/* Secondary Ad - Google AdSense */}
+        <div className="w-72 min-h-[100px] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center p-2">
+          <AdSenseSidebar />
         </div>
       </div>
     </aside>

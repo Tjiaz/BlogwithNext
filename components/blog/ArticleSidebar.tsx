@@ -6,6 +6,7 @@ import Image from "next/image";
 import { TrendingUp, Clock, ArrowRight } from "lucide-react";
 import { getPostSlug, getBestImage } from "@/lib/utils";
 import toast from "react-hot-toast";
+import AdSenseSidebar from "../ads/AdSenseSidebar";
 
 interface Article {
   _id: string;
@@ -178,6 +179,13 @@ export default function ArticleSidebar({ currentPostId }: ArticleSidebarProps) {
             </ol>
           </div>
         )}
+
+        {/* AdSense Ad */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6">
+          <div className="min-h-[250px] flex items-center justify-center">
+            <AdSenseSidebar />
+          </div>
+        </div>
 
         {/* Newsletter Signup */}
         <div className="bg-gradient-to-r from-[#0a73b0] to-[#2a9bd0] dark:from-blue-600 dark:to-blue-700 rounded-lg shadow p-6 text-white">

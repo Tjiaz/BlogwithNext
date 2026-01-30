@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import { getPostSlug, getBestImage } from "@/lib/utils";
+import AdSenseRectangle from "@/components/ads/AdSenseRectangle";
 
 const defaultPosts = [
   {
@@ -297,13 +298,9 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
               ))}
             </div>
 
-            {/* ad + pagination controls stay the same, except totalPages now comes from state */}
-            <div className="my-6 w-full h-32 rounded-lg overflow-hidden">
-              <img
-                src="/images/Adverts/ads3.gif"
-                alt="Article Ad Banner"
-                className="w-full h-full object-cover"
-              />
+            {/* AdSense Ad */}
+            <div className="my-6 w-full min-h-[100px] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <AdSenseRectangle />
             </div>
 
             <div className="flex items-center justify-between mt-6">
