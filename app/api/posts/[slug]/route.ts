@@ -29,21 +29,6 @@ export async function GET(
       console.log("🔵 API: Slug is not a valid ObjectId");
     }
 
-    // Try by _id as string (for Prisma CUIDs or other string IDs)
-    if (!post) {
-      console.log("🔵 API: Trying to find by _id as string");
-      try {
-        post = await collection.findOne({ _id: slug });
-        if (post) {
-          console.log("🔵 API: Found post by _id (string)");
-        } else {
-          console.log("🔵 API: No post found by _id (string)");
-        }
-      } catch (e) {
-        console.error("🔵 API: Error searching by _id (string):", e);
-      }
-    }
-
     // If not found by _id, try to find by slug field
     if (!post) {
       console.log("🔵 API: Searching by slug field");

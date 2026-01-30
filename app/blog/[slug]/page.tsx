@@ -34,18 +34,6 @@ async function getPost(slug: string): Promise<any | null> {
       }
     }
 
-    // Try by _id as string (for Prisma CUIDs or other string IDs)
-    if (!post) {
-      try {
-        post = await collection.findOne({ _id: slug });
-        if (post) {
-          console.log("✅ Found post by _id (string)");
-        }
-      } catch (e) {
-        console.error("Error searching by _id (string):", e);
-      }
-    }
-
     // Try by slug field
     if (!post) {
       try {
