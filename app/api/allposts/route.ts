@@ -1,13 +1,12 @@
 // GET /api/posts/all
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Post from "@/models/Post";
-import { MongoClient } from "mongodb";
+import clientPromise from "@/lib/mongodb";
 
-export async function GET_ALL() {
+export async function GET() {
   await connectDB();
   try {
-    const client = await clientPromise();
+    const client = await clientPromise;
     const db = client.db("ARTICLES");
     const collA = db.collection("Articles");
     const collB = db.collection("Article");
@@ -45,20 +44,6 @@ export async function GET_ALL() {
   }
 }
 
-const clientPromise = (function () {
-  // reuse client across invocations
-  let client: MongoClient | null = null;
-  return async function getClient() {
-    if (client) {
-      return client;
-    }
-    const url = process.env.DATABASE_URL;
-    if (!url) throw new Error("DATABASE_URL not set");
-    client = new MongoClient(url);
-    await client.connect();
-    return client;
-  };
-})();
 
 function extractFirstImageFromHtml(html: any) {
   if (!html || typeof html !== "string") return null;
