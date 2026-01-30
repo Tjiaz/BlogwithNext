@@ -13,6 +13,7 @@ import RelatedArticles from "@/components/blog/RelatedArticles";
 import SocialShare from "@/components/blog/SocialShare";
 import ArticleSidebar from "@/components/blog/ArticleSidebar";
 import ViewTracker from "@/components/blog/ViewTracker";
+import LikeButton from "@/components/blog/LikeButton";
 
 async function getPost(slug: string): Promise<any | null> {
   try {
@@ -184,12 +185,10 @@ export default async function BlogPostPage({
                     <Eye className="w-4 h-4 mr-1" />
                     <span data-view-count>{post.views || 0} views</span>
                   </div>
-                  {post.likes !== undefined && (
-                    <div className="flex items-center">
-                      <Heart className="w-4 h-4 mr-1" />
-                      {post.likes} likes
-                    </div>
-                  )}
+                  <LikeButton
+                    slug={slug}
+                    initialLikes={post.likes || 0}
+                  />
                 </div>
               </header>
 
