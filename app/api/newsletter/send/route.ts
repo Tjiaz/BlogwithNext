@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     // Replace unsubscribe links in content
     const processedContent = content.replace(
       /\[unsubscribe_link\]/g,
-      (match) => {
+      () => {
         // In a real implementation, you'd generate unique unsubscribe links
         return `${process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BASE_URL}/unsubscribe?email=[email]`;
       },
