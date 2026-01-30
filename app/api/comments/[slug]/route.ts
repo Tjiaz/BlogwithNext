@@ -145,7 +145,7 @@ export async function POST(
       await collection.updateOne(
         { _id: post._id },
         {
-          $push: { comments: newComment },
+          $push: { comments: newComment } as any,
         }
       );
     }
