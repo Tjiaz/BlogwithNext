@@ -26,13 +26,17 @@ interface MoreRecentPostsProps {
 export default function MoreRecentPosts({
   initialPosts = [],
 }: MoreRecentPostsProps) {
+  // Use initialPosts directly - no state needed if provided from server
   const [posts, setPosts] = useState<Post[]>(initialPosts);
-  const [isLoading, setIsLoading] = useState(initialPosts.length === 0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Only fetch if no initial posts provided
     if (initialPosts.length > 0) {
-      setIsLoading(false);
+      // Ensure posts state matches initialPosts
+      setPosts(initialPosts);
       return;
     }
 
@@ -74,7 +78,11 @@ export default function MoreRecentPosts({
     fetchRecentPosts();
   }, [initialPosts]);
 
-  if (isLoading) {
+  // Always render the same structure when initialPosts are provided
+  // This ensures server and client render match
+  const displayPosts = posts.length > 0 ? posts : [];
+
+  if (displayPosts.length === 0 && isLoading) {
     return (
       <div className="w-full">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
@@ -92,7 +100,7 @@ export default function MoreRecentPosts({
     );
   }
 
-  if (posts.length === 0) {
+  if (displayPosts.length === 0) {
     return (
       <div className="w-full">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
@@ -111,7 +119,7 @@ export default function MoreRecentPosts({
         More Recent Posts
       </h2>
       <div className="space-y-2">
-        {posts.map((post) => {
+        {displayPosts.map((post) => {
           const postSlug = getPostSlug(post);
 
           return (

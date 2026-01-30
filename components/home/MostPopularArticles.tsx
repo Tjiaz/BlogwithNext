@@ -99,12 +99,15 @@ export default function MostPopularArticles({
   initialArticles = [],
 }: MostPopularArticlesProps) {
   const [articles, setArticles] = useState<Article[]>(initialArticles);
-  const [isLoading, setIsLoading] = useState(initialArticles.length === 0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Only fetch if no initial articles provided
     if (initialArticles.length > 0) {
-      setIsLoading(false);
+      // Ensure articles state matches initialArticles
+      setArticles(initialArticles);
       return;
     }
 
@@ -140,7 +143,11 @@ export default function MostPopularArticles({
     fetchPopularArticles();
   }, [initialArticles]);
 
-  if (isLoading) {
+  // Always render the same structure when initialArticles are provided
+  // This ensures server and client render match
+  const displayArticles = articles.length > 0 ? articles : [];
+
+  if (displayArticles.length === 0 && isLoading) {
     return (
       <div className="w-full">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
@@ -167,7 +174,7 @@ export default function MostPopularArticles({
     );
   }
 
-  if (articles.length === 0) {
+  if (displayArticles.length === 0) {
     return (
       <div className="w-full">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
@@ -186,7 +193,7 @@ export default function MostPopularArticles({
         Most Popular Articles
       </h2>
       <div className="space-y-4">
-        {articles.map((article) => {
+        {displayArticles.map((article) => {
           const postSlug = getPostSlug(article);
           const topicColor = getTopicColor(article.topic || "");
           const avatarUrl = getAvatarUrl(article.author, article.topic || "");
