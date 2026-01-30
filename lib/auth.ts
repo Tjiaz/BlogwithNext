@@ -22,25 +22,29 @@ export const authOptions: NextAuthConfig = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        const email =
+          typeof credentials?.email === "string" ? credentials.email : "";
+        const password =
+          typeof credentials?.password === "string" ? credentials.password : "";
+
+        if (!email || !password) {
           return null;
         }
 
         try {
           const client = await clientPromise;
           const db = client.db("ARTICLES");
-          const user = await db.collection("users").findOne({
-            email: credentials.email,
-          });
+          const user = await db.collection("users").findOne({ email });
 
           if (!user) {
             return null;
           }
 
-          const isPasswordValid = await bcrypt.compare(
-            credentials.password,
-            user.password
-          );
+          if (typeof user.password !== "string") {
+            return null;
+          }
+
+          const isPasswordValid = await bcrypt.compare(password, user.password);
 
           if (!isPasswordValid) {
             return null;
