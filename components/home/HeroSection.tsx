@@ -128,9 +128,24 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
   useEffect(() => {
     if (!initialized.current && initialPosts.length > 0) {
       setPosts(initialPosts);
-      setTotalPages(Math.ceil(initialPosts.length / itemsPerPage));
       hasInitialData.current = true;
       initialized.current = true;
+      
+      // Fetch pagination info in the background without blocking render
+      fetch(`/api/posts?page=1&limit=${itemsPerPage}`, { cache: "no-store" })
+        .then((res) => res.json())
+        .then((json) => {
+          if (json?.pagination?.totalPages) {
+            setTotalPages(json.pagination.totalPages);
+          } else if (json?.pagination?.total) {
+            setTotalPages(Math.ceil(json.pagination.total / itemsPerPage));
+          }
+        })
+        .catch((e) => {
+          console.error("Failed to fetch pagination info:", e);
+          // Fallback to initialPosts length if API fails
+          setTotalPages(Math.ceil(initialPosts.length / itemsPerPage));
+        });
     }
   }, []); // Empty dependency array - only run once on mount
 
