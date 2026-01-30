@@ -16,8 +16,12 @@ export const metadata: Metadata = {
   description: "A modern blog platform built with Next.js 15 and TypeScript",
   metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
+    icon: [
+      { url: "/favicon.png", type: "image/png", sizes: "512x512" },
+      { url: "/web-app-manifest-512x512.png", type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: "/favicon.png",
+    apple: "/web-app-manifest-512x512.png",
   },
   openGraph: {
     type: "website",
