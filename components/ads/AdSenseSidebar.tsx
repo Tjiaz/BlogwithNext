@@ -1,26 +1,62 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface AdSenseSidebarProps {
   slot?: string;
 }
 
 export default function AdSenseSidebar({ slot }: AdSenseSidebarProps) {
+  const adRef = useRef<HTMLDivElement>(null);
+  const initialized = useRef(false);
+
   useEffect(() => {
-    try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (err) {
-      console.error("AdSense error:", err);
+    // Wait for container to have width before initializing
+    const initAd = () => {
+      if (initialized.current || !adRef.current) return;
+
+      const container = adRef.current;
+      const width = container.offsetWidth;
+
+      // Only initialize if container has width
+      if (width > 0) {
+        try {
+          // @ts-ignore
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          initialized.current = true;
+        } catch (err) {
+          console.error("AdSense error:", err);
+        }
+      }
+    };
+
+    // Try immediately
+    initAd();
+
+    // Also try after a short delay
+    const timer = setTimeout(initAd, 100);
+
+    // Use ResizeObserver to detect when container gets width
+    if (adRef.current && typeof ResizeObserver !== "undefined") {
+      const resizeObserver = new ResizeObserver(() => {
+        initAd();
+      });
+      resizeObserver.observe(adRef.current);
+
+      return () => {
+        clearTimeout(timer);
+        resizeObserver.disconnect();
+      };
     }
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className="w-full mb-6">
+    <div ref={adRef} className="w-full min-w-[250px] mb-6">
       <ins
         className="adsbygoogle"
-        style={{ display: "block", textAlign: "center" }}
+        style={{ display: "block", textAlign: "center", minWidth: "250px", width: "100%" }}
         data-ad-client="ca-pub-4120496705202818"
         data-ad-slot={slot}
         data-ad-format="auto"
