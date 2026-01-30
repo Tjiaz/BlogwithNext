@@ -178,8 +178,9 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
       if (json?.pagination) {
         setTotalPages(json.pagination.totalPages ?? 1);
       } else {
-        // fallback if no pagination from backend
-        setTotalPages(1);
+        // fallback: calculate from total count if available
+        const totalCount = json?.total || json?.pagination?.total || mapped.length;
+        setTotalPages(Math.ceil(totalCount / itemsPerPage));
       }
     } catch (e) {
       console.error("Failed to load posts:", e);
@@ -214,7 +215,7 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
   return (
     <div className="w-full">
       <main>
-        <section className="bg-white dark:bg-gray-900 rounded-lg shadow p-8">
+        <section className="bg-white dark:bg-gray-900 rounded-lg shadow p-3 sm:p-6 lg:p-8">
           {/* ...hero header omitted for brevity... */}
 
           <div className="mt-8 mb-4 flex items-center justify-between">
@@ -230,7 +231,7 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
               <div className="mb-4 text-sm text-gray-500">Loading...</div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               {currentPosts.map((post) => (
                 <article
                   key={post.id}

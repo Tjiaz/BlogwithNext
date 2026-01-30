@@ -52,8 +52,24 @@ async function getPost(slug: string): Promise<any | null> {
       } catch (e) {
         console.error("❌ [getPost] Error searching by _id (ObjectId):", e);
       }
-    } else {
-      console.log("⚠️ [getPost] Slug is NOT a valid ObjectId:", slug);
+    }
+
+    // Try by string _id (for documents with string IDs like Prisma CUIDs)
+    if (!post) {
+      console.log("🔍 [getPost] Trying to find by _id as string");
+      try {
+        post = await collection.findOne({ _id: slug });
+        if (post) {
+          console.log(
+            "✅ [getPost] Found post by _id (string):",
+            post.title || "No title",
+          );
+        } else {
+          console.log("❌ [getPost] No post found by _id (string)");
+        }
+      } catch (e) {
+        console.error("❌ [getPost] Error searching by _id (string):", e);
+      }
     }
 
     // Try by slug field

@@ -174,11 +174,11 @@ export default async function TopicPage({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Main Content */}
           <div className="lg:col-span-3">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                 {formattedTopic}
                 <span className="ml-3 text-lg font-normal text-[#0B73B1] dark:text-blue-400">
@@ -198,7 +198,7 @@ export default async function TopicPage({
                       key={article._id}
                       className="border-b border-gray-200 dark:border-gray-700 pb-6 last:border-b-0"
                     >
-                      <div className="flex gap-4">
+                      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                         {(() => {
                           // Get best image using utility function (always returns default if none found)
                           const bestImage = getBestImage(
@@ -207,7 +207,7 @@ export default async function TopicPage({
                           );
 
                           return (
-                            <div className="flex-shrink-0 w-32 h-32 rounded-lg overflow-hidden bg-gray-200">
+                            <div className="flex-shrink-0 w-full sm:w-32 h-48 sm:h-32 rounded-lg overflow-hidden bg-gray-200">
                               <Image
                                 src={bestImage}
                                 alt={article.title}
@@ -218,7 +218,7 @@ export default async function TopicPage({
                             </div>
                           );
                         })()}
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <Link
                             href={`/${getPostSlug(article)}`}
                             className="text-xl font-semibold text-gray-900 dark:text-gray-100 hover:text-[#0a73b0] dark:hover:text-blue-400 transition-colors block mb-2"

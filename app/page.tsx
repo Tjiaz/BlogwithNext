@@ -154,8 +154,8 @@ export default async function Home() {
       </div>
 
       {/* Hero with sidebar - both start at same level */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
           <div className="lg:col-span-3">
             <HeroSection initialPosts={heroPosts} />
           </div>
@@ -164,15 +164,15 @@ export default async function Home() {
       </div>
 
       {/* Two-Column Section: More Recent Posts | Most Popular Articles */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
           {/* Left Column: More Recent Posts */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-sm">
             <MoreRecentPosts initialPosts={recentPosts} />
           </div>
 
           {/* Right Column: Most Popular Articles */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-sm">
             <MostPopularArticles initialArticles={popularArticles} />
           </div>
         </div>
