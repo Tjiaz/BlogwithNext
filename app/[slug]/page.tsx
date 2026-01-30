@@ -20,6 +20,7 @@ import CommentSection from "@/components/comments/CommentSection";
 import RelatedArticles from "@/components/blog/RelatedArticles";
 import SocialShare from "@/components/blog/SocialShare";
 import ArticleSidebar from "@/components/blog/ArticleSidebar";
+import ViewTracker from "@/components/blog/ViewTracker";
 
 async function getPost(slug: string): Promise<any | null> {
   try {
@@ -229,6 +230,7 @@ export default async function BlogPostPage({
 
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <ViewTracker slug={slug} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Main Article Content */}
@@ -275,7 +277,7 @@ export default async function BlogPostPage({
                   )}
                   <div className="flex items-center">
                     <Eye className="w-4 h-4 mr-1" />
-                    {post.views || 0} views
+                    <span data-view-count>{post.views || 0} views</span>
                   </div>
                   {post.likes !== undefined && (
                     <div className="flex items-center">
