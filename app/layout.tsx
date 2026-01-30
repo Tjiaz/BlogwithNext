@@ -15,6 +15,10 @@ export const metadata: Metadata = {
   title: "BlogNext - Modern Blog Platform",
   description: "A modern blog platform built with Next.js 15 and TypeScript",
   metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
