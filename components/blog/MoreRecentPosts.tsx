@@ -29,10 +29,8 @@ export default function MoreRecentPosts({
   // Use initialPosts directly - no state needed if provided from server
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [isLoading, setIsLoading] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     // Only fetch if no initial posts provided
     if (initialPosts.length > 0) {
       // Ensure posts state matches initialPosts
@@ -82,7 +80,8 @@ export default function MoreRecentPosts({
   // This ensures server and client render match
   const displayPosts = posts.length > 0 ? posts : [];
 
-  if (displayPosts.length === 0 && isLoading) {
+  // Only show loading if we have no initial posts and are actually loading
+  if (displayPosts.length === 0 && isLoading && initialPosts.length === 0) {
     return (
       <div className="w-full">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
