@@ -43,12 +43,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors`}>
-        {/* Google AdSense */}
+        {/* Google AdSense - Required for verification (loads in head for crawler detection) */}
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4120496705202818"
           crossOrigin="anonymous"
-          strategy="lazyOnload"
+          strategy="beforeInteractive"
         />
         <Script
           id="theme-script"
