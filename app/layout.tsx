@@ -43,19 +43,30 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors`}>
-        {/* Ezoic Header Scripts - Load after page becomes interactive to avoid blocking build */}
+        {/* Ezoic Header Scripts - Load lazily to prevent timeout errors */}
         <Script
           async
           src="//www.ezojs.com/ezoic/sa.min.js"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
+          onError={(e) => {
+            // Suppress Ezoic script loading errors (non-critical)
+            console.warn("Ezoic script load warning (non-critical):", e);
+          }}
         />
         <Script
           id="ezoic-standalone"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               window.ezstandalone = window.ezstandalone || {};
               ezstandalone.cmd = ezstandalone.cmd || [];
+              // Suppress identity bridging script timeout errors
+              window.addEventListener('error', function(e) {
+                if (e.message && e.message.includes('identity bridging')) {
+                  e.preventDefault();
+                  return false;
+                }
+              }, true);
             `,
           }}
         />
