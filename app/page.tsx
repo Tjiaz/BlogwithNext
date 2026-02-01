@@ -62,8 +62,8 @@ async function getRecentPosts() {
       return posts;
     })();
 
-    // Add 5 second timeout to prevent Vercel timeout
-    const posts = await withTimeout(queryPromise, 5000);
+    // Add 8 second timeout to prevent Vercel timeout (under 10s limit)
+    const posts = await withTimeout(queryPromise, 8000);
 
     // Sort by date in descending order
     posts.sort((a: any, b: any) => {
@@ -207,8 +207,8 @@ async function getHeroPosts() {
       return posts;
     })();
 
-    // Add 5 second timeout to prevent Vercel timeout
-    const posts = await withTimeout(queryPromise, 5000);
+    // Add 8 second timeout to prevent Vercel timeout (under 10s limit)
+    const posts = await withTimeout(queryPromise, 8000);
 
     // Sort by date in descending order
     posts.sort((a: any, b: any) => {

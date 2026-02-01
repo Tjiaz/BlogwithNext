@@ -15,13 +15,28 @@ import ArticleSidebar from "@/components/blog/ArticleSidebar";
 import ViewTracker from "@/components/blog/ViewTracker";
 import LikeButton from "@/components/blog/LikeButton";
 
+// Make article pages dynamic to prevent build-time generation
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Helper function to add timeout to promises
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Operation timed out after ${timeoutMs}ms`)), timeoutMs)
+    ),
+  ]);
+}
+
 async function getPost(slug: string): Promise<any | null> {
   try {
-    const client = await clientPromise;
-    const db = client.db("ARTICLES");
-    const collection = db.collection("final_articles");
+    const queryPromise = (async () => {
+      const client = await clientPromise;
+      const db = client.db("ARTICLES");
+      const collection = db.collection("final_articles");
 
-    let post: any = null;
+      let post: any = null;
 
     // Try by ObjectId first (for MongoDB ObjectIds)
     if (ObjectId.isValid(slug)) {
@@ -72,14 +87,19 @@ async function getPost(slug: string): Promise<any | null> {
       }
     }
 
-    if (!post) {
-      return null;
-    }
+      if (!post) {
+        return null;
+      }
 
-    return {
-      ...post,
-      _id: post._id.toString(),
-    };
+      return {
+        ...post,
+        _id: post._id.toString(),
+      };
+    })();
+
+    // Add 8 second timeout to prevent Vercel timeout
+    const post = await withTimeout(queryPromise, 8000);
+    return post;
   } catch (error) {
     console.error("Error fetching post:", error);
     return null;

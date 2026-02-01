@@ -23,17 +23,29 @@ import ArticleSidebar from "@/components/blog/ArticleSidebar";
 import ViewTracker from "@/components/blog/ViewTracker";
 import LikeButton from "@/components/blog/LikeButton";
 
+// Make article pages dynamic to prevent build-time generation
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Helper function to add timeout to promises
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Operation timed out after ${timeoutMs}ms`)), timeoutMs)
+    ),
+  ]);
+}
+
 async function getPost(slug: string): Promise<any | null> {
   try {
     console.log("🔍 [getPost] Fetching post with slug:", slug);
-    const client = await clientPromise;
-    console.log("🔍 [getPost] MongoDB client connected");
-    const db = client.db("ARTICLES");
-    const collection = db.collection("final_articles");
-
-    // Debug: Check if collection has documents
-    const totalCount = await collection.countDocuments();
-    console.log("🔍 [getPost] Total documents in collection:", totalCount);
+    
+    const queryPromise = (async () => {
+      const client = await clientPromise;
+      console.log("🔍 [getPost] MongoDB client connected");
+      const db = client.db("ARTICLES");
+      const collection = db.collection("final_articles");
 
     let post: any = null;
 
@@ -111,31 +123,22 @@ async function getPost(slug: string): Promise<any | null> {
       }
     }
 
-    // Debug: List a few document IDs to compare
-    if (!post) {
-      console.log("🔍 [getPost] Listing first 3 document _ids for comparison:");
-      try {
-        const sampleDocs = await collection.find({}).limit(3).toArray();
-        sampleDocs.forEach((doc, idx) => {
-          console.log(
-            `  [${idx + 1}] _id: ${doc._id.toString()}, title: ${doc.title || "No title"}`,
-          );
-        });
-      } catch (e) {
-        console.error("❌ [getPost] Error listing sample docs:", e);
+      // Return post or null
+      if (!post) {
+        console.log("❌ [getPost] Post not found for slug:", slug);
+        return null;
       }
-    }
 
-    if (!post) {
-      console.log("❌ [getPost] Post not found for slug:", slug);
-      return null;
-    }
+      console.log("✅ [getPost] Returning post data");
+      return {
+        ...post,
+        _id: post._id.toString(),
+      };
+    })();
 
-    console.log("✅ [getPost] Returning post data");
-    return {
-      ...post,
-      _id: post._id.toString(),
-    };
+    // Add 8 second timeout to prevent Vercel timeout
+    const post = await withTimeout(queryPromise, 8000);
+    return post;
   } catch (error) {
     console.error("❌ [getPost] Error fetching post:", error);
     if (error instanceof Error) {
