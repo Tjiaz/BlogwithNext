@@ -115,12 +115,18 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
+  const itemsPerPage = 10;
+  
+  // Calculate initial totalPages from initialPosts to avoid hydration mismatch
+  const initialTotalPages = initialPosts.length > 0 
+    ? Math.ceil(initialPosts.length / itemsPerPage) 
+    : Math.ceil(defaultPosts.length / itemsPerPage);
+  
   const [posts, setPosts] = useState<any[]>(
     initialPosts.length > 0 ? initialPosts : defaultPosts,
   );
-  const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(initialTotalPages);
   const [isLoading, setIsLoading] = useState(false);
   const hasInitialData = useRef(initialPosts.length > 0);
   const initialized = useRef(false);
@@ -144,8 +150,7 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
         })
         .catch((e) => {
           console.error("Failed to fetch pagination info:", e);
-          // Fallback to initialPosts length if API fails
-          setTotalPages(Math.ceil(initialPosts.length / itemsPerPage));
+          // Keep the initial calculated value
         });
     }
   }, []); // Empty dependency array - only run once on mount
