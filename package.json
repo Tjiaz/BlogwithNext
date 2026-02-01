@@ -15,7 +15,8 @@
     "categorize:ml-fix": "tsx scripts/fix-ml-lowercase-ai.ts",
     "delete:rss": "tsx scripts/delete-rss-feed-articles.ts",
     "diagnose:ai": "tsx scripts/diagnose-ai-articles.ts",
-    "debug:ai": "tsx scripts/debug-ai-topic.ts"
+    "debug:ai": "tsx scripts/debug-ai-topic.ts",
+    "migrate:supabase": "tsx scripts/migrate-to-supabase.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.3",
@@ -34,6 +35,7 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "bcryptjs": "^3.0.3",
     "date-fns": "^4.1.0",
+    "dotenv": "^16.6.1",
     "lucide-react": "^0.555.0",
     "mongoose": "^9.0.0",
     "next": "^16.0.7",
