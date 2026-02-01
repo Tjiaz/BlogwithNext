@@ -31,14 +31,21 @@ async function getPost(slug: string): Promise<any | null> {
   try {
     console.log("🔍 [getPost] Fetching post with slug:", slug);
     
-    // Add timeout to connection to prevent hanging
-    const connectionPromise = clientPromise;
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("MongoDB connection timeout")), 5000)
-    );
+    // Try to get client with timeout
+    let client;
+    try {
+      const connectionPromise = clientPromise;
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("MongoDB connection timeout")), 5000)
+      );
+      client = await Promise.race([connectionPromise, timeoutPromise]) as Awaited<typeof clientPromise>;
+      console.log("🔍 [getPost] MongoDB client connected");
+    } catch (connError) {
+      console.error("❌ [getPost] Failed to connect to MongoDB:", connError);
+      // Return null on connection failure - will trigger 404
+      return null;
+    }
     
-    const client = await Promise.race([connectionPromise, timeoutPromise]) as Awaited<typeof clientPromise>;
-    console.log("🔍 [getPost] MongoDB client connected");
     const db = client.db("ARTICLES");
     const collection = db.collection("final_articles");
 
@@ -192,8 +199,9 @@ export default async function BlogPostPage({
       console.log("❌ Post not found for slug:", slug);
       console.log("❌ This could be due to:");
       console.log("   1. Article doesn't exist");
-      console.log("   2. MongoDB connection timeout");
-      console.log("   3. Slug mismatch");
+      console.log("   2. MongoDB connection timeout (check MongoDB Atlas dashboard)");
+      console.log("   3. Slug mismatch (slug format may not match database)");
+      console.log("❌ Check server logs above for MongoDB connection errors");
       notFound();
     }
 
