@@ -40,12 +40,10 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
 async function getPost(slug: string): Promise<any | null> {
   try {
     console.log("🔍 [getPost] Fetching post with slug:", slug);
-    
-    const queryPromise = (async () => {
-      const client = await clientPromise;
-      console.log("🔍 [getPost] MongoDB client connected");
-      const db = client.db("ARTICLES");
-      const collection = db.collection("final_articles");
+    const client = await clientPromise;
+    console.log("🔍 [getPost] MongoDB client connected");
+    const db = client.db("ARTICLES");
+    const collection = db.collection("final_articles");
 
     let post: any = null;
 
@@ -123,22 +121,17 @@ async function getPost(slug: string): Promise<any | null> {
       }
     }
 
-      // Return post or null
-      if (!post) {
-        console.log("❌ [getPost] Post not found for slug:", slug);
-        return null;
-      }
+    // Return post or null
+    if (!post) {
+      console.log("❌ [getPost] Post not found for slug:", slug);
+      return null;
+    }
 
-      console.log("✅ [getPost] Returning post data");
-      return {
-        ...post,
-        _id: post._id.toString(),
-      };
-    })();
-
-    // Add 8 second timeout to prevent Vercel timeout
-    const post = await withTimeout(queryPromise, 8000);
-    return post;
+    console.log("✅ [getPost] Returning post data");
+    return {
+      ...post,
+      _id: post._id.toString(),
+    };
   } catch (error) {
     console.error("❌ [getPost] Error fetching post:", error);
     if (error instanceof Error) {

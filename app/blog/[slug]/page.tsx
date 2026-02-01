@@ -31,12 +31,11 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
 
 async function getPost(slug: string): Promise<any | null> {
   try {
-    const queryPromise = (async () => {
-      const client = await clientPromise;
-      const db = client.db("ARTICLES");
-      const collection = db.collection("final_articles");
+    const client = await clientPromise;
+    const db = client.db("ARTICLES");
+    const collection = db.collection("final_articles");
 
-      let post: any = null;
+    let post: any = null;
 
     // Try by ObjectId first (for MongoDB ObjectIds)
     if (ObjectId.isValid(slug)) {
@@ -87,19 +86,14 @@ async function getPost(slug: string): Promise<any | null> {
       }
     }
 
-      if (!post) {
-        return null;
-      }
+    if (!post) {
+      return null;
+    }
 
-      return {
-        ...post,
-        _id: post._id.toString(),
-      };
-    })();
-
-    // Add 8 second timeout to prevent Vercel timeout
-    const post = await withTimeout(queryPromise, 8000);
-    return post;
+    return {
+      ...post,
+      _id: post._id.toString(),
+    };
   } catch (error) {
     console.error("Error fetching post:", error);
     return null;
