@@ -14,12 +14,13 @@ let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
 // Optimized connection settings for faster timeouts and better performance
+// Use longer timeouts in development, shorter in production
 const mongoOptions = {
   maxPoolSize: 10,
   minPoolSize: 2,
-  serverSelectionTimeoutMS: 3000, // Fail faster if server is unreachable
+  serverSelectionTimeoutMS: process.env.NODE_ENV === "development" ? 15000 : 5000, // Longer timeout in dev (15s), shorter in prod (5s)
   socketTimeoutMS: 10000, // Reduce socket timeout from 45s to 10s
-  connectTimeoutMS: 5000, // Connection timeout
+  connectTimeoutMS: process.env.NODE_ENV === "development" ? 10000 : 5000, // Longer timeout in dev
   heartbeatFrequencyMS: 10000,
   retryWrites: true,
   retryReads: true,

@@ -16,13 +16,24 @@ export const revalidate = 0;
 // Combined function to fetch all homepage data in a single query for better performance
 async function getHomepageData() {
   try {
-    // Add timeout wrapper to prevent hanging on slow connections
-    const connectionPromise = clientPromise;
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("MongoDB connection timeout")), 5000)
-    );
+    // Try to get client - MongoDB driver handles timeouts internally
+    let client;
+    try {
+      client = await clientPromise;
+      console.log("✅ [getHomepageData] MongoDB client connected");
+    } catch (connError: any) {
+      console.error("❌ [getHomepageData] Failed to connect to MongoDB:", connError);
+      if (connError.name === "MongoServerSelectionError") {
+        console.error("❌ [getHomepageData] MongoDB server selection timeout. Possible causes:");
+        console.error("   1. MongoDB Atlas cluster is paused (free tier pauses after inactivity)");
+        console.error("   2. IP whitelist doesn't include your current IP");
+        console.error("   3. Network connectivity issues");
+        console.error("   → Check MongoDB Atlas dashboard and ensure cluster is running");
+      }
+      // Return empty arrays on connection failure
+      return { heroPosts: [], recentPosts: [], popularArticles: [] };
+    }
     
-    const client = await Promise.race([connectionPromise, timeoutPromise]) as Awaited<typeof clientPromise>;
     const db = client.db("ARTICLES");
     const collection = db.collection("final_articles");
 
@@ -56,7 +67,7 @@ async function getHomepageData() {
       })
       .sort({ date: -1, publishedAt: -1, createdAt: -1 })
       .limit(22) // Fetch enough for all sections
-      .maxTimeMS(5000) // Query timeout: fail after 5 seconds
+      .maxTimeMS(process.env.NODE_ENV === "development" ? 10000 : 5000) // Longer timeout in dev
       .toArray();
 
     // Sort by date in descending order
