@@ -121,8 +121,8 @@ export async function GET(req: NextRequest) {
 
     console.log("📊 Query to Mongo:", JSON.stringify(query));
 
-    // Count total docs matching query
-    const total = await collection.countDocuments(query);
+    // Count total docs matching query with timeout
+    const total = await collection.countDocuments(query, { maxTimeMS: 10000 });
 
     // 👉 IMPORTANT: project only the fields needed on the homepage
     // Include content temporarily to extract images, then remove it from response
@@ -151,6 +151,7 @@ export async function GET(req: NextRequest) {
           excerpt: 1,
           content: 1, // Include content to extract images
         },
+        maxTimeMS: 10000, // Query timeout: fail after 10 seconds
       })
       .toArray();
 
@@ -254,8 +255,25 @@ export async function GET(req: NextRequest) {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ POSTS API ERROR:", error);
+    // Return empty results instead of 500 error to prevent frontend crashes
+    if (error.name === "MongoNetworkTimeoutError" || error.name === "MongoServerSelectionError") {
+      console.error("❌ MongoDB connection timeout - returning empty results");
+      return NextResponse.json(
+        {
+          success: true,
+          data: [],
+          pagination: {
+            total: 0,
+            page: 1,
+            limit: 12,
+            totalPages: 0,
+          },
+        },
+        { status: 200 },
+      );
+    }
     return NextResponse.json(
       {
         success: false,

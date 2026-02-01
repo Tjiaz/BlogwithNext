@@ -18,7 +18,7 @@ export async function GET(req: Request) {
     // Get top articles sorted by date (newest first)
     // Include content to extract images
     const articles = await collection
-      .find({})
+      .find({}, { maxTimeMS: 10000 })
       .sort({ date: -1 })
       .skip(skip)
       .limit(limit)
@@ -72,8 +72,11 @@ export async function GET(req: Request) {
     });
 
     return NextResponse.json(processedResults);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching top articles:", error);
+    if (error.name === "MongoNetworkTimeoutError" || error.name === "MongoServerSelectionError") {
+      console.error("❌ MongoDB connection timeout - returning empty array");
+    }
     return NextResponse.json([], { status: 200 });
   }
 }

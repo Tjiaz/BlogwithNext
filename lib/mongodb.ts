@@ -19,7 +19,7 @@ const mongoOptions = {
   maxPoolSize: 10,
   minPoolSize: 2,
   serverSelectionTimeoutMS: process.env.NODE_ENV === "development" ? 20000 : 5000, // Longer timeout in dev (20s), shorter in prod (5s)
-  socketTimeoutMS: 15000, // Socket timeout
+  socketTimeoutMS: 30000, // Socket timeout - increased for slow connections
   connectTimeoutMS: process.env.NODE_ENV === "development" ? 15000 : 5000, // Longer timeout in dev
   heartbeatFrequencyMS: 10000,
   retryWrites: true,
