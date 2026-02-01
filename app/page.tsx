@@ -13,40 +13,57 @@ import { extractFirstImageFromContent, getBestImage } from "@/lib/utils";
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// Fetch recent posts server-side
+// Helper function to add timeout to promises
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Operation timed out after ${timeoutMs}ms`)), timeoutMs)
+    ),
+  ]);
+}
+
+// Fetch recent posts server-side with timeout
 async function getRecentPosts() {
   try {
-    const client = await clientPromise;
-    const db = client.db("ARTICLES");
-    const collection = db.collection("final_articles");
+    const queryPromise = (async () => {
+      const client = await clientPromise;
+      const db = client.db("ARTICLES");
+      const collection = db.collection("final_articles");
 
-    // Optimize: Only fetch needed fields, exclude large content field
-    const posts = await collection
-      .find({}, {
-        projection: {
-          _id: 1,
-          title: 1,
-          slug: 1,
-          description: 1,
-          excerpt: 1,
-          topic: 1,
-          category: 1,
-          date: 1,
-          publishedAt: 1,
-          createdAt: 1,
-          author: 1,
-          img: 1,
-          featuredImage: 1,
-          image: 1,
-          imageUrl: 1,
-          hero_image: 1,
-          filtered_images: 1,
-          // Exclude content to speed up query
-        }
-      })
-      .sort({ date: -1, publishedAt: -1, createdAt: -1 })
-      .limit(8)
-      .toArray();
+      // Optimize: Only fetch needed fields, exclude large content field
+      const posts = await collection
+        .find({}, {
+          projection: {
+            _id: 1,
+            title: 1,
+            slug: 1,
+            description: 1,
+            excerpt: 1,
+            topic: 1,
+            category: 1,
+            date: 1,
+            publishedAt: 1,
+            createdAt: 1,
+            author: 1,
+            img: 1,
+            featuredImage: 1,
+            image: 1,
+            imageUrl: 1,
+            hero_image: 1,
+            filtered_images: 1,
+            // Exclude content to speed up query
+          }
+        })
+        .sort({ date: -1, publishedAt: -1, createdAt: -1 })
+        .limit(8)
+        .toArray();
+      
+      return posts;
+    })();
+
+    // Add 5 second timeout to prevent Vercel timeout
+    const posts = await withTimeout(queryPromise, 5000);
 
     // Sort by date in descending order
     posts.sort((a: any, b: any) => {
@@ -76,41 +93,49 @@ async function getRecentPosts() {
     }));
   } catch (error) {
     console.error("Failed to fetch recent posts:", error);
+    // Return empty array on timeout or error so page can still render
     return [];
   }
 }
 
-// Fetch popular articles server-side
+// Fetch popular articles server-side with timeout
 async function getPopularArticles() {
   try {
-    const client = await clientPromise;
-    const db = client.db("ARTICLES");
-    const collection = db.collection("final_articles");
+    const queryPromise = (async () => {
+      const client = await clientPromise;
+      const db = client.db("ARTICLES");
+      const collection = db.collection("final_articles");
 
-    // Optimize: Only fetch needed fields, exclude large content field
-    const articles = await collection
-      .find({}, {
-        projection: {
-          _id: 1,
-          title: 1,
-          description: 1,
-          topic: 1,
-          date: 1,
-          publishedAt: 1,
-          createdAt: 1,
-          author: 1,
-          img: 1,
-          featuredImage: 1,
-          image: 1,
-          imageUrl: 1,
-          hero_image: 1,
-          filtered_images: 1,
-          // Exclude content to speed up query
-        }
-      })
-      .sort({ date: -1, publishedAt: -1, createdAt: -1 })
-      .limit(4)
-      .toArray();
+      // Optimize: Only fetch needed fields, exclude large content field
+      const articles = await collection
+        .find({}, {
+          projection: {
+            _id: 1,
+            title: 1,
+            description: 1,
+            topic: 1,
+            date: 1,
+            publishedAt: 1,
+            createdAt: 1,
+            author: 1,
+            img: 1,
+            featuredImage: 1,
+            image: 1,
+            imageUrl: 1,
+            hero_image: 1,
+            filtered_images: 1,
+            // Exclude content to speed up query
+          }
+        })
+        .sort({ date: -1, publishedAt: -1, createdAt: -1 })
+        .limit(4)
+        .toArray();
+      
+      return articles;
+    })();
+
+    // Add 5 second timeout to prevent Vercel timeout
+    const articles = await withTimeout(queryPromise, 5000);
 
     // Sort by date in descending order
     articles.sort((a: any, b: any) => {
@@ -135,47 +160,55 @@ async function getPopularArticles() {
     }));
   } catch (error) {
     console.error("Failed to fetch popular articles:", error);
+    // Return empty array on timeout or error so page can still render
     return [];
   }
 }
 
-// Fetch hero posts server-side
+// Fetch hero posts server-side with timeout
 async function getHeroPosts() {
   try {
-    const client = await clientPromise;
-    const db = client.db("ARTICLES");
-    const collection = db.collection("final_articles");
+    const queryPromise = (async () => {
+      const client = await clientPromise;
+      const db = client.db("ARTICLES");
+      const collection = db.collection("final_articles");
 
-    // Optimize: Only fetch needed fields, exclude large content field
-    const posts = await collection
-      .find({}, {
-        projection: {
-          _id: 1,
-          id: 1,
-          slug: 1,
-          title: 1,
-          description: 1,
-          excerpt: 1,
-          summary: 1,
-          topic: 1,
-          category: 1,
-          date: 1,
-          publishedAt: 1,
-          createdAt: 1,
-          author: 1,
-          authorName: 1,
-          img: 1,
-          featuredImage: 1,
-          image: 1,
-          imageUrl: 1,
-          hero_image: 1,
-          filtered_images: 1,
-          // Exclude content to speed up query
-        }
-      })
-      .sort({ date: -1, publishedAt: -1, createdAt: -1 })
-      .limit(10)
-      .toArray();
+      // Optimize: Only fetch needed fields, exclude large content field
+      const posts = await collection
+        .find({}, {
+          projection: {
+            _id: 1,
+            id: 1,
+            slug: 1,
+            title: 1,
+            description: 1,
+            excerpt: 1,
+            summary: 1,
+            topic: 1,
+            category: 1,
+            date: 1,
+            publishedAt: 1,
+            createdAt: 1,
+            author: 1,
+            authorName: 1,
+            img: 1,
+            featuredImage: 1,
+            image: 1,
+            imageUrl: 1,
+            hero_image: 1,
+            filtered_images: 1,
+            // Exclude content to speed up query
+          }
+        })
+        .sort({ date: -1, publishedAt: -1, createdAt: -1 })
+        .limit(10)
+        .toArray();
+      
+      return posts;
+    })();
+
+    // Add 5 second timeout to prevent Vercel timeout
+    const posts = await withTimeout(queryPromise, 5000);
 
     // Sort by date in descending order
     posts.sort((a: any, b: any) => {
@@ -199,6 +232,7 @@ async function getHeroPosts() {
     }));
   } catch (error) {
     console.error("Failed to fetch hero posts:", error);
+    // Return empty array on timeout or error so page can still render
     return [];
   }
 }
