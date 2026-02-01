@@ -33,62 +33,39 @@ export interface Article {
  */
 export async function getHomepageData() {
   try {
-    console.log('🔍 [getHomepageData] Starting Supabase query...');
-    console.log('🔍 [getHomepageData] Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Missing');
-    
-    // First, try to fetch without is_published filter to see if RLS is blocking
-    // Then filter by is_published in the query
-    const { data: articles, error } = await supabase
+    // Optimized query for Vercel - single query, minimal fields, simple ordering
+    // Use Promise.race to timeout after 8 seconds (Vercel has 10s limit)
+    const queryPromise = supabase
       .from('final_articles')
-      .select('id, title, slug, description, excerpt, summary, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images, is_published')
+      .select('id, title, slug, description, excerpt, summary, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images')
       .eq('is_published', true)
-      .order('date', { ascending: false, nullsFirst: false })
       .order('published_at', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false, nullsFirst: false })
       .limit(22);
 
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Query timeout after 8 seconds')), 8000)
+    );
+
+    const { data: articles, error } = await Promise.race([
+      queryPromise,
+      timeoutPromise,
+    ]) as any;
+
     if (error) {
-      console.error('❌ [getHomepageData] Supabase error:', error);
-      console.error('❌ [getHomepageData] Error details:', JSON.stringify(error, null, 2));
-      
-      // Try without is_published filter to see if that's the issue
-      const { data: allArticles, error: allError } = await supabase
-        .from('final_articles')
-        .select('id, title, is_published')
-        .limit(5);
-      
-      if (!allError && allArticles) {
-        console.log('🔍 [getHomepageData] Found articles without filter:', allArticles.length);
-        console.log('🔍 [getHomepageData] Sample articles:', allArticles);
-      }
-      
+      console.error('❌ [getHomepageData] Supabase error:', error.message || error);
       return { heroPosts: [], recentPosts: [], popularArticles: [] };
     }
 
     if (!articles || articles.length === 0) {
-      console.log('⚠️ [getHomepageData] No articles found with is_published=true');
-      
-      // Try to see if there are any articles at all
-      const { data: anyArticles, error: anyError } = await supabase
-        .from('final_articles')
-        .select('id, title, is_published')
-        .limit(5);
-      
-      if (!anyError && anyArticles) {
-        console.log('🔍 [getHomepageData] Found articles (any status):', anyArticles.length);
-        console.log('🔍 [getHomepageData] Sample:', anyArticles);
-      }
-      
+      console.log('⚠️ [getHomepageData] No articles found');
       return { heroPosts: [], recentPosts: [], popularArticles: [] };
     }
 
-    console.log(`✅ [getHomepageData] Fetched ${articles.length} articles from Supabase`);
-
-    // Transform articles to match expected format
+    // Transform articles efficiently (articles already sorted by published_at DESC)
     const transformedArticles = articles.map((article: any) => {
-      // Get best image
+      // Get best image (prioritize hero_image and filtered_images)
       const bestImage = article.hero_image || 
-                       (article.filtered_images && article.filtered_images.length > 0 ? article.filtered_images[0] : null) ||
+                       (Array.isArray(article.filtered_images) && article.filtered_images.length > 0 ? article.filtered_images[0] : null) ||
                        article.img || 
                        article.featured_image || 
                        article.image || 
@@ -119,13 +96,7 @@ export async function getHomepageData() {
       };
     });
 
-    // Sort by date (most recent first)
-    transformedArticles.sort((a, b) => {
-      const dateA = new Date(a.date || a.publishedAt || a.createdAt || 0).getTime();
-      const dateB = new Date(b.date || b.publishedAt || b.createdAt || 0).getTime();
-      return dateB - dateA;
-    });
-
+    // Articles are already sorted by published_at DESC from the query
     // Split into sections
     const heroPosts = transformedArticles.slice(0, 10);
     const recentPosts = transformedArticles.slice(0, 8);
