@@ -8,8 +8,10 @@ import DiscoverTopics from "../components/home/DiscoverTopics";
 import clientPromise from "@/lib/mongodb";
 import { extractFirstImageFromContent, getBestImage } from "@/lib/utils";
 
-// Use ISR (Incremental Static Regeneration) to cache and prevent timeouts
-export const revalidate = 60; // Revalidate every 60 seconds
+// Make homepage fully dynamic to skip build-time generation
+// This prevents timeouts during Vercel build process
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Fetch recent posts server-side
 async function getRecentPosts() {

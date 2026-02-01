@@ -11,8 +11,8 @@ export async function GET() {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; ads.txt fetcher)',
       },
-      // Cache for 1 hour, then revalidate
-      next: { revalidate: 3600 },
+      // Don't cache during fetch - we'll handle caching via headers
+      cache: 'no-store',
     });
 
     if (!response.ok) {
@@ -40,5 +40,7 @@ export async function GET() {
   }
 }
 
-// Use ISR to cache the response
-export const revalidate = 3600; // Revalidate every hour
+// Make this route dynamic to skip build-time generation
+// The route will be generated on-demand when requested
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
