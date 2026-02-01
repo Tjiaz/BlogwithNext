@@ -37,6 +37,7 @@ async function getHomepageData() {
 
     // Single query to fetch all needed posts (max 22 = 10 hero + 8 recent + 4 popular)
     // This is much faster than 3 separate queries
+    console.log("🔍 [getHomepageData] Starting MongoDB query...");
     const allPosts = await collection
       .find({}, {
         projection: {
@@ -61,12 +62,14 @@ async function getHomepageData() {
           hero_image: 1,
           filtered_images: 1,
           // Exclude content to speed up query
-        }
+        },
+        maxTimeMS: process.env.NODE_ENV === "development" ? 20000 : 10000, // Increased timeout: 20s in dev, 10s in prod
       })
       .sort({ date: -1, publishedAt: -1, createdAt: -1 })
       .limit(22) // Fetch enough for all sections
-      .maxTimeMS(process.env.NODE_ENV === "development" ? 10000 : 5000) // Longer timeout in dev
       .toArray();
+    
+    console.log(`✅ [getHomepageData] Fetched ${allPosts.length} posts from MongoDB`);
 
     // Sort by date in descending order
     allPosts.sort((a: any, b: any) => {
@@ -120,13 +123,19 @@ async function getHomepageData() {
     return { heroPosts, recentPosts, popularArticles };
   } catch (error: any) {
     console.error("❌ [getHomepageData] Failed to fetch homepage data:", error);
-    if (error?.name === "MongoServerSelectionError" || error?.name === "MongoNetworkError") {
-      console.error("❌ [getHomepageData] MongoDB connection error. Check:");
-      console.error("   1. MongoDB Atlas cluster is running (not paused)");
-      console.error("   2. DATABASE_URL environment variable is correct");
+    console.error("❌ [getHomepageData] Error name:", error?.name);
+    console.error("❌ [getHomepageData] Error message:", error?.message);
+    
+    if (error?.name === "MongoServerSelectionError" || error?.name === "MongoNetworkError" || error?.name === "MongoNetworkTimeoutError") {
+      console.error("❌ [getHomepageData] MongoDB connection/timeout error. Check:");
+      console.error("   1. MongoDB Atlas cluster is running (not paused) - Go to Atlas dashboard and click 'Resume' if paused");
+      console.error("   2. DATABASE_URL environment variable is correct in .env.local");
       console.error("   3. IP whitelist includes your IP (or 0.0.0.0/0 for testing)");
+      console.error("   4. Network connectivity - check if you can reach MongoDB Atlas");
     }
-    // Return empty arrays on error so page can still render
+    
+    // Return empty arrays on error so page can still render (but log the error clearly)
+    console.error("⚠️ [getHomepageData] Returning empty arrays - homepage will show 'No posts found'");
     return {
       heroPosts: [],
       recentPosts: [],
