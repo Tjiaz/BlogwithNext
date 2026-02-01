@@ -13,57 +13,40 @@ import { extractFirstImageFromContent, getBestImage } from "@/lib/utils";
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// Helper function to add timeout to promises
-function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(`Operation timed out after ${timeoutMs}ms`)), timeoutMs)
-    ),
-  ]);
-}
-
-// Fetch recent posts server-side with timeout
+// Fetch recent posts server-side
 async function getRecentPosts() {
   try {
-    const queryPromise = (async () => {
-      const client = await clientPromise;
-      const db = client.db("ARTICLES");
-      const collection = db.collection("final_articles");
+    const client = await clientPromise;
+    const db = client.db("ARTICLES");
+    const collection = db.collection("final_articles");
 
-      // Optimize: Only fetch needed fields, exclude large content field
-      const posts = await collection
-        .find({}, {
-          projection: {
-            _id: 1,
-            title: 1,
-            slug: 1,
-            description: 1,
-            excerpt: 1,
-            topic: 1,
-            category: 1,
-            date: 1,
-            publishedAt: 1,
-            createdAt: 1,
-            author: 1,
-            img: 1,
-            featuredImage: 1,
-            image: 1,
-            imageUrl: 1,
-            hero_image: 1,
-            filtered_images: 1,
-            // Exclude content to speed up query
-          }
-        })
-        .sort({ date: -1, publishedAt: -1, createdAt: -1 })
-        .limit(8)
-        .toArray();
-      
-      return posts;
-    })();
-
-    // Add 8 second timeout to prevent Vercel timeout (under 10s limit)
-    const posts = await withTimeout(queryPromise, 8000);
+    // Optimize: Only fetch needed fields, exclude large content field
+    const posts = await collection
+      .find({}, {
+        projection: {
+          _id: 1,
+          title: 1,
+          slug: 1,
+          description: 1,
+          excerpt: 1,
+          topic: 1,
+          category: 1,
+          date: 1,
+          publishedAt: 1,
+          createdAt: 1,
+          author: 1,
+          img: 1,
+          featuredImage: 1,
+          image: 1,
+          imageUrl: 1,
+          hero_image: 1,
+          filtered_images: 1,
+          // Exclude content to speed up query
+        }
+      })
+      .sort({ date: -1, publishedAt: -1, createdAt: -1 })
+      .limit(8)
+      .toArray();
 
     // Sort by date in descending order
     posts.sort((a: any, b: any) => {
@@ -165,50 +148,43 @@ async function getPopularArticles() {
   }
 }
 
-// Fetch hero posts server-side with timeout
+// Fetch hero posts server-side
 async function getHeroPosts() {
   try {
-    const queryPromise = (async () => {
-      const client = await clientPromise;
-      const db = client.db("ARTICLES");
-      const collection = db.collection("final_articles");
+    const client = await clientPromise;
+    const db = client.db("ARTICLES");
+    const collection = db.collection("final_articles");
 
-      // Optimize: Only fetch needed fields, exclude large content field
-      const posts = await collection
-        .find({}, {
-          projection: {
-            _id: 1,
-            id: 1,
-            slug: 1,
-            title: 1,
-            description: 1,
-            excerpt: 1,
-            summary: 1,
-            topic: 1,
-            category: 1,
-            date: 1,
-            publishedAt: 1,
-            createdAt: 1,
-            author: 1,
-            authorName: 1,
-            img: 1,
-            featuredImage: 1,
-            image: 1,
-            imageUrl: 1,
-            hero_image: 1,
-            filtered_images: 1,
-            // Exclude content to speed up query
-          }
-        })
-        .sort({ date: -1, publishedAt: -1, createdAt: -1 })
-        .limit(10)
-        .toArray();
-      
-      return posts;
-    })();
-
-    // Add 8 second timeout to prevent Vercel timeout (under 10s limit)
-    const posts = await withTimeout(queryPromise, 8000);
+    // Optimize: Only fetch needed fields, exclude large content field
+    const posts = await collection
+      .find({}, {
+        projection: {
+          _id: 1,
+          id: 1,
+          slug: 1,
+          title: 1,
+          description: 1,
+          excerpt: 1,
+          summary: 1,
+          topic: 1,
+          category: 1,
+          date: 1,
+          publishedAt: 1,
+          createdAt: 1,
+          author: 1,
+          authorName: 1,
+          img: 1,
+          featuredImage: 1,
+          image: 1,
+          imageUrl: 1,
+          hero_image: 1,
+          filtered_images: 1,
+          // Exclude content to speed up query
+        }
+      })
+      .sort({ date: -1, publishedAt: -1, createdAt: -1 })
+      .limit(10)
+      .toArray();
 
     // Sort by date in descending order
     posts.sort((a: any, b: any) => {
