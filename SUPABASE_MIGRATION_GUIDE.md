@@ -33,24 +33,31 @@ This guide will help you migrate from MongoDB Atlas to Supabase (PostgreSQL).
    - **Project URL**: Found at the top, looks like `https://xxxxx.supabase.co`
      - ✅ You have: `https://owmqmqsgmkfuayfpfmva.supabase.co`
    - **anon public key**: Look for a key labeled "anon" or "public" 
-     - It's a long string that usually starts with `eyJ` (JWT token format)
-     - This is safe to expose in client-side code
+     - It's a **very long JWT token** (200+ characters) that starts with `eyJhbGci...`
+     - Copy the **entire token** - it has 3 parts separated by dots
+     - ✅ Example format: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93bXFtcXNnbWtmdWF5ZnBmbXZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NjQwNjYsImV4cCI6MjA4NTU0MDA2Nn0.506Ci7OdV836kj-V5yNNZU5KiAii5NEZeZTxjAu-8Pc`
+     - This is safe to expose in client-side code (it's public)
    - **service_role key**: Look for a key labeled "service_role"
-     - Also starts with `eyJ` (JWT token format)
+     - Also a **very long JWT token** starting with `eyJhbGci...`
+     - Copy the **entire token** - it has 3 parts separated by dots
      - ⚠️ **KEEP THIS SECRET** - Never expose this in client-side code!
    
-   **Note**: If you see keys starting with `sb_publishable_` or `sb_secret_`, those might be from a different section. The keys you need are the JWT tokens (usually starting with `eyJ`) in the "Project API keys" section.
+   **Important**: 
+   - The keys you need are the **JWT tokens** (long strings starting with `eyJ`)
+   - If you see keys starting with `sb_publishable_` or `sb_secret_`, those are from a different section (Streaming API) - ignore those
+   - The JWT tokens are in the "Project API keys" section and are much longer
 
 ## Step 4: Update Environment Variables
 
-Add these to your `.env.local` file:
+✅ **Already Done!** Your `.env.local` file has been created with your Supabase credentials:
+- `NEXT_PUBLIC_SUPABASE_URL` ✅
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` ✅  
+- `SUPABASE_SERVICE_ROLE_KEY` ✅
 
-```bash
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=your_project_url_here
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here  # Optional, for admin operations
-```
+**For Vercel Deployment:**
+1. Go to your Vercel project settings
+2. Navigate to **Environment Variables**
+3. Add these three variables with your Supabase credentials (same values as in `.env.local`)
 
 **For Vercel:**
 1. Go to your Vercel project settings
