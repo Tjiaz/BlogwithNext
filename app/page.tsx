@@ -120,8 +120,14 @@ async function getHomepageData() {
     }));
 
     return { heroPosts, recentPosts, popularArticles };
-  } catch (error) {
-    console.error("Failed to fetch homepage data:", error);
+  } catch (error: any) {
+    console.error("❌ [getHomepageData] Failed to fetch homepage data:", error);
+    if (error?.name === "MongoServerSelectionError" || error?.name === "MongoNetworkError") {
+      console.error("❌ [getHomepageData] MongoDB connection error. Check:");
+      console.error("   1. MongoDB Atlas cluster is running (not paused)");
+      console.error("   2. DATABASE_URL environment variable is correct");
+      console.error("   3. IP whitelist includes your IP (or 0.0.0.0/0 for testing)");
+    }
     // Return empty arrays on error so page can still render
     return {
       heroPosts: [],
