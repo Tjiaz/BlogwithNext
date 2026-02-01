@@ -23,21 +23,19 @@ async function getPost(slug: string): Promise<any | null> {
   try {
     console.log("🔍 [getPost] Fetching post with slug:", slug);
     
-    // Try to get client with timeout (increased to 8s for slow connections)
+    // Get client - MongoDB driver handles timeouts internally
     let client;
     try {
-      const connectionPromise = clientPromise;
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("MongoDB connection timeout after 8s")), 8000)
-      );
-      client = await Promise.race([connectionPromise, timeoutPromise]) as Awaited<typeof clientPromise>;
+      client = await clientPromise;
       console.log("🔍 [getPost] MongoDB client connected");
-    } catch (connError) {
+    } catch (connError: any) {
       console.error("❌ [getPost] Failed to connect to MongoDB:", connError);
-      console.error("❌ [getPost] This is likely a MongoDB Atlas connection issue. Check:");
-      console.error("   1. MongoDB Atlas cluster is running");
-      console.error("   2. IP whitelist includes Vercel IPs (0.0.0.0/0 for testing)");
-      console.error("   3. Database credentials are correct");
+      if (connError.name === "MongoServerSelectionError" || connError.name === "MongoNetworkTimeoutError") {
+        console.error("❌ [getPost] MongoDB connection timeout. Check:");
+        console.error("   1. MongoDB Atlas cluster is running (not paused)");
+        console.error("   2. IP whitelist includes your IP (or 0.0.0.0/0 for testing)");
+        console.error("   3. DATABASE_URL environment variable is correct");
+      }
       return null;
     }
     
@@ -50,7 +48,7 @@ async function getPost(slug: string): Promise<any | null> {
     if (ObjectId.isValid(slug)) {
       try {
         const objectId = new ObjectId(slug);
-        post = await collection.findOne({ _id: objectId }, { maxTimeMS: 8000 });
+        post = await collection.findOne({ _id: objectId }, { maxTimeMS: 15000 });
         if (post) {
           console.log("✅ Found post by _id (ObjectId)");
         }
@@ -63,7 +61,7 @@ async function getPost(slug: string): Promise<any | null> {
     if (!post) {
       try {
         // Use type assertion since MongoDB can accept string _id values
-        post = await collection.findOne({ _id: slug as any }, { maxTimeMS: 8000 });
+        post = await collection.findOne({ _id: slug as any }, { maxTimeMS: 15000 });
         if (post) {
           console.log("✅ Found post by _id (string)");
         }
@@ -75,7 +73,7 @@ async function getPost(slug: string): Promise<any | null> {
     // Try by slug field
     if (!post) {
       try {
-        post = await collection.findOne({ slug: slug }, { maxTimeMS: 8000 });
+        post = await collection.findOne({ slug: slug }, { maxTimeMS: 15000 });
         if (post) {
           console.log("✅ Found post by slug field");
         }
@@ -89,7 +87,7 @@ async function getPost(slug: string): Promise<any | null> {
       try {
         post = await collection.findOne(
           { slug: { $regex: new RegExp(`^${slug}$`, "i") } },
-          { maxTimeMS: 8000 }
+          { maxTimeMS: 15000 }
         );
       } catch (e) {
         console.error("Error in case-insensitive search:", e);
@@ -104,8 +102,12 @@ async function getPost(slug: string): Promise<any | null> {
       ...post,
       _id: post._id.toString(),
     };
-  } catch (error) {
-    console.error("Error fetching post:", error);
+  } catch (error: any) {
+    console.error("❌ [getPost] Error fetching post:", error);
+    if (error?.name === "MongoNetworkTimeoutError" || error?.name === "MongoServerSelectionError") {
+      console.error("❌ [getPost] MongoDB timeout error - article may exist but connection is slow");
+      console.error("❌ [getPost] Check MongoDB Atlas dashboard - cluster may be paused or slow");
+    }
     return null;
   }
 }
