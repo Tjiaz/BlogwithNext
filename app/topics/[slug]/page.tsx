@@ -162,17 +162,6 @@ export default async function TopicPage({
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Top Ad Banner */}
       <div className="w-full flex justify-center py-4 bg-white dark:bg-gray-800">
-        <div className="w-full max-w-4xl px-4">
-          <div className="w-full h-20 rounded-lg overflow-hidden">
-            <Image
-              src="/images/Adverts/ads.gif"
-              alt="Top Ad Banner"
-              width={800}
-              height={80}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">

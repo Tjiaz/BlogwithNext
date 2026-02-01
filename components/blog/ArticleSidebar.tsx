@@ -72,20 +72,6 @@ export default function ArticleSidebar({ currentPostId }: ArticleSidebarProps) {
     <aside className="lg:col-span-1">
       <div className="space-y-6 sticky top-24">
         {/* Ad Space */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-          <div className="w-full h-64 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-            <Image
-              src="/images/Adverts/ads1.i.gif"
-              alt="Advertisement"
-              width={300}
-              height={250}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-2">
-            Advertisement
-          </p>
-        </div>
 
         {/* Top Posts */}
         {!loading && topPosts.length > 0 && (
