@@ -19,16 +19,6 @@ import LikeButton from "@/components/blog/LikeButton";
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// Helper function to add timeout to promises
-function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(`Operation timed out after ${timeoutMs}ms`)), timeoutMs)
-    ),
-  ]);
-}
-
 async function getPost(slug: string): Promise<any | null> {
   try {
     const client = await clientPromise;
