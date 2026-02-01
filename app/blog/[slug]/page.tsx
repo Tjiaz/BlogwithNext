@@ -21,7 +21,13 @@ export const revalidate = 0;
 
 async function getPost(slug: string): Promise<any | null> {
   try {
-    const client = await clientPromise;
+    // Add timeout to connection to prevent hanging
+    const connectionPromise = clientPromise;
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("MongoDB connection timeout")), 5000)
+    );
+    
+    const client = await Promise.race([connectionPromise, timeoutPromise]) as Awaited<typeof clientPromise>;
     const db = client.db("ARTICLES");
     const collection = db.collection("final_articles");
 
@@ -31,7 +37,7 @@ async function getPost(slug: string): Promise<any | null> {
     if (ObjectId.isValid(slug)) {
       try {
         const objectId = new ObjectId(slug);
-        post = await collection.findOne({ _id: objectId });
+        post = await collection.findOne({ _id: objectId }).maxTimeMS(5000);
         if (post) {
           console.log("✅ Found post by _id (ObjectId)");
         }
@@ -44,7 +50,7 @@ async function getPost(slug: string): Promise<any | null> {
     if (!post) {
       try {
         // Use type assertion since MongoDB can accept string _id values
-        post = await collection.findOne({ _id: slug as any });
+        post = await collection.findOne({ _id: slug as any }).maxTimeMS(5000);
         if (post) {
           console.log("✅ Found post by _id (string)");
         }
@@ -56,7 +62,7 @@ async function getPost(slug: string): Promise<any | null> {
     // Try by slug field
     if (!post) {
       try {
-        post = await collection.findOne({ slug: slug });
+        post = await collection.findOne({ slug: slug }).maxTimeMS(5000);
         if (post) {
           console.log("✅ Found post by slug field");
         }
@@ -70,7 +76,7 @@ async function getPost(slug: string): Promise<any | null> {
       try {
         post = await collection.findOne({
           slug: { $regex: new RegExp(`^${slug}$`, "i") },
-        });
+        }).maxTimeMS(5000);
       } catch (e) {
         console.error("Error in case-insensitive search:", e);
       }
