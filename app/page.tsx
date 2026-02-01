@@ -8,6 +8,10 @@ import DiscoverTopics from "../components/home/DiscoverTopics";
 import clientPromise from "@/lib/mongodb";
 import { extractFirstImageFromContent, getBestImage } from "@/lib/utils";
 
+// Force dynamic rendering to prevent build timeouts
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // Fetch recent posts server-side
 async function getRecentPosts() {
   try {

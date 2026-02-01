@@ -43,15 +43,15 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors`}>
-        {/* Ezoic Header Scripts - Load in head for optimal ad delivery */}
+        {/* Ezoic Header Scripts - Load after page becomes interactive to avoid blocking build */}
         <Script
           async
           src="//www.ezojs.com/ezoic/sa.min.js"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
         />
         <Script
           id="ezoic-standalone"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               window.ezstandalone = window.ezstandalone || {};
