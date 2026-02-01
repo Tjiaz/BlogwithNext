@@ -25,7 +25,28 @@ This guide will help you migrate from MongoDB Atlas to Supabase (PostgreSQL).
    - Go to **Table Editor** (left sidebar)
    - You should see: `final_articles`, `users`, `newsletter_subscribers`, `newsletter_logs`
 
-## Step 3: Get Your Supabase Credentials
+## Step 3: Set Environment Variables in Vercel
+
+**IMPORTANT**: You must add these environment variables to your Vercel project before deploying:
+
+1. Go to your Vercel project dashboard: https://vercel.com/dashboard
+2. Select your project (`BlogwithNext`)
+3. Go to **Settings** → **Environment Variables**
+4. Add these three variables:
+
+   - **Name**: `NEXT_PUBLIC_SUPABASE_URL`
+     **Value**: `https://owmqmqsgmkfuayfpfmva.supabase.co` (your project URL)
+   
+   - **Name**: `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+     **Value**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (your anon/public key - the JWT token)
+   
+   - **Name**: `SUPABASE_SERVICE_ROLE_KEY`
+     **Value**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (your service_role key - the JWT token)
+     **Note**: Make sure this is set for all environments (Production, Preview, Development)
+
+5. After adding the variables, **redeploy** your project (or push a new commit to trigger a deployment)
+
+## Step 4: Get Your Supabase Credentials
 
 1. In Supabase dashboard, go to **Settings** (gear icon in left sidebar) → **API**
 2. You'll see a section called **Project API keys**
