@@ -6,9 +6,11 @@ import DiscoverTopics from "../components/home/DiscoverTopics";
 import { getBestImage } from "@/lib/utils";
 import { getHomepageData } from "@/lib/supabase-queries";
 
-// Make homepage fully dynamic to skip build-time generation
+// Use ISR (Incremental Static Regeneration) to avoid timeout issues
+// Pages are statically generated and revalidated every 60 seconds
+// This prevents Vercel function timeouts while keeping content fresh
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function Home() {
   // Fetch all homepage data from Supabase

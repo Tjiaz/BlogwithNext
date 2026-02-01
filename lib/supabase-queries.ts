@@ -33,8 +33,8 @@ export interface Article {
  */
 export async function getHomepageData() {
   try {
-    // Optimized query for Vercel - single query, minimal fields, simple ordering
-    // Use Promise.race to timeout after 8 seconds (Vercel has 10s limit)
+    // Optimized query for Vercel Edge Runtime - single query, minimal fields, simple ordering
+    // Edge Runtime has 30s timeout, but we'll fail fast at 5s to avoid user-facing delays
     const queryPromise = supabase
       .from('final_articles')
       .select('id, title, slug, description, excerpt, summary, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images')
@@ -42,14 +42,26 @@ export async function getHomepageData() {
       .order('published_at', { ascending: false, nullsFirst: false })
       .limit(22);
 
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Query timeout after 8 seconds')), 8000)
+    // Race against timeout - fail fast at 5 seconds
+    const timeoutPromise = new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error('Query timeout after 5 seconds')), 5000)
     );
 
-    const { data: articles, error } = await Promise.race([
-      queryPromise,
-      timeoutPromise,
-    ]) as any;
+    let articles: any[] | null = null;
+    let error: any = null;
+
+    try {
+      const result = await Promise.race([
+        queryPromise,
+        timeoutPromise,
+      ]) as any;
+      
+      articles = result.data;
+      error = result.error;
+    } catch (timeoutError: any) {
+      console.error('⏱️ [getHomepageData] Query timeout:', timeoutError.message);
+      return { heroPosts: [], recentPosts: [], popularArticles: [] };
+    }
 
     if (error) {
       console.error('❌ [getHomepageData] Supabase error:', error.message || error);
