@@ -43,12 +43,21 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors`}>
-        {/* Google AdSense - Required for verification (loads in head for crawler detection) */}
+        {/* Ezoic Header Scripts - Load in head for optimal ad delivery */}
         <Script
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4120496705202818"
-          crossOrigin="anonymous"
+          src="//www.ezojs.com/ezoic/sa.min.js"
           strategy="beforeInteractive"
+        />
+        <Script
+          id="ezoic-standalone"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.ezstandalone = window.ezstandalone || {};
+              ezstandalone.cmd = ezstandalone.cmd || [];
+            `,
+          }}
         />
         <Script
           id="theme-script"
