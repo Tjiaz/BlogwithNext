@@ -34,11 +34,13 @@ export interface Article {
 export async function getHomepageData() {
   try {
     console.log('🔍 [getHomepageData] Starting Supabase query...');
+    console.log('🔍 [getHomepageData] Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Missing');
     
-    // Fetch up to 22 articles (10 hero + 8 recent + 4 popular)
+    // First, try to fetch without is_published filter to see if RLS is blocking
+    // Then filter by is_published in the query
     const { data: articles, error } = await supabase
       .from('final_articles')
-      .select('id, title, slug, description, excerpt, summary, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images')
+      .select('id, title, slug, description, excerpt, summary, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images, is_published')
       .eq('is_published', true)
       .order('date', { ascending: false, nullsFirst: false })
       .order('published_at', { ascending: false, nullsFirst: false })
@@ -47,11 +49,36 @@ export async function getHomepageData() {
 
     if (error) {
       console.error('❌ [getHomepageData] Supabase error:', error);
+      console.error('❌ [getHomepageData] Error details:', JSON.stringify(error, null, 2));
+      
+      // Try without is_published filter to see if that's the issue
+      const { data: allArticles, error: allError } = await supabase
+        .from('final_articles')
+        .select('id, title, is_published')
+        .limit(5);
+      
+      if (!allError && allArticles) {
+        console.log('🔍 [getHomepageData] Found articles without filter:', allArticles.length);
+        console.log('🔍 [getHomepageData] Sample articles:', allArticles);
+      }
+      
       return { heroPosts: [], recentPosts: [], popularArticles: [] };
     }
 
     if (!articles || articles.length === 0) {
-      console.log('⚠️ [getHomepageData] No articles found');
+      console.log('⚠️ [getHomepageData] No articles found with is_published=true');
+      
+      // Try to see if there are any articles at all
+      const { data: anyArticles, error: anyError } = await supabase
+        .from('final_articles')
+        .select('id, title, is_published')
+        .limit(5);
+      
+      if (!anyError && anyArticles) {
+        console.log('🔍 [getHomepageData] Found articles (any status):', anyArticles.length);
+        console.log('🔍 [getHomepageData] Sample:', anyArticles);
+      }
+      
       return { heroPosts: [], recentPosts: [], popularArticles: [] };
     }
 
