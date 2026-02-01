@@ -3,8 +3,6 @@ import Sidebar from "../components/layout/Sidebar";
 import MoreRecentPosts from "../components/blog/MoreRecentPosts";
 import MostPopularArticles from "../components/home/MostPopularArticles";
 import DiscoverTopics from "../components/home/DiscoverTopics";
-// AdSense removed - Ezoic handles ad placement automatically
-// import AdSenseBanner from "../components/ads/AdSenseBanner";
 import clientPromise from "@/lib/mongodb";
 import { extractFirstImageFromContent, getBestImage } from "@/lib/utils";
 
@@ -144,8 +142,6 @@ export default async function Home() {
 
     return (
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
-        {/* Ad placement handled automatically by Ezoic */}
-        {/* Top Ad Banner - Ezoic will place ads here automatically */}
 
         {/* Hero with sidebar - both start at same level */}
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">

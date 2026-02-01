@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-// AdSense removed - Ezoic handles ad placement automatically
 // import AdSenseSidebar from "@/components/ads/AdSenseSidebar";
 import clientPromise from "@/lib/mongodb";
 import { getPostSlug, getBestImage } from "@/lib/utils";
@@ -277,8 +276,6 @@ export default async function TopicPage({
                 </form>
               </div>
 
-              {/* Ad placement handled automatically by Ezoic */}
-              {/* Ezoic will place ads here automatically */}
 
               {/* Newsletter Signup */}
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">

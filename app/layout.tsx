@@ -43,37 +43,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors`}>
-        {/* Ezoic Header Scripts - Load lazily to prevent timeout errors */}
-        <Script
-          async
-          src="//www.ezojs.com/ezoic/sa.min.js"
-          strategy="lazyOnload"
-        />
-        <Script
-          id="ezoic-standalone"
-          strategy="lazyOnload"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                if (typeof window === 'undefined') return;
-                window.ezstandalone = window.ezstandalone || {};
-                ezstandalone.cmd = ezstandalone.cmd || [];
-                // Suppress identity bridging script timeout errors (non-critical)
-                try {
-                  window.addEventListener('error', function(e) {
-                    if (e.message && typeof e.message === 'string' && e.message.includes('identity bridging')) {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return false;
-                    }
-                  }, true);
-                } catch (err) {
-                  // Ignore errors in error handler setup
-                }
-              })();
-            `,
-          }}
-        />
         <Script
           id="theme-script"
           strategy="beforeInteractive"

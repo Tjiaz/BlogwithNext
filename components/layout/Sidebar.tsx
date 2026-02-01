@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Button } from "../ui/Button";
 import { getPostSlug } from "@/lib/utils";
 import toast from "react-hot-toast";
-// AdSense removed - Ezoic handles ad placement automatically
 // import AdSenseSidebar from "../ads/AdSenseSidebar";
 
 const Sidebar = () => {
@@ -104,8 +103,6 @@ const Sidebar = () => {
           </p>
         </div>
 
-        {/* Ad placement handled automatically by Ezoic */}
-        {/* Side Ad - Ezoic will place ads here automatically */}
 
         {/* Top Posts Section */}
         <div className="w-72 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
@@ -137,8 +134,6 @@ const Sidebar = () => {
           )}
         </div>
 
-        {/* Ad placement handled automatically by Ezoic */}
-        {/* Secondary Ad - Ezoic will place ads here automatically */}
       </div>
     </aside>
   );

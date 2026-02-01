@@ -6,7 +6,6 @@ import Image from "next/image";
 import { TrendingUp, Clock, ArrowRight } from "lucide-react";
 import { getPostSlug, getBestImage } from "@/lib/utils";
 import toast from "react-hot-toast";
-// AdSense removed - Ezoic handles ad placement automatically
 // import AdSenseSidebar from "../ads/AdSenseSidebar";
 
 interface Article {
@@ -181,8 +180,6 @@ export default function ArticleSidebar({ currentPostId }: ArticleSidebarProps) {
           </div>
         )}
 
-        {/* Ad placement handled automatically by Ezoic */}
-        {/* Ezoic will place ads here automatically */}
 
         {/* Newsletter Signup */}
         <div className="bg-gradient-to-r from-[#0a73b0] to-[#2a9bd0] dark:from-blue-600 dark:to-blue-700 rounded-lg shadow p-6 text-white">

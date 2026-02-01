@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import { getPostSlug, getBestImage } from "@/lib/utils";
-// AdSense removed - Ezoic handles ad placement automatically
 // import AdSenseRectangle from "@/components/ads/AdSenseRectangle";
 
 const defaultPosts = [
@@ -299,8 +298,6 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
               ))}
             </div>
 
-            {/* Ad placement handled automatically by Ezoic */}
-            {/* Ezoic will place ads here automatically */}
 
             <div className="flex items-center justify-between mt-6">
               <button
