@@ -13,149 +13,16 @@ import { extractFirstImageFromContent, getBestImage } from "@/lib/utils";
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// Fetch recent posts server-side
-async function getRecentPosts() {
+// Combined function to fetch all homepage data in a single query for better performance
+async function getHomepageData() {
   try {
     const client = await clientPromise;
     const db = client.db("ARTICLES");
     const collection = db.collection("final_articles");
 
-    // Optimize: Only fetch needed fields, exclude large content field
-    const posts = await collection
-      .find({}, {
-        projection: {
-          _id: 1,
-          title: 1,
-          slug: 1,
-          description: 1,
-          excerpt: 1,
-          topic: 1,
-          category: 1,
-          date: 1,
-          publishedAt: 1,
-          createdAt: 1,
-          author: 1,
-          img: 1,
-          featuredImage: 1,
-          image: 1,
-          imageUrl: 1,
-          hero_image: 1,
-          filtered_images: 1,
-          // Exclude content to speed up query
-        }
-      })
-      .sort({ date: -1, publishedAt: -1, createdAt: -1 })
-      .limit(8)
-      .toArray();
-
-    // Sort by date in descending order
-    posts.sort((a: any, b: any) => {
-      const dateA = new Date(
-        a.date || a.publishedAt || a.createdAt || 0,
-      ).getTime();
-      const dateB = new Date(
-        b.date || b.publishedAt || b.createdAt || 0,
-      ).getTime();
-      return dateB - dateA;
-    });
-
-    return posts.map((post: any) => ({
-      _id: post._id.toString(),
-      title: post.title,
-      slug: post.slug || post._id.toString(),
-      description: post.description,
-      excerpt: post.excerpt,
-      topic: post.topic,
-      category: post.category,
-      date: post.date || post.publishedAt,
-      publishedAt: post.publishedAt,
-      author: post.author,
-      img: getBestImage(post, null), // Don't process content, use existing image fields
-      featuredImage: post.featuredImage,
-      image: post.image,
-    }));
-  } catch (error) {
-    console.error("Failed to fetch recent posts:", error);
-    // Return empty array on timeout or error so page can still render
-    return [];
-  }
-}
-
-// Fetch popular articles server-side
-async function getPopularArticles() {
-  try {
-    const client = await clientPromise;
-    const db = client.db("ARTICLES");
-    const collection = db.collection("final_articles");
-
-    // Optimize: Only fetch needed fields, exclude large content field
-    const articles = await collection
-      .find({}, {
-        projection: {
-          _id: 1,
-          title: 1,
-          description: 1,
-          topic: 1,
-          date: 1,
-          publishedAt: 1,
-          createdAt: 1,
-          author: 1,
-          img: 1,
-          featuredImage: 1,
-          image: 1,
-          imageUrl: 1,
-          hero_image: 1,
-          filtered_images: 1,
-          // Exclude content to speed up query
-        }
-      })
-      .sort({ date: -1, publishedAt: -1, createdAt: -1 })
-      .limit(4)
-      .toArray();
-
-    // Safety check: ensure articles is an array
-    if (!articles || !Array.isArray(articles)) {
-      console.error("Articles query returned invalid data:", articles);
-      return [];
-    }
-
-    // Sort by date in descending order
-    articles.sort((a: any, b: any) => {
-      const dateA = new Date(
-        a.date || a.publishedAt || a.createdAt || 0,
-      ).getTime();
-      const dateB = new Date(
-        b.date || b.publishedAt || b.createdAt || 0,
-      ).getTime();
-      return dateB - dateA;
-    });
-
-    return articles.map((article: any) => ({
-      id: article._id.toString(),
-      _id: article._id.toString(),
-      title: article.title,
-      description: article.description,
-      author: article.author || "",
-      date: article.date || article.publishedAt || "",
-      topic: article.topic || "",
-      img: getBestImage(article, null), // Don't process content, use existing image fields
-    }));
-  } catch (error) {
-    console.error("Failed to fetch popular articles:", error);
-    // Return empty array on timeout or error so page can still render
-    return [];
-  }
-}
-
-// Fetch hero posts server-side
-async function getHeroPosts() {
-  try {
-    const client = await clientPromise;
-    const db = client.db("ARTICLES");
-    const collection = db.collection("final_articles");
-
-    // Optimize: Only fetch needed fields, exclude large content field
-    const posts = await collection
+    // Single query to fetch all needed posts (max 22 = 10 hero + 8 recent + 4 popular)
+    // This is much faster than 3 separate queries
+    const allPosts = await collection
       .find({}, {
         projection: {
           _id: 1,
@@ -182,11 +49,11 @@ async function getHeroPosts() {
         }
       })
       .sort({ date: -1, publishedAt: -1, createdAt: -1 })
-      .limit(10)
+      .limit(22) // Fetch enough for all sections
       .toArray();
 
     // Sort by date in descending order
-    posts.sort((a: any, b: any) => {
+    allPosts.sort((a: any, b: any) => {
       const dateA = new Date(
         a.date || a.publishedAt || a.createdAt || 0,
       ).getTime();
@@ -196,36 +63,60 @@ async function getHeroPosts() {
       return dateB - dateA;
     });
 
-    return posts.map((p: any) => ({
+    // Split into different sections
+    const heroPosts = allPosts.slice(0, 10).map((p: any) => ({
       id: p._id?.toString() ?? p.id ?? p.slug,
       title: p.title ?? "",
       author: p.author ?? p.authorName ?? "Unknown",
       date: p.publishedAt ?? p.date ?? p.createdAt ?? null,
       excerpt: p.excerpt ?? p.description ?? p.summary ?? "",
       topic: p.topic ?? p.category ?? "",
-      image: getBestImage(p, null), // Don't process content, use existing image fields
+      image: getBestImage(p, null),
     }));
+
+    const recentPosts = allPosts.slice(0, 8).map((post: any) => ({
+      _id: post._id.toString(),
+      title: post.title,
+      slug: post.slug || post._id.toString(),
+      description: post.description,
+      excerpt: post.excerpt,
+      topic: post.topic,
+      category: post.category,
+      date: post.date || post.publishedAt,
+      publishedAt: post.publishedAt,
+      author: post.author,
+      img: getBestImage(post, null),
+      featuredImage: post.featuredImage,
+      image: post.image,
+    }));
+
+    const popularArticles = allPosts.slice(0, 4).map((article: any) => ({
+      id: article._id.toString(),
+      _id: article._id.toString(),
+      title: article.title,
+      description: article.description,
+      author: article.author || "",
+      date: article.date || article.publishedAt || "",
+      topic: article.topic || "",
+      img: getBestImage(article, null),
+    }));
+
+    return { heroPosts, recentPosts, popularArticles };
   } catch (error) {
-    console.error("Failed to fetch hero posts:", error);
-    // Return empty array on timeout or error so page can still render
-    return [];
+    console.error("Failed to fetch homepage data:", error);
+    // Return empty arrays on error so page can still render
+    return {
+      heroPosts: [],
+      recentPosts: [],
+      popularArticles: [],
+    };
   }
 }
 
 export default async function Home() {
-  // Fetch data server-side - all queries run in parallel for better performance
+  // Fetch all homepage data in a single optimized query
   try {
-    // Use Promise.allSettled to prevent one slow query from blocking others
-    const results = await Promise.allSettled([
-      getRecentPosts(),
-      getPopularArticles(),
-      getHeroPosts(),
-    ]);
-
-    // Extract results, defaulting to empty arrays on failure
-    const recentPosts = results[0].status === 'fulfilled' ? results[0].value : [];
-    const popularArticles = results[1].status === 'fulfilled' ? results[1].value : [];
-    const heroPosts = results[2].status === 'fulfilled' ? results[2].value : [];
+    const { heroPosts, recentPosts, popularArticles } = await getHomepageData();
 
     return (
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
