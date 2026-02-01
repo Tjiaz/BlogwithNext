@@ -16,7 +16,13 @@ export const revalidate = 0;
 // Combined function to fetch all homepage data in a single query for better performance
 async function getHomepageData() {
   try {
-    const client = await clientPromise;
+    // Add timeout wrapper to prevent hanging on slow connections
+    const connectionPromise = clientPromise;
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("MongoDB connection timeout")), 5000)
+    );
+    
+    const client = await Promise.race([connectionPromise, timeoutPromise]) as Awaited<typeof clientPromise>;
     const db = client.db("ARTICLES");
     const collection = db.collection("final_articles");
 
@@ -50,6 +56,7 @@ async function getHomepageData() {
       })
       .sort({ date: -1, publishedAt: -1, createdAt: -1 })
       .limit(22) // Fetch enough for all sections
+      .maxTimeMS(5000) // Query timeout: fail after 5 seconds
       .toArray();
 
     // Sort by date in descending order
