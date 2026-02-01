@@ -27,11 +27,19 @@ This guide will help you migrate from MongoDB Atlas to Supabase (PostgreSQL).
 
 ## Step 3: Get Your Supabase Credentials
 
-1. In Supabase dashboard, go to **Settings** → **API**
-2. Copy these values:
-   - **Project URL** (under "Project URL")
-   - **anon/public key** (under "Project API keys" → "anon public")
-   - **service_role key** (under "Project API keys" → "service_role" - keep this secret!)
+1. In Supabase dashboard, go to **Settings** (gear icon in left sidebar) → **API**
+2. You'll see a section called **Project API keys**
+3. Copy these values:
+   - **Project URL**: Found at the top, looks like `https://xxxxx.supabase.co`
+     - ✅ You have: `https://owmqmqsgmkfuayfpfmva.supabase.co`
+   - **anon public key**: Look for a key labeled "anon" or "public" 
+     - It's a long string that usually starts with `eyJ` (JWT token format)
+     - This is safe to expose in client-side code
+   - **service_role key**: Look for a key labeled "service_role"
+     - Also starts with `eyJ` (JWT token format)
+     - ⚠️ **KEEP THIS SECRET** - Never expose this in client-side code!
+   
+   **Note**: If you see keys starting with `sb_publishable_` or `sb_secret_`, those might be from a different section. The keys you need are the JWT tokens (usually starting with `eyJ`) in the "Project API keys" section.
 
 ## Step 4: Update Environment Variables
 
