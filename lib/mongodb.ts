@@ -18,9 +18,9 @@ let clientPromise: Promise<MongoClient>;
 const mongoOptions = {
   maxPoolSize: 10,
   minPoolSize: 2,
-  serverSelectionTimeoutMS: process.env.NODE_ENV === "development" ? 15000 : 5000, // Longer timeout in dev (15s), shorter in prod (5s)
-  socketTimeoutMS: 10000, // Reduce socket timeout from 45s to 10s
-  connectTimeoutMS: process.env.NODE_ENV === "development" ? 10000 : 5000, // Longer timeout in dev
+  serverSelectionTimeoutMS: process.env.NODE_ENV === "development" ? 20000 : 5000, // Longer timeout in dev (20s), shorter in prod (5s)
+  socketTimeoutMS: 15000, // Socket timeout
+  connectTimeoutMS: process.env.NODE_ENV === "development" ? 15000 : 5000, // Longer timeout in dev
   heartbeatFrequencyMS: 10000,
   retryWrites: true,
   retryReads: true,
@@ -28,6 +28,7 @@ const mongoOptions = {
 
 if (process.env.NODE_ENV === "development") {
   // In development, reuse the client across hot reloads
+  // Force recreation if client exists but connection failed (to pick up new timeout settings)
   if (!global._mongoClient) {
     global._mongoClient = new MongoClient(process.env.DATABASE_URL, mongoOptions);
     global._mongoClientPromise = global._mongoClient.connect();
