@@ -213,13 +213,19 @@ async function getHeroPosts() {
 }
 
 export default async function Home() {
-  // Fetch data server-side for immediate rendering with timeout protection
+  // Fetch data server-side - all queries run in parallel for better performance
   try {
-    const [recentPosts, popularArticles, heroPosts] = await Promise.all([
+    // Use Promise.allSettled to prevent one slow query from blocking others
+    const results = await Promise.allSettled([
       getRecentPosts(),
       getPopularArticles(),
       getHeroPosts(),
     ]);
+
+    // Extract results, defaulting to empty arrays on failure
+    const recentPosts = results[0].status === 'fulfilled' ? results[0].value : [];
+    const popularArticles = results[1].status === 'fulfilled' ? results[1].value : [];
+    const heroPosts = results[2].status === 'fulfilled' ? results[2].value : [];
 
     return (
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
