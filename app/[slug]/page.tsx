@@ -31,17 +31,21 @@ async function getPost(slug: string): Promise<any | null> {
   try {
     console.log("🔍 [getPost] Fetching post with slug:", slug);
     
-    // Try to get client with timeout
+    // Try to get client with timeout (increased to 8s for slow connections)
     let client;
     try {
       const connectionPromise = clientPromise;
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("MongoDB connection timeout")), 5000)
+        setTimeout(() => reject(new Error("MongoDB connection timeout after 8s")), 8000)
       );
       client = await Promise.race([connectionPromise, timeoutPromise]) as Awaited<typeof clientPromise>;
       console.log("🔍 [getPost] MongoDB client connected");
     } catch (connError) {
       console.error("❌ [getPost] Failed to connect to MongoDB:", connError);
+      console.error("❌ [getPost] This is likely a MongoDB Atlas connection issue. Check:");
+      console.error("   1. MongoDB Atlas cluster is running");
+      console.error("   2. IP whitelist includes Vercel IPs (0.0.0.0/0 for testing)");
+      console.error("   3. Database credentials are correct");
       // Return null on connection failure - will trigger 404
       return null;
     }
@@ -56,7 +60,7 @@ async function getPost(slug: string): Promise<any | null> {
       console.log("🔍 [getPost] Slug is valid ObjectId, searching by _id");
       try {
         const objectId = new ObjectId(slug);
-        post = await collection.findOne({ _id: objectId }, { maxTimeMS: 5000 });
+        post = await collection.findOne({ _id: objectId }, { maxTimeMS: 8000 });
         if (post) {
           console.log(
             "✅ [getPost] Found post by _id (ObjectId):",
@@ -75,7 +79,7 @@ async function getPost(slug: string): Promise<any | null> {
       console.log("🔍 [getPost] Trying to find by _id as string");
       try {
         // Use type assertion since MongoDB can accept string _id values
-        post = await collection.findOne({ _id: slug as any }, { maxTimeMS: 5000 });
+        post = await collection.findOne({ _id: slug as any }, { maxTimeMS: 8000 });
         if (post) {
           console.log(
             "✅ [getPost] Found post by _id (string):",
@@ -93,7 +97,7 @@ async function getPost(slug: string): Promise<any | null> {
     if (!post) {
       console.log("🔍 [getPost] Trying to find by slug field");
       try {
-        post = await collection.findOne({ slug: slug }, { maxTimeMS: 5000 });
+        post = await collection.findOne({ slug: slug }, { maxTimeMS: 8000 });
         if (post) {
           console.log(
             "✅ [getPost] Found post by slug field:",
@@ -113,7 +117,7 @@ async function getPost(slug: string): Promise<any | null> {
       try {
         post = await collection.findOne(
           { slug: { $regex: new RegExp(`^${slug}$`, "i") } },
-          { maxTimeMS: 5000 }
+          { maxTimeMS: 8000 }
         );
         if (post) {
           console.log(
