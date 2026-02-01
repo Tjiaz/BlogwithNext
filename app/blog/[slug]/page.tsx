@@ -48,7 +48,7 @@ async function getPost(slug: string): Promise<any | null> {
     if (ObjectId.isValid(slug)) {
       try {
         const objectId = new ObjectId(slug);
-        post = await collection.findOne({ _id: objectId }, { maxTimeMS: 15000 });
+        post = await collection.findOne({ _id: objectId }, { maxTimeMS: 5000 });
         if (post) {
           console.log("✅ Found post by _id (ObjectId)");
         }
@@ -61,7 +61,7 @@ async function getPost(slug: string): Promise<any | null> {
     if (!post) {
       try {
         // Use type assertion since MongoDB can accept string _id values
-        post = await collection.findOne({ _id: slug as any }, { maxTimeMS: 15000 });
+        post = await collection.findOne({ _id: slug as any }, { maxTimeMS: 5000 });
         if (post) {
           console.log("✅ Found post by _id (string)");
         }
@@ -73,7 +73,7 @@ async function getPost(slug: string): Promise<any | null> {
     // Try by slug field
     if (!post) {
       try {
-        post = await collection.findOne({ slug: slug }, { maxTimeMS: 15000 });
+        post = await collection.findOne({ slug: slug }, { maxTimeMS: 5000 });
         if (post) {
           console.log("✅ Found post by slug field");
         }
@@ -87,7 +87,7 @@ async function getPost(slug: string): Promise<any | null> {
       try {
         post = await collection.findOne(
           { slug: { $regex: new RegExp(`^${slug}$`, "i") } },
-          { maxTimeMS: 15000 }
+          { maxTimeMS: 5000 }
         );
       } catch (e) {
         console.error("Error in case-insensitive search:", e);

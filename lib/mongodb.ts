@@ -13,14 +13,14 @@ declare global {
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-// Optimized connection settings for faster timeouts and better performance
-// Use longer timeouts in development, shorter in production
+// Optimized connection settings for Vercel (10s timeout limit on free tier)
+// Aggressive timeouts to prevent Vercel function timeouts
 const mongoOptions = {
   maxPoolSize: 10,
   minPoolSize: 2,
-  serverSelectionTimeoutMS: process.env.NODE_ENV === "development" ? 20000 : 5000, // Longer timeout in dev (20s), shorter in prod (5s)
-  socketTimeoutMS: 30000, // Socket timeout - increased for slow connections
-  connectTimeoutMS: process.env.NODE_ENV === "development" ? 15000 : 5000, // Longer timeout in dev
+  serverSelectionTimeoutMS: process.env.NODE_ENV === "development" ? 10000 : 3000, // Fast fail: 10s dev, 3s prod
+  socketTimeoutMS: process.env.NODE_ENV === "development" ? 15000 : 8000, // Socket timeout: 15s dev, 8s prod
+  connectTimeoutMS: process.env.NODE_ENV === "development" ? 10000 : 3000, // Connection timeout: 10s dev, 3s prod
   heartbeatFrequencyMS: 10000,
   retryWrites: true,
   retryReads: true,

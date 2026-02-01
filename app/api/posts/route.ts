@@ -122,7 +122,7 @@ export async function GET(req: NextRequest) {
     console.log("📊 Query to Mongo:", JSON.stringify(query));
 
     // Count total docs matching query with timeout
-    const total = await collection.countDocuments(query, { maxTimeMS: 10000 });
+    const total = await collection.countDocuments(query, { maxTimeMS: 5000 });
 
     // 👉 IMPORTANT: project only the fields needed on the homepage
     // Include content temporarily to extract images, then remove it from response
@@ -151,7 +151,7 @@ export async function GET(req: NextRequest) {
           excerpt: 1,
           content: 1, // Include content to extract images
         },
-        maxTimeMS: 10000, // Query timeout: fail after 10 seconds
+        maxTimeMS: 5000, // Query timeout: fail after 5 seconds (Vercel has 10s limit)
       })
       .toArray();
 

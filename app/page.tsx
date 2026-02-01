@@ -63,7 +63,7 @@ async function getHomepageData() {
           filtered_images: 1,
           // Exclude content to speed up query
         },
-        maxTimeMS: process.env.NODE_ENV === "development" ? 20000 : 10000, // Increased timeout: 20s in dev, 10s in prod
+        maxTimeMS: process.env.NODE_ENV === "development" ? 15000 : 5000, // Vercel-optimized: 15s dev, 5s prod (well under 10s limit)
       })
       .sort({ date: -1, publishedAt: -1, createdAt: -1 })
       .limit(22) // Fetch enough for all sections

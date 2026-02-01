@@ -18,7 +18,7 @@ export async function GET(req: Request) {
     // Get top articles sorted by date (newest first)
     // Include content to extract images
     const articles = await collection
-      .find({}, { maxTimeMS: 10000 })
+      .find({}, { maxTimeMS: 5000 })
       .sort({ date: -1 })
       .skip(skip)
       .limit(limit)
