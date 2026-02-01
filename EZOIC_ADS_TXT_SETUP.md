@@ -76,33 +76,16 @@ Since you're deploying on Vercel, you can set up automated updates using Vercel 
 }
 ```
 
-2. Create `app/api/cron/update-ads-txt/route.ts`:
+**Note**: The cron endpoint is already created at `app/api/cron/update-ads-txt/route.ts`
 
-```typescript
-import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+2. (Optional) Add `CRON_SECRET` to your Vercel environment variables if you want to secure the endpoint
 
-export async function GET(request: Request) {
-  // Verify the request is from Vercel Cron
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+3. The cron job will run every 6 hours and refresh the ads.txt cache
 
-  // Revalidate the ads.txt route to fetch fresh content
-  revalidatePath("/ads.txt");
-
-  return NextResponse.json({ 
-    success: true, 
-    message: "ads.txt cache revalidated",
-    timestamp: new Date().toISOString()
-  });
-}
-```
-
-3. Add `CRON_SECRET` to your Vercel environment variables
-
-4. The cron job will run every 6 hours and refresh the ads.txt cache
+**Schedule Options**:
+- `0 */6 * * *` - Every 6 hours
+- `0 */12 * * *` - Every 12 hours  
+- `0 0 * * *` - Once daily at midnight
 
 ### Option 2: External Cron Service
 
