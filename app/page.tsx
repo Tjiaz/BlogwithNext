@@ -117,8 +117,6 @@ async function getPopularArticles() {
       return articles;
     })();
 
-    // Add 5 second timeout to prevent Vercel timeout
-    const articles = await withTimeout(queryPromise, 5000);
 
     // Sort by date in descending order
     articles.sort((a: any, b: any) => {
