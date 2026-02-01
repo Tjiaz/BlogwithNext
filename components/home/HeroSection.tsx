@@ -233,6 +233,8 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
 
   const currentPosts = posts; // server already gave us just one page
 
+  // Ensure consistent rendering between server and client
+  // Always render the same structure to avoid hydration mismatches
   return (
     <div className="w-full">
       <main>

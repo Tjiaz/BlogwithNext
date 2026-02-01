@@ -1,5 +1,5 @@
 // Supabase query helpers - Converted from MongoDB queries
-import { supabase } from './supabase';
+import { supabase } from "./supabase";
 
 export interface Article {
   id: string;
@@ -36,69 +36,86 @@ export async function getHomepageData() {
     // Optimized query for Vercel Edge Runtime - single query, minimal fields, simple ordering
     // Edge Runtime has 30s timeout, but we'll fail fast at 5s to avoid user-facing delays
     const queryPromise = supabase
-      .from('final_articles')
-      .select('id, title, slug, description, excerpt, summary, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images')
-      .eq('is_published', true)
-      .order('published_at', { ascending: false, nullsFirst: false })
+      .from("final_articles")
+      .select(
+        "id, title, slug, description, excerpt, summary, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images"
+      )
+      .eq("is_published", true)
+      .order("published_at", { ascending: false, nullsFirst: false })
       .limit(22);
 
-    // Race against timeout - fail fast at 5 seconds
-    const timeoutPromise = new Promise<never>((_, reject) => 
-      setTimeout(() => reject(new Error('Query timeout after 5 seconds')), 5000)
+    // Race against timeout - fail fast at 5 seconds to avoid Vercel's 10s timeout
+    const startTime = Date.now();
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Query timeout after 5 seconds")), 5000)
     );
 
-    let articles: any[] | null = null;
-    let error: any = null;
-
+    // Race the query against the timeout
+    let result: any;
     try {
-      const result = await Promise.race([
-        queryPromise,
-        timeoutPromise,
-      ]) as any;
-      
-      articles = result.data;
-      error = result.error;
+      result = await Promise.race([queryPromise, timeoutPromise]);
     } catch (timeoutError: any) {
-      console.error('⏱️ [getHomepageData] Query timeout:', timeoutError.message);
+      const elapsed = Date.now() - startTime;
+      console.error(
+        `⏱️ [getHomepageData] Query timeout after ${elapsed}ms:`,
+        timeoutError.message
+      );
       return { heroPosts: [], recentPosts: [], popularArticles: [] };
     }
 
+    const { data: articles, error } = result;
+
     if (error) {
-      console.error('❌ [getHomepageData] Supabase error:', error.message || error);
+      const elapsed = Date.now() - startTime;
+      console.error(
+        `❌ [getHomepageData] Supabase error after ${elapsed}ms:`,
+        error.message || error
+      );
       return { heroPosts: [], recentPosts: [], popularArticles: [] };
     }
 
     if (!articles || articles.length === 0) {
-      console.log('⚠️ [getHomepageData] No articles found');
+      console.log("⚠️ [getHomepageData] No articles found");
       return { heroPosts: [], recentPosts: [], popularArticles: [] };
     }
+
+    const elapsed = Date.now() - startTime;
+    console.log(
+      `✅ [getHomepageData] Fetched ${articles.length} articles in ${elapsed}ms`
+    );
 
     // Transform articles efficiently (articles already sorted by published_at DESC)
     const transformedArticles = articles.map((article: any) => {
       // Get best image (prioritize hero_image and filtered_images)
-      const bestImage = article.hero_image || 
-                       (Array.isArray(article.filtered_images) && article.filtered_images.length > 0 ? article.filtered_images[0] : null) ||
-                       article.img || 
-                       article.featured_image || 
-                       article.image || 
-                       article.image_url || 
-                       null;
+      const bestImage =
+        article.hero_image ||
+        (Array.isArray(article.filtered_images) &&
+        article.filtered_images.length > 0
+          ? article.filtered_images[0]
+          : null) ||
+        article.img ||
+        article.featured_image ||
+        article.image ||
+        article.image_url ||
+        null;
 
       return {
         _id: article.id,
         id: article.id,
-        title: article.title || '',
+        title: article.title || "",
         slug: article.slug || article.id,
-        description: article.description || article.excerpt || '',
-        excerpt: article.excerpt || article.description || '',
-        summary: article.summary || '',
-        topic: article.topic || article.category || '',
-        category: article.category || article.topic || '',
-        date: article.date || article.published_at || article.created_at || '',
-        publishedAt: article.published_at || article.date || article.created_at || '',
-        createdAt: article.created_at || article.published_at || article.date || '',
-        author: article.author || article.author_name || 'Unknown',
-        authorName: article.author_name || article.author || 'Unknown',
+        description: article.description || article.excerpt || "",
+        excerpt: article.excerpt || article.description || "",
+        summary: article.summary || "",
+        topic: article.topic || article.category || "",
+        category: article.category || article.topic || "",
+        date: article.date || article.published_at || article.created_at || "",
+        publishedAt:
+          article.published_at || article.date || article.created_at || "",
+        createdAt:
+          article.created_at || article.published_at || article.date || "",
+        author: article.author || article.author_name || "Unknown",
+        authorName: article.author_name || article.author || "Unknown",
         img: bestImage,
         featuredImage: article.featured_image || bestImage,
         image: article.image || bestImage,
@@ -116,7 +133,7 @@ export async function getHomepageData() {
 
     return { heroPosts, recentPosts, popularArticles };
   } catch (error: any) {
-    console.error('❌ [getHomepageData] Failed to fetch homepage data:', error);
+    console.error("❌ [getHomepageData] Failed to fetch homepage data:", error);
     return { heroPosts: [], recentPosts: [], popularArticles: [] };
   }
 }
@@ -135,12 +152,16 @@ export async function getArticlesByYear(years: number[], limit: number = 5) {
       // Query for articles in this year (check both date and published_at fields)
       // Use or() with proper syntax: "field1.gte.value1,field1.lt.value2,field2.gte.value1,field2.lt.value2"
       const { data: articles, error } = await supabase
-        .from('final_articles')
-        .select('id, title, description, author, author_name, date, published_at, topic, category, img, featured_image, image, image_url, hero_image, filtered_images')
-        .eq('is_published', true)
-        .or(`and(date.gte.${startOfYear},date.lt.${startOfNextYear}),and(published_at.gte.${startOfYear},published_at.lt.${startOfNextYear})`)
-        .order('date', { ascending: false, nullsFirst: false })
-        .order('published_at', { ascending: false, nullsFirst: false })
+        .from("final_articles")
+        .select(
+          "id, title, description, author, author_name, date, published_at, topic, category, img, featured_image, image, image_url, hero_image, filtered_images"
+        )
+        .eq("is_published", true)
+        .or(
+          `and(date.gte.${startOfYear},date.lt.${startOfNextYear}),and(published_at.gte.${startOfYear},published_at.lt.${startOfNextYear})`
+        )
+        .order("date", { ascending: false, nullsFirst: false })
+        .order("published_at", { ascending: false, nullsFirst: false })
         .limit(limit * 2); // Get more to filter properly
 
       if (error) {
@@ -150,24 +171,32 @@ export async function getArticlesByYear(years: number[], limit: number = 5) {
 
       if (articles && articles.length > 0) {
         // Filter to ensure articles are actually in the year range
-        const filteredArticles = articles.filter((article: any) => {
-          const articleDate = article.date || article.published_at;
-          if (!articleDate) return false;
-          const date = new Date(articleDate);
-          const yearStart = new Date(startOfYear);
-          const yearEnd = new Date(startOfNextYear);
-          return date >= yearStart && date < yearEnd;
-        }).slice(0, limit);
+        const filteredArticles = articles
+          .filter((article: any) => {
+            const articleDate = article.date || article.published_at;
+            if (!articleDate) return false;
+            const date = new Date(articleDate);
+            const yearStart = new Date(startOfYear);
+            const yearEnd = new Date(startOfNextYear);
+            return date >= yearStart && date < yearEnd;
+          })
+          .slice(0, limit);
 
         if (filteredArticles.length > 0) {
           results[year] = filteredArticles.map((article: any) => ({
             id: article.id,
             title: article.title,
             description: article.description,
-            author: article.author || article.author_name || '',
-            date: article.date || article.published_at || '',
-            topic: article.topic || article.category || '',
-            img: article.img || article.featured_image || article.image || article.image_url || article.hero_image || null,
+            author: article.author || article.author_name || "",
+            date: article.date || article.published_at || "",
+            topic: article.topic || article.category || "",
+            img:
+              article.img ||
+              article.featured_image ||
+              article.image ||
+              article.image_url ||
+              article.hero_image ||
+              null,
           }));
         }
       }
@@ -180,7 +209,7 @@ export async function getArticlesByYear(years: number[], limit: number = 5) {
       }))
       .filter((yearData) => yearData.articles.length > 0);
   } catch (error: any) {
-    console.error('❌ [getArticlesByYear] Error:', error);
+    console.error("❌ [getArticlesByYear] Error:", error);
     return [];
   }
 }
@@ -193,33 +222,39 @@ export async function getTopArticles(page: number = 1, limit: number = 5) {
     const skip = (page - 1) * limit;
 
     const { data: articles, error } = await supabase
-      .from('final_articles')
-      .select('id, title, description, author, author_name, date, published_at, topic, category, img, featured_image, image, image_url, hero_image, filtered_images, content')
-      .eq('is_published', true)
-      .order('date', { ascending: false, nullsFirst: false })
-      .order('published_at', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false, nullsFirst: false })
+      .from("final_articles")
+      .select(
+        "id, title, description, author, author_name, date, published_at, topic, category, img, featured_image, image, image_url, hero_image, filtered_images, content"
+      )
+      .eq("is_published", true)
+      .order("date", { ascending: false, nullsFirst: false })
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false, nullsFirst: false })
       .range(skip, skip + limit - 1);
 
     if (error) {
-      console.error('❌ [getTopArticles] Supabase error:', error);
+      console.error("❌ [getTopArticles] Supabase error:", error);
       return [];
     }
 
     if (!articles) return [];
 
     return articles.map((article: any) => {
-      const filteredImage = article.filtered_images && Array.isArray(article.filtered_images) && article.filtered_images.length > 0
-        ? article.filtered_images[0]
-        : null;
+      const filteredImage =
+        article.filtered_images &&
+        Array.isArray(article.filtered_images) &&
+        article.filtered_images.length > 0
+          ? article.filtered_images[0]
+          : null;
 
-      let imageUrl = article.hero_image ||
-                     filteredImage ||
-                     article.img ||
-                     article.featured_image ||
-                     article.image ||
-                     article.image_url ||
-                     null;
+      let imageUrl =
+        article.hero_image ||
+        filteredImage ||
+        article.img ||
+        article.featured_image ||
+        article.image ||
+        article.image_url ||
+        null;
 
       if (!imageUrl && article.content) {
         // Extract image from content if needed (you can import extractFirstImageFromContent here)
@@ -227,7 +262,7 @@ export async function getTopArticles(page: number = 1, limit: number = 5) {
       }
 
       if (!imageUrl) {
-        imageUrl = '/images/azbyte.jpeg';
+        imageUrl = "/images/azbyte.jpeg";
       }
 
       return {
@@ -235,14 +270,14 @@ export async function getTopArticles(page: number = 1, limit: number = 5) {
         _id: article.id,
         title: article.title,
         description: article.description,
-        author: article.author || article.author_name || '',
-        date: article.date || article.published_at || '',
-        topic: article.topic || article.category || '',
+        author: article.author || article.author_name || "",
+        date: article.date || article.published_at || "",
+        topic: article.topic || article.category || "",
         img: imageUrl,
       };
     });
   } catch (error: any) {
-    console.error('❌ [getTopArticles] Error:', error);
+    console.error("❌ [getTopArticles] Error:", error);
     return [];
   }
 }
@@ -262,33 +297,44 @@ export async function getArticles(params: {
     const skip = (page - 1) * limit;
 
     let query = supabase
-      .from('final_articles')
-      .select('id, title, slug, description, excerpt, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images, tags, content', { count: 'exact' })
-      .eq('is_published', true);
+      .from("final_articles")
+      .select(
+        "id, title, slug, description, excerpt, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images, tags, content",
+        { count: "exact" }
+      )
+      .eq("is_published", true);
 
     // Apply topic filter (case-insensitive exact match)
     if (params.topic) {
-      query = query.or(`topic.ilike.${params.topic},category.ilike.${params.topic}`);
+      query = query.or(
+        `topic.ilike.${params.topic},category.ilike.${params.topic}`
+      );
     }
 
     // Apply search filter
     if (params.search) {
       const searchTerm = params.search.trim();
       // Use ilike for case-insensitive search
-      query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%,topic.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%,excerpt.ilike.%${searchTerm}%`);
+      query = query.or(
+        `title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%,topic.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%,excerpt.ilike.%${searchTerm}%`
+      );
     }
 
     // Order by date
     query = query
-      .order('date', { ascending: false, nullsFirst: false })
-      .order('published_at', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false, nullsFirst: false });
+      .order("date", { ascending: false, nullsFirst: false })
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false, nullsFirst: false });
 
     // Apply pagination
-    const { data: articles, error, count } = await query.range(skip, skip + limit - 1);
+    const {
+      data: articles,
+      error,
+      count,
+    } = await query.range(skip, skip + limit - 1);
 
     if (error) {
-      console.error('❌ [getArticles] Supabase error:', error);
+      console.error("❌ [getArticles] Supabase error:", error);
       return { data: [], total: 0, page, limit, totalPages: 0 };
     }
 
@@ -298,13 +344,16 @@ export async function getArticles(params: {
 
     // Transform articles
     const transformedArticles = articles.map((article: any) => {
-      const bestImage = article.hero_image ||
-                       (article.filtered_images && article.filtered_images.length > 0 ? article.filtered_images[0] : null) ||
-                       article.img ||
-                       article.featured_image ||
-                       article.image ||
-                       article.image_url ||
-                       null;
+      const bestImage =
+        article.hero_image ||
+        (article.filtered_images && article.filtered_images.length > 0
+          ? article.filtered_images[0]
+          : null) ||
+        article.img ||
+        article.featured_image ||
+        article.image ||
+        article.image_url ||
+        null;
 
       return {
         _id: article.id,
@@ -313,17 +362,18 @@ export async function getArticles(params: {
         slug: article.slug || article.id,
         description: article.description,
         excerpt: article.excerpt,
-        topic: article.topic || article.category || '',
-        category: article.category || article.topic || '',
-        date: article.date || article.published_at || article.created_at || '',
-        publishedAt: article.published_at || article.date || article.created_at || '',
-        createdAt: article.created_at || '',
-        author: article.author || article.author_name || 'Unknown',
+        topic: article.topic || article.category || "",
+        category: article.category || article.topic || "",
+        date: article.date || article.published_at || article.created_at || "",
+        publishedAt:
+          article.published_at || article.date || article.created_at || "",
+        createdAt: article.created_at || "",
+        author: article.author || article.author_name || "Unknown",
         img: bestImage,
         featuredImage: article.featured_image || bestImage,
         image: article.image || bestImage,
         tags: article.tags || [],
-        content: article.content || '', // Include content for image extraction
+        content: article.content || "", // Include content for image extraction
       };
     });
 
@@ -338,7 +388,7 @@ export async function getArticles(params: {
       totalPages,
     };
   } catch (error: any) {
-    console.error('❌ [getArticles] Error:', error);
+    console.error("❌ [getArticles] Error:", error);
     return { data: [], total: 0, page: 1, limit: 12, totalPages: 0 };
   }
 }
@@ -348,34 +398,34 @@ export async function getArticles(params: {
  */
 export async function getArticle(slug: string): Promise<Article | null> {
   try {
-    console.log('🔍 [getArticle] Fetching article with slug:', slug);
+    console.log("🔍 [getArticle] Fetching article with slug:", slug);
 
     // Try to find by slug first
     let { data: article, error } = await supabase
-      .from('final_articles')
-      .select('*')
-      .eq('slug', slug)
-      .eq('is_published', true)
+      .from("final_articles")
+      .select("*")
+      .eq("slug", slug)
+      .eq("is_published", true)
       .single();
 
     // If not found by slug, try by ID (UUID)
     if (error || !article) {
       const { data: articleById, error: errorById } = await supabase
-        .from('final_articles')
-        .select('*')
-        .eq('id', slug)
-        .eq('is_published', true)
+        .from("final_articles")
+        .select("*")
+        .eq("id", slug)
+        .eq("is_published", true)
         .single();
 
       if (errorById || !articleById) {
-        console.log('❌ [getArticle] Article not found for slug:', slug);
+        console.log("❌ [getArticle] Article not found for slug:", slug);
         return null;
       }
 
       article = articleById;
     }
 
-    console.log('✅ [getArticle] Found article:', article.title);
+    console.log("✅ [getArticle] Found article:", article.title);
 
     // Transform to match expected format
     return {
@@ -383,28 +433,59 @@ export async function getArticle(slug: string): Promise<Article | null> {
       _id: article.id,
       title: article.title,
       slug: article.slug,
-      description: article.description || '',
-      excerpt: article.excerpt || '',
-      summary: article.summary || '',
-      topic: article.topic || article.category || '',
-      category: article.category || article.topic || '',
-      date: article.date || article.published_at || article.created_at || '',
-      publishedAt: article.published_at || article.date || article.created_at || '',
-      createdAt: article.created_at || '',
-      author: article.author || article.author_name || 'Unknown',
-      authorName: article.author_name || article.author || 'Unknown',
-      img: article.img || article.featured_image || article.image || article.image_url || article.hero_image || null,
-      featuredImage: article.featured_image || article.img || article.image || article.image_url || article.hero_image || null,
-      image: article.image || article.img || article.featured_image || article.image_url || article.hero_image || null,
-      imageUrl: article.image_url || article.img || article.featured_image || article.image || article.hero_image || null,
-      hero_image: article.hero_image || article.img || article.featured_image || article.image || article.image_url || null,
+      description: article.description || "",
+      excerpt: article.excerpt || "",
+      summary: article.summary || "",
+      topic: article.topic || article.category || "",
+      category: article.category || article.topic || "",
+      date: article.date || article.published_at || article.created_at || "",
+      publishedAt:
+        article.published_at || article.date || article.created_at || "",
+      createdAt: article.created_at || "",
+      author: article.author || article.author_name || "Unknown",
+      authorName: article.author_name || article.author || "Unknown",
+      img:
+        article.img ||
+        article.featured_image ||
+        article.image ||
+        article.image_url ||
+        article.hero_image ||
+        null,
+      featuredImage:
+        article.featured_image ||
+        article.img ||
+        article.image ||
+        article.image_url ||
+        article.hero_image ||
+        null,
+      image:
+        article.image ||
+        article.img ||
+        article.featured_image ||
+        article.image_url ||
+        article.hero_image ||
+        null,
+      imageUrl:
+        article.image_url ||
+        article.img ||
+        article.featured_image ||
+        article.image ||
+        article.hero_image ||
+        null,
+      hero_image:
+        article.hero_image ||
+        article.img ||
+        article.featured_image ||
+        article.image ||
+        article.image_url ||
+        null,
       filtered_images: article.filtered_images || [],
-      content: article.content || '',
+      content: article.content || "",
       views: article.views || 0,
       likes: article.likes || 0,
     };
   } catch (error: any) {
-    console.error('❌ [getArticle] Error fetching article:', error);
+    console.error("❌ [getArticle] Error fetching article:", error);
     return null;
   }
 }
