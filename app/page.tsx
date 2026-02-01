@@ -3,151 +3,23 @@ import Sidebar from "../components/layout/Sidebar";
 import MoreRecentPosts from "../components/blog/MoreRecentPosts";
 import MostPopularArticles from "../components/home/MostPopularArticles";
 import DiscoverTopics from "../components/home/DiscoverTopics";
-import clientPromise from "@/lib/mongodb";
-import { extractFirstImageFromContent, getBestImage } from "@/lib/utils";
+import { getBestImage } from "@/lib/utils";
+import { getHomepageData } from "@/lib/supabase-queries";
 
 // Make homepage fully dynamic to skip build-time generation
-// This prevents timeouts during Vercel build process
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// Combined function to fetch all homepage data in a single query for better performance
-async function getHomepageData() {
-  try {
-    // Try to get client - MongoDB driver handles timeouts internally
-    let client;
-    try {
-      client = await clientPromise;
-      console.log("✅ [getHomepageData] MongoDB client connected");
-    } catch (connError: any) {
-      console.error("❌ [getHomepageData] Failed to connect to MongoDB:", connError);
-      if (connError.name === "MongoServerSelectionError") {
-        console.error("❌ [getHomepageData] MongoDB server selection timeout. Possible causes:");
-        console.error("   1. MongoDB Atlas cluster is paused (free tier pauses after inactivity)");
-        console.error("   2. IP whitelist doesn't include your current IP");
-        console.error("   3. Network connectivity issues");
-        console.error("   → Check MongoDB Atlas dashboard and ensure cluster is running");
-      }
-      // Return empty arrays on connection failure
-      return { heroPosts: [], recentPosts: [], popularArticles: [] };
-    }
-    
-    const db = client.db("ARTICLES");
-    const collection = db.collection("final_articles");
-
-    // Single query to fetch all needed posts (max 22 = 10 hero + 8 recent + 4 popular)
-    // This is much faster than 3 separate queries
-    console.log("🔍 [getHomepageData] Starting MongoDB query...");
-    const allPosts = await collection
-      .find({}, {
-        projection: {
-          _id: 1,
-          id: 1,
-          slug: 1,
-          title: 1,
-          description: 1,
-          excerpt: 1,
-          summary: 1,
-          topic: 1,
-          category: 1,
-          date: 1,
-          publishedAt: 1,
-          createdAt: 1,
-          author: 1,
-          authorName: 1,
-          img: 1,
-          featuredImage: 1,
-          image: 1,
-          imageUrl: 1,
-          hero_image: 1,
-          filtered_images: 1,
-          // Exclude content to speed up query
-        },
-        maxTimeMS: process.env.NODE_ENV === "development" ? 15000 : 5000, // Vercel-optimized: 15s dev, 5s prod (well under 10s limit)
-      })
-      .sort({ date: -1, publishedAt: -1, createdAt: -1 })
-      .limit(22) // Fetch enough for all sections
-      .toArray();
-    
-    console.log(`✅ [getHomepageData] Fetched ${allPosts.length} posts from MongoDB`);
-
-    // Sort by date in descending order
-    allPosts.sort((a: any, b: any) => {
-      const dateA = new Date(
-        a.date || a.publishedAt || a.createdAt || 0,
-      ).getTime();
-      const dateB = new Date(
-        b.date || b.publishedAt || b.createdAt || 0,
-      ).getTime();
-      return dateB - dateA;
-    });
-
-    // Split into different sections
-    const heroPosts = allPosts.slice(0, 10).map((p: any) => ({
-      id: p._id?.toString() ?? p.id ?? p.slug,
-      title: p.title ?? "",
-      author: p.author ?? p.authorName ?? "Unknown",
-      date: p.publishedAt ?? p.date ?? p.createdAt ?? null,
-      excerpt: p.excerpt ?? p.description ?? p.summary ?? "",
-      topic: p.topic ?? p.category ?? "",
-      image: getBestImage(p, null),
-    }));
-
-    const recentPosts = allPosts.slice(0, 8).map((post: any) => ({
-      _id: post._id.toString(),
-      title: post.title,
-      slug: post.slug || post._id.toString(),
-      description: post.description,
-      excerpt: post.excerpt,
-      topic: post.topic,
-      category: post.category,
-      date: post.date || post.publishedAt,
-      publishedAt: post.publishedAt,
-      author: post.author,
-      img: getBestImage(post, null),
-      featuredImage: post.featuredImage,
-      image: post.image,
-    }));
-
-    const popularArticles = allPosts.slice(0, 4).map((article: any) => ({
-      id: article._id.toString(),
-      _id: article._id.toString(),
-      title: article.title,
-      description: article.description,
-      author: article.author || "",
-      date: article.date || article.publishedAt || "",
-      topic: article.topic || "",
-      img: getBestImage(article, null),
-    }));
-
-    return { heroPosts, recentPosts, popularArticles };
-  } catch (error: any) {
-    console.error("❌ [getHomepageData] Failed to fetch homepage data:", error);
-    console.error("❌ [getHomepageData] Error name:", error?.name);
-    console.error("❌ [getHomepageData] Error message:", error?.message);
-    
-    if (error?.name === "MongoServerSelectionError" || error?.name === "MongoNetworkError" || error?.name === "MongoNetworkTimeoutError") {
-      console.error("❌ [getHomepageData] MongoDB connection/timeout error. Check:");
-      console.error("   1. MongoDB Atlas cluster is running (not paused) - Go to Atlas dashboard and click 'Resume' if paused");
-      console.error("   2. DATABASE_URL environment variable is correct in .env.local");
-      console.error("   3. IP whitelist includes your IP (or 0.0.0.0/0 for testing)");
-      console.error("   4. Network connectivity - check if you can reach MongoDB Atlas");
-    }
-    
-    // Return empty arrays on error so page can still render (but log the error clearly)
-    console.error("⚠️ [getHomepageData] Returning empty arrays - homepage will show 'No posts found'");
-    return {
-      heroPosts: [],
-      recentPosts: [],
-      popularArticles: [],
-    };
-  }
-}
-
 export default async function Home() {
-  // Fetch all homepage data in a single optimized query
+  // Fetch all homepage data from Supabase
   try {
     const { heroPosts, recentPosts, popularArticles } = await getHomepageData();
+    
+    // Transform heroPosts to include image
+    const heroPostsWithImages = heroPosts.map((post: any) => ({
+      ...post,
+      image: getBestImage(post, null),
+    }));
 
     return (
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
@@ -156,7 +28,7 @@ export default async function Home() {
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
             <div className="lg:col-span-3">
-              <HeroSection initialPosts={heroPosts} />
+              <HeroSection initialPosts={heroPostsWithImages} />
             </div>
             <Sidebar />
           </div>
