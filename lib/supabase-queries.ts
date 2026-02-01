@@ -123,40 +123,43 @@ export async function getArticlesByYear(years: number[], limit: number = 5) {
       const startOfNextYear = `${year + 1}-01-01T00:00:00.000Z`;
 
       // Query for articles in this year (check both date and published_at fields)
-      const { data: articlesByDate, error: errorDate } = await supabase
+      // Use or() with proper syntax: "field1.gte.value1,field1.lt.value2,field2.gte.value1,field2.lt.value2"
+      const { data: articles, error } = await supabase
         .from('final_articles')
         .select('id, title, description, author, author_name, date, published_at, topic, category, img, featured_image, image, image_url, hero_image, filtered_images')
         .eq('is_published', true)
-        .gte('date', startOfYear)
-        .lt('date', startOfNextYear)
+        .or(`and(date.gte.${startOfYear},date.lt.${startOfNextYear}),and(published_at.gte.${startOfYear},published_at.lt.${startOfNextYear})`)
         .order('date', { ascending: false, nullsFirst: false })
-        .limit(limit);
-
-      const { data: articlesByPublished, error: errorPublished } = await supabase
-        .from('final_articles')
-        .select('id, title, description, author, author_name, date, published_at, topic, category, img, featured_image, image, image_url, hero_image, filtered_images')
-        .eq('is_published', true)
-        .gte('published_at', startOfYear)
-        .lt('published_at', startOfNextYear)
         .order('published_at', { ascending: false, nullsFirst: false })
-        .limit(limit);
+        .limit(limit * 2); // Get more to filter properly
 
-      // Combine results and remove duplicates
-      const allArticles = [...(articlesByDate || []), ...(articlesByPublished || [])];
-      const uniqueArticles = Array.from(
-        new Map(allArticles.map((article) => [article.id, article])).values()
-      ).slice(0, limit);
+      if (error) {
+        console.error(`❌ [getArticlesByYear] Error for year ${year}:`, error);
+        continue;
+      }
 
-      if (uniqueArticles.length > 0) {
-        results[year] = uniqueArticles.map((article: any) => ({
-          id: article.id,
-          title: article.title,
-          description: article.description,
-          author: article.author || article.author_name || '',
-          date: article.date || article.published_at || '',
-          topic: article.topic || article.category || '',
-          img: article.img || article.featured_image || article.image || article.image_url || article.hero_image || null,
-        }));
+      if (articles && articles.length > 0) {
+        // Filter to ensure articles are actually in the year range
+        const filteredArticles = articles.filter((article: any) => {
+          const articleDate = article.date || article.published_at;
+          if (!articleDate) return false;
+          const date = new Date(articleDate);
+          const yearStart = new Date(startOfYear);
+          const yearEnd = new Date(startOfNextYear);
+          return date >= yearStart && date < yearEnd;
+        }).slice(0, limit);
+
+        if (filteredArticles.length > 0) {
+          results[year] = filteredArticles.map((article: any) => ({
+            id: article.id,
+            title: article.title,
+            description: article.description,
+            author: article.author || article.author_name || '',
+            date: article.date || article.published_at || '',
+            topic: article.topic || article.category || '',
+            img: article.img || article.featured_image || article.image || article.image_url || article.hero_image || null,
+          }));
+        }
       }
     }
 
