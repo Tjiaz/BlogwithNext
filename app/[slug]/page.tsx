@@ -49,7 +49,7 @@ async function getPost(slug: string): Promise<any | null> {
       console.log("🔍 [getPost] Slug is valid ObjectId, searching by _id");
       try {
         const objectId = new ObjectId(slug);
-        post = await collection.findOne({ _id: objectId }).maxTimeMS(5000);
+        post = await collection.findOne({ _id: objectId }, { maxTimeMS: 5000 });
         if (post) {
           console.log(
             "✅ [getPost] Found post by _id (ObjectId):",
@@ -68,7 +68,7 @@ async function getPost(slug: string): Promise<any | null> {
       console.log("🔍 [getPost] Trying to find by _id as string");
       try {
         // Use type assertion since MongoDB can accept string _id values
-        post = await collection.findOne({ _id: slug as any }).maxTimeMS(5000);
+        post = await collection.findOne({ _id: slug as any }, { maxTimeMS: 5000 });
         if (post) {
           console.log(
             "✅ [getPost] Found post by _id (string):",
@@ -86,7 +86,7 @@ async function getPost(slug: string): Promise<any | null> {
     if (!post) {
       console.log("🔍 [getPost] Trying to find by slug field");
       try {
-        post = await collection.findOne({ slug: slug }).maxTimeMS(5000);
+        post = await collection.findOne({ slug: slug }, { maxTimeMS: 5000 });
         if (post) {
           console.log(
             "✅ [getPost] Found post by slug field:",
@@ -104,9 +104,10 @@ async function getPost(slug: string): Promise<any | null> {
     if (!post) {
       console.log("🔍 [getPost] Trying case-insensitive slug search");
       try {
-        post = await collection.findOne({
-          slug: { $regex: new RegExp(`^${slug}$`, "i") },
-        }).maxTimeMS(5000);
+        post = await collection.findOne(
+          { slug: { $regex: new RegExp(`^${slug}$`, "i") } },
+          { maxTimeMS: 5000 }
+        );
         if (post) {
           console.log(
             "✅ [getPost] Found post by case-insensitive slug:",
