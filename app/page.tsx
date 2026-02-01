@@ -81,42 +81,37 @@ async function getRecentPosts() {
   }
 }
 
-// Fetch popular articles server-side with timeout
+// Fetch popular articles server-side
 async function getPopularArticles() {
   try {
-    const queryPromise = (async () => {
-      const client = await clientPromise;
-      const db = client.db("ARTICLES");
-      const collection = db.collection("final_articles");
+    const client = await clientPromise;
+    const db = client.db("ARTICLES");
+    const collection = db.collection("final_articles");
 
-      // Optimize: Only fetch needed fields, exclude large content field
-      const articles = await collection
-        .find({}, {
-          projection: {
-            _id: 1,
-            title: 1,
-            description: 1,
-            topic: 1,
-            date: 1,
-            publishedAt: 1,
-            createdAt: 1,
-            author: 1,
-            img: 1,
-            featuredImage: 1,
-            image: 1,
-            imageUrl: 1,
-            hero_image: 1,
-            filtered_images: 1,
-            // Exclude content to speed up query
-          }
-        })
-        .sort({ date: -1, publishedAt: -1, createdAt: -1 })
-        .limit(4)
-        .toArray();
-      
-      return articles;
-    })();
-
+    // Optimize: Only fetch needed fields, exclude large content field
+    const articles = await collection
+      .find({}, {
+        projection: {
+          _id: 1,
+          title: 1,
+          description: 1,
+          topic: 1,
+          date: 1,
+          publishedAt: 1,
+          createdAt: 1,
+          author: 1,
+          img: 1,
+          featuredImage: 1,
+          image: 1,
+          imageUrl: 1,
+          hero_image: 1,
+          filtered_images: 1,
+          // Exclude content to speed up query
+        }
+      })
+      .sort({ date: -1, publishedAt: -1, createdAt: -1 })
+      .limit(4)
+      .toArray();
 
     // Sort by date in descending order
     articles.sort((a: any, b: any) => {
