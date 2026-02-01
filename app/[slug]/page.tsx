@@ -133,8 +133,13 @@ async function getPost(slug: string): Promise<any | null> {
     console.error("❌ [getPost] Error fetching post:", error);
     if (error instanceof Error) {
       console.error("❌ [getPost] Error message:", error.message);
-      console.error("❌ [getPost] Error stack:", error.stack);
+      // If it's a timeout or connection error, log it but don't return null immediately
+      // This helps distinguish between "not found" and "connection failed"
+      if (error.message.includes("timeout") || error.message.includes("MongoNetwork")) {
+        console.error("❌ [getPost] MongoDB connection/timeout error - article may exist but connection failed");
+      }
     }
+    // Return null on error - will trigger 404, but at least it fails fast now
     return null;
   }
 }
@@ -183,7 +188,11 @@ export default async function BlogPostPage({
     const post = await getPost(slug);
 
     if (!post) {
-      console.log("❌ Post not found, returning 404");
+      console.log("❌ Post not found for slug:", slug);
+      console.log("❌ This could be due to:");
+      console.log("   1. Article doesn't exist");
+      console.log("   2. MongoDB connection timeout");
+      console.log("   3. Slug mismatch");
       notFound();
     }
 
