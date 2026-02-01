@@ -113,6 +113,12 @@ async function getPopularArticles() {
       .limit(4)
       .toArray();
 
+    // Safety check: ensure articles is an array
+    if (!articles || !Array.isArray(articles)) {
+      console.error("Articles query returned invalid data:", articles);
+      return [];
+    }
+
     // Sort by date in descending order
     articles.sort((a: any, b: any) => {
       const dateA = new Date(
