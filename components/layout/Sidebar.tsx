@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "../ui/Button";
 import { getPostSlug } from "@/lib/utils";
 import toast from "react-hot-toast";
-// import AdSenseSidebar from "../ads/AdSenseSidebar";
+import EzoicAd from "../ads/EzoicAd";
 
 const Sidebar = () => {
   const [email, setEmail] = useState("");
@@ -64,6 +64,14 @@ const Sidebar = () => {
   return (
     <aside className="hidden lg:block">
       <div className="space-y-6">
+        {/* Ad Space - Top of Homepage Sidebar */}
+        <EzoicAd 
+          placeholderId="ezoic-pub-ad-placeholder-106" 
+          position="homepage-sidebar-top"
+          minHeight="250px"
+          className="mb-6"
+        />
+
         {/* Newsletter Subscription Section */}
         <div className="w-72 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
@@ -103,6 +111,14 @@ const Sidebar = () => {
           </p>
         </div>
 
+
+        {/* Ad Space - Middle of Homepage Sidebar */}
+        <EzoicAd 
+          placeholderId="ezoic-pub-ad-placeholder-107" 
+          position="homepage-sidebar-middle"
+          minHeight="300px"
+          className="mb-6"
+        />
 
         {/* Top Posts Section */}
         <div className="w-72 bg-white dark:bg-gray-800 rounded-lg shadow p-4">

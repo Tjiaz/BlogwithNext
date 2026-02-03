@@ -61,6 +61,10 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* Ezoic Ad Script - Add your Ezoic script here after signing up */}
+        {/* You'll receive this script from Ezoic dashboard after approval */}
+        {/* Example: <Script src="https://www.ezoic.com/ezoic/ezoic.js" strategy="afterInteractive" /> */}
+        
         <ThemeProvider>
           <SessionProvider>
             <div className="min-h-screen flex flex-col">

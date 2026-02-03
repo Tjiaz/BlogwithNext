@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import EzoicAd from "@/components/ads/EzoicAd";
 import { getPostSlug } from "@/lib/utils";
 import toast from "react-hot-toast";
 
@@ -261,6 +262,14 @@ export default function BlogPage() {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="space-y-6">
+              {/* Ad Space - Top of Blog Listing Sidebar */}
+              <EzoicAd 
+                placeholderId="ezoic-pub-ad-placeholder-112" 
+                position="blog-listing-sidebar-top"
+                minHeight="250px"
+                className="mb-6"
+              />
+
               {/* Search */}
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                 <form onSubmit={handleSearch} className="relative">
@@ -274,6 +283,14 @@ export default function BlogPage() {
                   <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400 dark:text-gray-500" />
                 </form>
               </div>
+
+              {/* Ad Space - Middle of Blog Listing Sidebar */}
+              <EzoicAd 
+                placeholderId="ezoic-pub-ad-placeholder-113" 
+                position="blog-listing-sidebar-middle"
+                minHeight="300px"
+                className="mb-6"
+              />
 
               {/* Latest Posts */}
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">

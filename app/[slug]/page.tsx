@@ -22,6 +22,7 @@ import SocialShare from "@/components/blog/SocialShare";
 import ArticleSidebar from "@/components/blog/ArticleSidebar";
 import ViewTracker from "@/components/blog/ViewTracker";
 import LikeButton from "@/components/blog/LikeButton";
+import EzoicAd from "@/components/ads/EzoicAd";
 
 // Make article pages dynamic to prevent build-time generation
 export const dynamic = 'force-dynamic';
@@ -320,6 +321,22 @@ export default async function BlogPostPage({
                   </p>
                 )}
               </div>
+
+              {/* In-Content Ad 1 - After Content */}
+              <EzoicAd 
+                placeholderId="ezoic-pub-ad-placeholder-108" 
+                position="in-content-1"
+                minHeight="250px"
+                className="my-8"
+              />
+
+              {/* In-Content Ad 2 - Before Tags/Social Share */}
+              <EzoicAd 
+                placeholderId="ezoic-pub-ad-placeholder-109" 
+                position="in-content-2"
+                minHeight="250px"
+                className="my-8"
+              />
 
               {/* Tags */}
               {post.tags && post.tags.length > 0 && (

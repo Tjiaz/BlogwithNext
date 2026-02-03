@@ -36,7 +36,7 @@ export async function getHomepageData() {
     // Simplified query matching the working topic pages query
     // Remove timeout race - let Supabase handle it naturally
     const startTime = Date.now();
-    
+
     const { data: articles, error } = await supabase
       .from("final_articles")
       .select(
@@ -66,12 +66,18 @@ export async function getHomepageData() {
         .from("final_articles")
         .select("id, title, is_published")
         .limit(5);
-      
-      console.log(`🔍 [getHomepageData] Debug - Any articles (any status):`, anyArticles?.length || 0);
+
+      console.log(
+        `🔍 [getHomepageData] Debug - Any articles (any status):`,
+        anyArticles?.length || 0
+      );
       if (anyError) {
-        console.error(`🔍 [getHomepageData] Debug query error:`, anyError.message);
+        console.error(
+          `🔍 [getHomepageData] Debug query error:`,
+          anyError.message
+        );
       }
-      
+
       return { heroPosts: [], recentPosts: [], popularArticles: [] };
     }
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-// import AdSenseSidebar from "@/components/ads/AdSenseSidebar";
+import EzoicAd from "@/components/ads/EzoicAd";
 import { supabase } from "@/lib/supabase";
 import { getPostSlug, getBestImage } from "@/lib/utils";
 
@@ -246,6 +246,14 @@ export default async function TopicPage({
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="space-y-6">
+              {/* Ad Space - Top of Topic Sidebar */}
+              <EzoicAd 
+                placeholderId="ezoic-pub-ad-placeholder-110" 
+                position="topic-sidebar-top"
+                minHeight="250px"
+                className="mb-6"
+              />
+
               {/* Search */}
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                 <form className="relative">
@@ -258,6 +266,14 @@ export default async function TopicPage({
                 </form>
               </div>
 
+
+              {/* Ad Space - Middle of Topic Sidebar */}
+              <EzoicAd 
+                placeholderId="ezoic-pub-ad-placeholder-111" 
+                position="topic-sidebar-middle"
+                minHeight="300px"
+                className="mb-6"
+              />
 
               {/* Newsletter Signup */}
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">

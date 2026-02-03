@@ -3,6 +3,7 @@ import Sidebar from "../components/layout/Sidebar";
 import MoreRecentPosts from "../components/blog/MoreRecentPosts";
 import MostPopularArticles from "../components/home/MostPopularArticles";
 import DiscoverTopics from "../components/home/DiscoverTopics";
+import EzoicAd from "../components/ads/EzoicAd";
 import { getBestImage } from "@/lib/utils";
 import { getHomepageData } from "@/lib/supabase-queries";
 
@@ -34,6 +35,16 @@ export default async function Home() {
           </div>
         </div>
 
+        {/* Ad Banner - Between Hero and Content Sections */}
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4">
+          <EzoicAd 
+            placeholderId="ezoic-pub-ad-placeholder-104" 
+            position="homepage-banner"
+            minHeight="100px"
+            className="w-full"
+          />
+        </div>
+
         {/* Two-Column Section: More Recent Posts | Most Popular Articles */}
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
@@ -47,6 +58,16 @@ export default async function Home() {
               <MostPopularArticles initialArticles={popularArticles} />
             </div>
           </div>
+        </div>
+
+        {/* Ad Banner - Before Topics Section */}
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4">
+          <EzoicAd 
+            placeholderId="ezoic-pub-ad-placeholder-105" 
+            position="homepage-before-topics"
+            minHeight="100px"
+            className="w-full"
+          />
         </div>
 
         {/* Discover by Topics Section */}

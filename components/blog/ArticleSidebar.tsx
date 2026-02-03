@@ -6,7 +6,7 @@ import Image from "next/image";
 import { TrendingUp, Clock, ArrowRight } from "lucide-react";
 import { getPostSlug, getBestImage } from "@/lib/utils";
 import toast from "react-hot-toast";
-// import AdSenseSidebar from "../ads/AdSenseSidebar";
+import EzoicAd from "../ads/EzoicAd";
 
 interface Article {
   _id: string;
@@ -71,7 +71,13 @@ export default function ArticleSidebar({ currentPostId }: ArticleSidebarProps) {
   return (
     <aside className="lg:col-span-1">
       <div className="space-y-6 sticky top-24">
-        {/* Ad Space */}
+        {/* Ad Space - Top of Sidebar */}
+        <EzoicAd 
+          placeholderId="ezoic-pub-ad-placeholder-101" 
+          position="sidebar-top"
+          minHeight="250px"
+          className="mb-6"
+        />
 
         {/* Top Posts */}
         {!loading && topPosts.length > 0 && (
@@ -130,6 +136,14 @@ export default function ArticleSidebar({ currentPostId }: ArticleSidebarProps) {
           </div>
         )}
 
+        {/* Ad Space - Middle of Sidebar */}
+        <EzoicAd 
+          placeholderId="ezoic-pub-ad-placeholder-102" 
+          position="sidebar-middle"
+          minHeight="300px"
+          className="mb-6"
+        />
+
         {/* Latest Posts */}
         {!loading && latestPosts.length > 0 && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
@@ -166,6 +180,14 @@ export default function ArticleSidebar({ currentPostId }: ArticleSidebarProps) {
           </div>
         )}
 
+
+        {/* Ad Space - Bottom of Sidebar */}
+        <EzoicAd 
+          placeholderId="ezoic-pub-ad-placeholder-103" 
+          position="sidebar-bottom"
+          minHeight="250px"
+          className="mb-6"
+        />
 
         {/* Newsletter Signup */}
         <div className="bg-gradient-to-r from-[#0a73b0] to-[#2a9bd0] dark:from-blue-600 dark:to-blue-700 rounded-lg shadow p-6 text-white">
