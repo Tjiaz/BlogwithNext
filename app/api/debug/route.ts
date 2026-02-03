@@ -6,22 +6,29 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   // Check environment variables FIRST before trying to use supabase
-  // Get all env vars that start with NEXT_PUBLIC_SUPABASE to debug
+  // Get all env vars that contain SUPABASE to debug naming issues
   const allSupabaseVars = Object.keys(process.env)
-    .filter(key => key.includes('SUPABASE'))
+    .filter(key => key.toUpperCase().includes('SUPABASE'))
     .reduce((acc, key) => {
-      acc[key] = process.env[key] ? `${process.env[key]?.substring(0, 20)}...` : 'NOT SET';
+      const value = process.env[key];
+      acc[key] = value ? `${value.substring(0, 30)}... (length: ${value.length})` : 'NOT SET';
       return acc;
     }, {} as Record<string, string>);
 
+  // Check exact variable names
   const hasUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
   const hasKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const urlValue = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const keyValue = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
-  // Check for common typos
-  const hasUrlTypo1 = !!process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const hasUrlTypo2 = !!process.env['NEXT_PUBLIC_SUPABASE_URL'];
+  // Check for common typos/variations
+  const possibleUrlVars = {
+    'NEXT_PUBLIC_SUPABASE_URL': process.env.NEXT_PUBLIC_SUPABASE_URL,
+    'next_public_supabase_url': process.env.next_public_supabase_url,
+    'NEXT_PUBLIC_SUPABASE_UR': process.env.NEXT_PUBLIC_SUPABASE_UR,
+    'NEXT_PUBLIC_SUPABASE_URL ': process.env['NEXT_PUBLIC_SUPABASE_URL '],
+  };
+  
   const urlLength = urlValue?.length || 0;
 
   // If env vars are missing, return early with helpful message
@@ -36,7 +43,10 @@ export async function GET() {
         supabaseKey: keyValue ? `${keyValue.substring(0, 20)}...` : "NOT SET",
         urlLength: urlLength,
         allSupabaseEnvVars: allSupabaseVars,
-        note: "Check if variable name has typos or extra spaces. Variable names are case-sensitive!",
+        possibleUrlVariations: Object.entries(possibleUrlVars)
+          .filter(([_, val]) => val)
+          .map(([name, val]) => ({ name, value: `${val?.substring(0, 30)}...` })),
+        note: "NEXT_PUBLIC_SUPABASE_URL is missing. Check for typos, case sensitivity, or if it's set for the wrong environment.",
       },
       instructions: [
         "1. In Vercel, click on NEXT_PUBLIC_SUPABASE_URL to edit it",
