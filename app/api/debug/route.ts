@@ -11,11 +11,19 @@ export async function GET() {
     .filter(key => key.toUpperCase().includes('SUPABASE'))
     .reduce((acc, key) => {
       const value = process.env[key];
-      acc[key] = value ? `${value.substring(0, 30)}... (length: ${value.length})` : 'NOT SET';
+      // Check for hidden characters (non-printable)
+      const hasHiddenChars = /[\x00-\x1F\x7F-\x9F]/.test(key);
+      const charCodes = Array.from(key).map(c => c.charCodeAt(0));
+      acc[key] = {
+        value: value ? `${value.substring(0, 30)}... (length: ${value.length})` : 'NOT SET',
+        hasHiddenChars,
+        charCodes: hasHiddenChars ? charCodes : undefined,
+        exactMatch: key === 'NEXT_PUBLIC_SUPABASE_URL',
+      };
       return acc;
-    }, {} as Record<string, string>);
+    }, {} as Record<string, any>);
 
-  // Check exact variable names
+  // Check exact variable names with multiple methods
   const hasUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
   const hasKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const urlValue = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -29,7 +37,17 @@ export async function GET() {
     'NEXT_PUBLIC_SUPABASE_URL ': process.env['NEXT_PUBLIC_SUPABASE_URL '],
   };
   
+  // Check all env keys that might be the URL (case-insensitive partial match)
+  const allEnvKeys = Object.keys(process.env);
+  const urlLikeKeys = allEnvKeys.filter(key => 
+    key.toUpperCase().includes('SUPABASE') && key.toUpperCase().includes('URL')
+  );
+  
   const urlLength = urlValue?.length || 0;
+  
+  // Get deployment info
+  const vercelEnv = process.env.VERCEL_ENV || 'unknown';
+  const vercelUrl = process.env.VERCEL_URL || 'unknown';
 
   // If env vars are missing, return early with helpful message
   if (!hasUrl || !hasKey) {
@@ -43,17 +61,37 @@ export async function GET() {
         supabaseKey: keyValue ? `${keyValue.substring(0, 20)}...` : "NOT SET",
         urlLength: urlLength,
         allSupabaseEnvVars: allSupabaseVars,
+        urlLikeKeys: urlLikeKeys,
         possibleUrlVariations: Object.entries(possibleUrlVars)
           .filter(([_, val]) => val)
           .map(([name, val]) => ({ name, value: `${val?.substring(0, 30)}...` })),
-        note: "NEXT_PUBLIC_SUPABASE_URL is missing. Check for typos, case sensitivity, or if it's set for the wrong environment.",
+        deployment: {
+          vercelEnv,
+          vercelUrl,
+        },
+        note: "NEXT_PUBLIC_SUPABASE_URL is missing from runtime. Variable exists in Vercel dashboard but deployment isn't picking it up.",
       },
       instructions: [
-        "1. In Vercel, click on NEXT_PUBLIC_SUPABASE_URL to edit it",
-        "2. Verify the name is EXACTLY: NEXT_PUBLIC_SUPABASE_URL (no spaces, correct case)",
-        "3. Verify the value is: https://owmqmqsgmkfuayfpfmva.supabase.co",
-        "4. Make sure it's set for 'All Environments'",
-        "5. Save and redeploy",
+        "🔧 FORCE VERCEL TO RECOGNIZE THE VARIABLE:",
+        "",
+        "Option 1: Delete and Recreate (Recommended)",
+        "1. In Vercel → Settings → Environment Variables",
+        "2. DELETE NEXT_PUBLIC_SUPABASE_URL (click trash icon)",
+        "3. Click 'Add New' and recreate it:",
+        "   - Name: NEXT_PUBLIC_SUPABASE_URL",
+        "   - Value: https://owmqmqsgmkfuayfpfmva.supabase.co",
+        "   - Environment: All Environments",
+        "4. Save",
+        "",
+        "Option 2: Clear Build Cache",
+        "1. Go to Deployments → Latest → '...' → 'Redeploy'",
+        "2. Check 'Clear build cache and redeploy' checkbox",
+        "3. Click 'Redeploy'",
+        "",
+        "Option 3: Push a new commit",
+        "1. Make any small change (add a comment)",
+        "2. Commit and push",
+        "3. This forces a completely fresh build",
       ],
     });
   }
