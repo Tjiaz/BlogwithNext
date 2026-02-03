@@ -4,14 +4,11 @@ import Image from "next/image";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 // import AdSenseSidebar from "@/components/ads/AdSenseSidebar";
-import clientPromise from "@/lib/mongodb";
+import { supabase } from "@/lib/supabase";
 import { getPostSlug, getBestImage } from "@/lib/utils";
 
 async function getTopicPosts(slug: string) {
   try {
-    const client = await clientPromise;
-    const db = client.db("ARTICLES");
-
     // Decode URL encoding and normalize
     const decodedSlug = decodeURIComponent(slug)
       .replace(/_/g, " ")
@@ -19,98 +16,95 @@ async function getTopicPosts(slug: string) {
       .trim();
 
     const cleanSlug = decodedSlug.toLowerCase().trim();
-    let query: any;
+    
+    // Build Supabase query based on topic slug
+    let query = supabase
+      .from("final_articles")
+      .select("id, title, slug, description, excerpt, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images, content")
+      .eq("is_published", true);
 
-    // Handle special cases and variations
+    // Handle special cases and variations - use proper Supabase query syntax
     if (cleanSlug === "career advice" || cleanSlug === "career_advice") {
-      // Match "Career Advice" or "career_advice" (case-insensitive, flexible spacing/underscores)
-      query = {
-        $or: [
-          { topic: { $regex: /^Career\s+Advice$/i } },
-          { topic: { $regex: /^career_advice$/i } },
-        ],
-      };
+      query = query.or("topic.ilike.%Career Advice%,topic.ilike.%career_advice%");
     } else if (cleanSlug === "machine learning") {
-      // Match "Machine Learning" but NOT "Machine Learning Ops" or "machine_learning_ops"
-      query = {
-        $and: [
-          { topic: { $regex: /^Machine\s+Learning$/i } },
-          { topic: { $not: /Machine\s+Learning\s+Ops/i } },
-          { topic: { $not: /machine_learning_ops/i } },
-        ],
-      };
+      query = query.ilike("topic", "%Machine Learning%").not("topic", "ilike", "%Machine Learning Ops%");
     } else if (cleanSlug === "machine learning ops" || cleanSlug === "mlops") {
-      // Match Machine Learning Ops or machine_learning_ops (case-insensitive, flexible spacing/underscores)
-      query = {
-        $or: [
-          { topic: { $regex: /^Machine\s+Learning\s+Ops$/i } },
-          { topic: { $regex: /^machine_learning_ops$/i } },
-          { topic: { $regex: /^MLOps$/i } },
-        ],
-      };
+      query = query.or("topic.ilike.%Machine Learning Ops%,topic.ilike.%machine_learning_ops%,topic.ilike.%MLOps%");
     } else if (cleanSlug === "data engineering") {
-      // Match "Data Engineering" or "data_engineer" (case-insensitive, flexible spacing/underscores)
-      query = {
-        $or: [
-          { topic: { $regex: /^Data\s+Engineering$/i } },
-          { topic: { $regex: /^data_engineer$/i } },
-        ],
-      };
+      query = query.or("topic.ilike.%Data Engineering%,topic.ilike.%data_engineer%");
     } else if (cleanSlug === "data science") {
-      // Match "Data Science" exactly (case-insensitive, flexible spacing)
-      query = {
-        topic: { $regex: /^Data\s+Science$/i },
-      };
-    } else if (
-      cleanSlug === "language models" ||
-      cleanSlug === "language_models"
-    ) {
-      // Match "Language Models" or "language_models" (case-insensitive, flexible spacing/underscores)
-      query = {
-        $or: [
-          { topic: { $regex: /^Language\s+Models$/i } },
-          { topic: { $regex: /^language_models$/i } },
-        ],
-      };
+      query = query.ilike("topic", "%Data Science%");
+    } else if (cleanSlug === "language models" || cleanSlug === "language_models") {
+      query = query.or("topic.ilike.%Language Models%,topic.ilike.%language_models%");
+    } else if (cleanSlug === "sql") {
+      query = query.ilike("topic", "%SQL%");
     } else {
-      // For other topics, use case-insensitive exact match
-      // Replace spaces with flexible space matching
-      const escapedSlug = cleanSlug
-        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-        .replace(/\s+/g, "\\s+");
-      query = {
-        topic: { $regex: new RegExp(`^${escapedSlug}$`, "i") },
+      // For other topics, use case-insensitive match with wildcards
+      const searchTerm = decodedSlug.replace(/[%_]/g, "\\$&"); // Escape special chars
+      query = query.or(`topic.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`);
+    }
+
+    // Order by date and fetch
+    const { data: articles, error } = await query
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .order("date", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false, nullsFirst: false });
+
+    if (error) {
+      console.error(`❌ [getTopicPosts] Error fetching topic "${slug}":`, error);
+      return {
+        success: false,
+        error: error.message,
+        topic: slug,
+        count: 0,
+        articles: [],
       };
     }
 
-    // Fetch all matching documents
-    const docs = await db.collection("final_articles").find(query).toArray();
+    if (!articles || articles.length === 0) {
+      return {
+        success: true,
+        topic: slug,
+        count: 0,
+        articles: [],
+      };
+    }
 
-    // Sort by date in descending order (newest first)
-    // Handles multiple date field names and formats
-    docs.sort((a: any, b: any) => {
-      const dateA = new Date(
-        a.date || a.publishedAt || a.createdAt || 0,
-      ).getTime();
-      const dateB = new Date(
-        b.date || b.publishedAt || b.createdAt || 0,
-      ).getTime();
-      return dateB - dateA; // Descending order (newest first)
-    });
+    // Transform articles to match expected format
+    const transformedArticles = articles.map((article: any) => ({
+      _id: article.id,
+      id: article.id,
+      title: article.title || "",
+      slug: article.slug || article.id,
+      description: article.description || article.excerpt || "",
+      excerpt: article.excerpt || article.description || "",
+      topic: article.topic || article.category || "",
+      category: article.category || article.topic || "",
+      date: article.date || article.published_at || article.created_at || "",
+      publishedAt: article.published_at || article.date || article.created_at || "",
+      createdAt: article.created_at || article.published_at || article.date || "",
+      author: article.author || article.author_name || "Unknown",
+      authorName: article.author_name || article.author || "Unknown",
+      img: article.img || article.featured_image || article.image || article.image_url || article.hero_image || null,
+      featuredImage: article.featured_image || article.img || article.image || article.image_url || article.hero_image || null,
+      image: article.image || article.img || article.featured_image || article.image_url || article.hero_image || null,
+      imageUrl: article.image_url || article.img || article.featured_image || article.image || article.hero_image || null,
+      hero_image: article.hero_image || article.img || article.featured_image || article.image || article.image_url || null,
+      filtered_images: article.filtered_images || [],
+      content: article.content || "",
+    }));
 
     return {
       success: true,
       topic: slug,
-      count: docs.length,
-      articles: docs.map((d) => ({
-        ...d,
-        _id: d._id.toString(),
-      })),
+      count: transformedArticles.length,
+      articles: transformedArticles,
     };
   } catch (e: any) {
+    console.error(`❌ [getTopicPosts] Exception for topic "${slug}":`, e);
     return {
       success: false,
-      error: e.message,
+      error: e.message || "Unknown error",
       topic: slug,
       count: 0,
       articles: [],

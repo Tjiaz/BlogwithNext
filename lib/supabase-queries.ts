@@ -33,8 +33,10 @@ export interface Article {
  */
 export async function getHomepageData() {
   try {
-    // Optimized query for Vercel Edge Runtime - single query, minimal fields, simple ordering
-    // Edge Runtime has 30s timeout, but we'll fail fast at 5s to avoid user-facing delays
+    // Optimized query for Vercel - single query, minimal fields, simple ordering
+    // Vercel free tier has 10s timeout, so we fail fast at 5s to avoid user-facing delays
+    const startTime = Date.now();
+    
     const queryPromise = supabase
       .from("final_articles")
       .select(
@@ -45,7 +47,6 @@ export async function getHomepageData() {
       .limit(22);
 
     // Race against timeout - fail fast at 5 seconds to avoid Vercel's 10s timeout
-    const startTime = Date.now();
     const timeoutPromise = new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error("Query timeout after 5 seconds")), 5000)
     );

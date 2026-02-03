@@ -118,9 +118,10 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
   const itemsPerPage = 10;
   
   // Calculate initial totalPages from initialPosts to avoid hydration mismatch
-  const initialTotalPages = initialPosts.length > 0 
+  // Use a minimum of 1 to ensure consistent rendering
+  const initialTotalPages = Math.max(1, initialPosts.length > 0 
     ? Math.ceil(initialPosts.length / itemsPerPage) 
-    : Math.ceil(defaultPosts.length / itemsPerPage);
+    : Math.ceil(defaultPosts.length / itemsPerPage));
   
   const [posts, setPosts] = useState<any[]>(
     initialPosts.length > 0 ? initialPosts : defaultPosts,
@@ -130,6 +131,9 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const hasInitialData = useRef(initialPosts.length > 0);
   const initialized = useRef(false);
+  
+  // Ensure we always have posts to render (prevents hydration mismatch)
+  const currentPosts = posts.length > 0 ? posts : defaultPosts.slice(0, itemsPerPage);
 
   // Initialize with server-side data if available (only once on mount)
   useEffect(() => {
@@ -230,8 +234,6 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
       window.removeEventListener("storage", onUpdate);
     };
   }, [currentPage]);
-
-  const currentPosts = posts; // server already gave us just one page
 
   // Ensure consistent rendering between server and client
   // Always render the same structure to avoid hydration mismatches
