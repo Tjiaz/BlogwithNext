@@ -24,23 +24,26 @@ async function getTopicPosts(slug: string) {
       .eq("is_published", true);
 
     // Handle special cases and variations - use proper Supabase query syntax
+    // Supabase ilike uses % for wildcards, and or() syntax is: "field1.ilike.value1,field2.ilike.value2"
     if (cleanSlug === "career advice" || cleanSlug === "career_advice") {
-      query = query.or("topic.ilike.%Career Advice%,topic.ilike.%career_advice%");
+      query = query.or("topic.ilike.%Career Advice%,topic.ilike.%career_advice%,category.ilike.%Career Advice%,category.ilike.%career_advice%");
     } else if (cleanSlug === "machine learning") {
+      // Match "Machine Learning" but NOT "Machine Learning Ops"
       query = query.ilike("topic", "%Machine Learning%").not("topic", "ilike", "%Machine Learning Ops%");
     } else if (cleanSlug === "machine learning ops" || cleanSlug === "mlops") {
-      query = query.or("topic.ilike.%Machine Learning Ops%,topic.ilike.%machine_learning_ops%,topic.ilike.%MLOps%");
+      query = query.or("topic.ilike.%Machine Learning Ops%,topic.ilike.%machine_learning_ops%,topic.ilike.%MLOps%,category.ilike.%Machine Learning Ops%");
     } else if (cleanSlug === "data engineering") {
-      query = query.or("topic.ilike.%Data Engineering%,topic.ilike.%data_engineer%");
+      query = query.or("topic.ilike.%Data Engineering%,topic.ilike.%data_engineer%,category.ilike.%Data Engineering%");
     } else if (cleanSlug === "data science") {
-      query = query.ilike("topic", "%Data Science%");
+      query = query.or("topic.ilike.%Data Science%,category.ilike.%Data Science%");
     } else if (cleanSlug === "language models" || cleanSlug === "language_models") {
-      query = query.or("topic.ilike.%Language Models%,topic.ilike.%language_models%");
+      query = query.or("topic.ilike.%Language Models%,topic.ilike.%language_models%,category.ilike.%Language Models%");
     } else if (cleanSlug === "sql") {
-      query = query.ilike("topic", "%SQL%");
+      query = query.or("topic.ilike.%SQL%,category.ilike.%SQL%");
     } else {
       // For other topics, use case-insensitive match with wildcards
-      const searchTerm = decodedSlug.replace(/[%_]/g, "\\$&"); // Escape special chars
+      // Escape special regex chars but keep % for Supabase wildcards
+      const searchTerm = decodedSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       query = query.or(`topic.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`);
     }
 
