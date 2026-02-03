@@ -237,10 +237,10 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
 
   // Ensure consistent rendering between server and client
   // Always render the same structure to avoid hydration mismatches
+  // Note: Don't use <main> here since we're already inside a <main> from layout.tsx
   return (
     <div className="w-full">
-      <main>
-        <section className="bg-white dark:bg-gray-900 rounded-lg shadow p-3 sm:p-6 lg:p-8">
+      <section className="bg-white dark:bg-gray-900 rounded-lg shadow p-3 sm:p-6 lg:p-8">
           {/* ...hero header omitted for brevity... */}
 
           <div className="mt-8 mb-4 flex items-center justify-between">
@@ -341,7 +341,6 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
             </div>
           </div>
         </section>
-      </main>
     </div>
   );
 }
