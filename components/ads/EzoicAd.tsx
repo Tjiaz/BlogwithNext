@@ -43,35 +43,14 @@ export default function EzoicAd({
   }, []);
 
   return (
+    // Ezoic requires NO styling on placeholder divs
+    // The div should only have the ID - Ezoic will handle styling
     <div
       id={placeholderId}
-      className={`ezoic-ad ${className}`}
       data-position={position}
-      style={{
-        minHeight: minHeight,
-        display: "block",
-        textAlign: "center",
-        margin: "1rem 0",
-      }}
       aria-label={`Advertisement - ${position}`}
     >
-      {/* Placeholder content - will be replaced by Ezoic */}
-      <div
-        style={{
-          minHeight: minHeight,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#f3f4f6",
-          border: "1px dashed #d1d5db",
-          borderRadius: "8px",
-          color: "#9ca3af",
-          fontSize: "14px",
-        }}
-        className="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-600"
-      >
-        <span>Advertisement</span>
-      </div>
+      {/* Ezoic will replace this div with ads - no placeholder content needed */}
     </div>
   );
 }
