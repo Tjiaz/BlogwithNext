@@ -33,54 +33,48 @@ export interface Article {
  */
 export async function getHomepageData() {
   try {
-    // Optimized query for Vercel - single query, minimal fields, simple ordering
-    // Vercel free tier has 10s timeout, so we fail fast at 5s to avoid user-facing delays
+    // Simplified query matching the working topic pages query
+    // Remove timeout race - let Supabase handle it naturally
     const startTime = Date.now();
     
-    const queryPromise = supabase
+    const { data: articles, error } = await supabase
       .from("final_articles")
       .select(
         "id, title, slug, description, excerpt, summary, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images"
       )
       .eq("is_published", true)
       .order("published_at", { ascending: false, nullsFirst: false })
+      .order("date", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false, nullsFirst: false })
       .limit(22);
 
-    // Race against timeout - fail fast at 5 seconds to avoid Vercel's 10s timeout
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("Query timeout after 5 seconds")), 5000)
-    );
-
-    // Race the query against the timeout
-    let result: any;
-    try {
-      result = await Promise.race([queryPromise, timeoutPromise]);
-    } catch (timeoutError: any) {
-      const elapsed = Date.now() - startTime;
-      console.error(
-        `⏱️ [getHomepageData] Query timeout after ${elapsed}ms:`,
-        timeoutError.message
-      );
-      return { heroPosts: [], recentPosts: [], popularArticles: [] };
-    }
-
-    const { data: articles, error } = result;
+    const elapsed = Date.now() - startTime;
 
     if (error) {
-      const elapsed = Date.now() - startTime;
       console.error(
         `❌ [getHomepageData] Supabase error after ${elapsed}ms:`,
-        error.message || error
+        error.message || error,
+        JSON.stringify(error, null, 2)
       );
       return { heroPosts: [], recentPosts: [], popularArticles: [] };
     }
 
     if (!articles || articles.length === 0) {
-      console.log("⚠️ [getHomepageData] No articles found");
+      console.log(`⚠️ [getHomepageData] No articles found after ${elapsed}ms`);
+      // Try a simpler query to see if RLS is blocking
+      const { data: anyArticles, error: anyError } = await supabase
+        .from("final_articles")
+        .select("id, title, is_published")
+        .limit(5);
+      
+      console.log(`🔍 [getHomepageData] Debug - Any articles (any status):`, anyArticles?.length || 0);
+      if (anyError) {
+        console.error(`🔍 [getHomepageData] Debug query error:`, anyError.message);
+      }
+      
       return { heroPosts: [], recentPosts: [], popularArticles: [] };
     }
 
-    const elapsed = Date.now() - startTime;
     console.log(
       `✅ [getHomepageData] Fetched ${articles.length} articles in ${elapsed}ms`
     );
