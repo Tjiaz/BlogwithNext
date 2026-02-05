@@ -8,6 +8,14 @@ import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import FontFamily from "@tiptap/extension-font-family";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { Blockquote } from "@tiptap/extension-blockquote";
+import { HorizontalRule } from "@tiptap/extension-horizontal-rule";
+import { Strike } from "@tiptap/extension-strike";
+import { Highlight } from "@tiptap/extension-highlight";
 import { Extension } from "@tiptap/core";
 import {
   Bold,
@@ -27,6 +35,12 @@ import {
   ListOrdered,
   Code,
   Code2,
+  Table as TableIcon,
+  Plus,
+  Trash2,
+  Quote,
+  Strikethrough,
+  Highlighter,
 } from "lucide-react";
 import { useState, useCallback } from "react";
 
@@ -55,6 +69,12 @@ export default function RichTextEditor({
         heading: {
           levels: [1, 2],
         },
+        // Disable strike since we're using the separate extension
+        strike: false,
+        // Disable blockquote since we're using the separate extension
+        blockquote: false,
+        // Disable horizontalRule since we're using the separate extension
+        horizontalRule: false,
       }),
       FontFamily,
       Image.configure({
@@ -71,6 +91,33 @@ export default function RichTextEditor({
         types: ["heading", "paragraph"],
       }),
       Underline,
+      Strike,
+      Highlight.configure({
+        multicolor: true,
+      }),
+      Blockquote,
+      HorizontalRule,
+      Table.configure({
+        resizable: true,
+        HTMLAttributes: {
+          class: "border-collapse border border-gray-300 my-4",
+        },
+      }),
+      TableRow.configure({
+        HTMLAttributes: {
+          class: "border border-gray-300",
+        },
+      }),
+      TableHeader.configure({
+        HTMLAttributes: {
+          class: "border border-gray-300 bg-gray-100 dark:bg-gray-700 px-4 py-2 font-semibold",
+        },
+      }),
+      TableCell.configure({
+        HTMLAttributes: {
+          class: "border border-gray-300 px-4 py-2",
+        },
+      }),
       Placeholder.configure({
         placeholder,
       }),
@@ -235,6 +282,30 @@ export default function RichTextEditor({
           >
             <UnderlineIcon className="w-4 h-4" />
           </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+              editor.isActive("strike")
+                ? "bg-[#0a73b0] text-white"
+                : "text-gray-700"
+            }`}
+            title="Strikethrough"
+          >
+            <Strikethrough className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleHighlight().run()}
+            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+              editor.isActive("highlight")
+                ? "bg-[#0a73b0] text-white"
+                : "text-gray-700"
+            }`}
+            title="Highlight"
+          >
+            <Highlighter className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Font Family */}
@@ -318,6 +389,112 @@ export default function RichTextEditor({
           </button>
         </div>
 
+        {/* Blockquote & Horizontal Rule */}
+        <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+              editor.isActive("blockquote")
+                ? "bg-[#0a73b0] text-white"
+                : "text-gray-700"
+            }`}
+            title="Blockquote"
+          >
+            <Quote className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().setHorizontalRule().run()}
+            className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+            title="Horizontal Rule"
+          >
+            <MinusIcon className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Table Controls */}
+        <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
+          <button
+            type="button"
+            onClick={() =>
+              editor
+                .chain()
+                .focus()
+                .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                .run()
+            }
+            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+              editor.isActive("table")
+                ? "bg-[#0a73b0] text-white"
+                : "text-gray-700"
+            }`}
+            title="Insert Table"
+          >
+            <TableIcon className="w-4 h-4" />
+          </button>
+          {editor.isActive("table") && (
+            <>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().addColumnBefore().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+                title="Add Column Before"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().addColumnAfter().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+                title="Add Column After"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().addRowBefore().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+                title="Add Row Before"
+              >
+                <Plus className="w-3 h-3 rotate-90" />
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().addRowAfter().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+                title="Add Row After"
+              >
+                <Plus className="w-3 h-3 rotate-90" />
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().deleteColumn().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+                title="Delete Column"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().deleteRow().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+                title="Delete Row"
+              >
+                <Trash2 className="w-3 h-3 rotate-90" />
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().deleteTable().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-red-600"
+                title="Delete Table"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </>
+          )}
+        </div>
+
         {/* Text Alignment */}
         <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
           <button
@@ -378,6 +555,136 @@ export default function RichTextEditor({
           </button>
         </div>
 
+        {/* Strike & Highlight */}
+        <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+              editor.isActive("strike")
+                ? "bg-[#0a73b0] text-white"
+                : "text-gray-700"
+            }`}
+            title="Strikethrough"
+          >
+            <Strikethrough className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleHighlight().run()}
+            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+              editor.isActive("highlight")
+                ? "bg-[#0a73b0] text-white"
+                : "text-gray-700"
+            }`}
+            title="Highlight"
+          >
+            <Highlighter className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Blockquote & Horizontal Rule */}
+        <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+              editor.isActive("blockquote")
+                ? "bg-[#0a73b0] text-white"
+                : "text-gray-700"
+            }`}
+            title="Blockquote"
+          >
+            <Quote className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().setHorizontalRule().run()}
+            className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+            title="Horizontal Rule"
+          >
+            <Minus className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Table Controls */}
+        <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
+          <button
+            type="button"
+            onClick={() => {
+              editor
+                .chain()
+                .focus()
+                .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                .run();
+            }}
+            className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+            title="Insert Table"
+          >
+            <TableIcon className="w-4 h-4" />
+          </button>
+          {editor.isActive("table") && (
+            <>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().addColumnBefore().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+                title="Add Column Before"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().addColumnAfter().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+                title="Add Column After"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().deleteColumn().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+                title="Delete Column"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().addRowBefore().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+                title="Add Row Before"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().addRowAfter().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+                title="Add Row After"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().deleteRow().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
+                title="Delete Row"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().deleteTable().run()}
+                className="p-2 rounded hover:bg-gray-200 transition-colors text-red-600"
+                title="Delete Table"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </>
+          )}
+        </div>
+
         {/* Media */}
         <div className="flex items-center gap-1">
           <label className="cursor-pointer">
@@ -414,8 +721,78 @@ export default function RichTextEditor({
       </div>
 
       {/* Editor Content */}
-      <div className="min-h-[400px]">
+      <div className="min-h-[400px] prose prose-lg max-w-none dark:prose-invert">
         <EditorContent editor={editor} />
+        <style jsx global>{`
+          .ProseMirror {
+            padding: 1rem;
+            min-height: 400px;
+            outline: none;
+          }
+          .ProseMirror table {
+            border-collapse: collapse;
+            margin: 1rem 0;
+            table-layout: fixed;
+            width: 100%;
+            overflow: hidden;
+          }
+          .ProseMirror table td,
+          .ProseMirror table th {
+            min-width: 1em;
+            border: 1px solid #d1d5db;
+            padding: 0.5rem 1rem;
+            vertical-align: top;
+            box-sizing: border-box;
+            position: relative;
+          }
+          .ProseMirror table th {
+            font-weight: 600;
+            background-color: #f3f4f6;
+          }
+          .dark .ProseMirror table th {
+            background-color: #374151;
+          }
+          .ProseMirror table .selectedCell:after {
+            z-index: 2;
+            position: absolute;
+            content: "";
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background: rgba(10, 115, 176, 0.1);
+            pointer-events: none;
+          }
+          .ProseMirror table .column-resize-handle {
+            position: absolute;
+            right: -2px;
+            top: 0;
+            bottom: -2px;
+            width: 4px;
+            background-color: #0a73b0;
+            pointer-events: none;
+          }
+          .ProseMirror blockquote {
+            border-left: 4px solid #0a73b0;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+          }
+          .ProseMirror hr {
+            border: none;
+            border-top: 2px solid #d1d5db;
+            margin: 2rem 0;
+          }
+          .ProseMirror mark {
+            background-color: #fef08a;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.25rem;
+          }
+          .dark .ProseMirror mark {
+            background-color: #854d0e;
+          }
+        `}</style>
       </div>
 
       {/* Link Dialog */}
