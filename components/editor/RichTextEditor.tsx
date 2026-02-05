@@ -409,7 +409,7 @@ export default function RichTextEditor({
             className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-700"
             title="Horizontal Rule"
           >
-            <MinusIcon className="w-4 h-4" />
+            <Minus className="w-4 h-4" />
           </button>
         </div>
 
