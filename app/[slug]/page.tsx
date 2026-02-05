@@ -9,13 +9,12 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { format } from "date-fns";
-import clientPromise from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
 import {
   isValidSlug,
   extractFirstImageFromContent,
   removeFirstImageFromContent,
 } from "@/lib/utils";
+import { getArticle } from "@/lib/supabase-queries";
 import CommentSection from "@/components/comments/CommentSection";
 import RelatedArticles from "@/components/blog/RelatedArticles";
 import SocialShare from "@/components/blog/SocialShare";
@@ -32,121 +31,18 @@ async function getPost(slug: string): Promise<any | null> {
   try {
     console.log("🔍 [getPost] Fetching post with slug:", slug);
     
-    // Get client - MongoDB driver handles timeouts internally
-    let client;
-    try {
-      client = await clientPromise;
-      console.log("🔍 [getPost] MongoDB client connected");
-    } catch (connError: any) {
-      console.error("❌ [getPost] Failed to connect to MongoDB:", connError);
-      if (connError.name === "MongoServerSelectionError" || connError.name === "MongoNetworkTimeoutError") {
-        console.error("❌ [getPost] MongoDB connection timeout. Check:");
-        console.error("   1. MongoDB Atlas cluster is running (not paused)");
-        console.error("   2. IP whitelist includes your IP (or 0.0.0.0/0 for testing)");
-        console.error("   3. DATABASE_URL environment variable is correct");
-      }
-      // Return null on connection failure - will trigger 404
-      return null;
-    }
+    // Use Supabase to fetch article
+    const article = await getArticle(slug);
     
-    const db = client.db("ARTICLES");
-    const collection = db.collection("final_articles");
-
-    let post: any = null;
-
-    // Try by ObjectId first (for MongoDB ObjectIds)
-    if (ObjectId.isValid(slug)) {
-      console.log("🔍 [getPost] Slug is valid ObjectId, searching by _id");
-      try {
-        const objectId = new ObjectId(slug);
-        post = await collection.findOne({ _id: objectId }, { maxTimeMS: 5000 });
-        if (post) {
-          console.log(
-            "✅ [getPost] Found post by _id (ObjectId):",
-            post.title || "No title",
-          );
-        } else {
-          console.log("❌ [getPost] No post found by _id (ObjectId)");
-        }
-      } catch (e) {
-        console.error("❌ [getPost] Error searching by _id (ObjectId):", e);
-      }
-    }
-
-    // Try by string _id (for documents with string IDs like Prisma CUIDs)
-    if (!post) {
-      console.log("🔍 [getPost] Trying to find by _id as string");
-      try {
-        // Use type assertion since MongoDB can accept string _id values
-        post = await collection.findOne({ _id: slug as any }, { maxTimeMS: 5000 });
-        if (post) {
-          console.log(
-            "✅ [getPost] Found post by _id (string):",
-            post.title || "No title",
-          );
-        } else {
-          console.log("❌ [getPost] No post found by _id (string)");
-        }
-      } catch (e) {
-        console.error("❌ [getPost] Error searching by _id (string):", e);
-      }
-    }
-
-    // Try by slug field
-    if (!post) {
-      console.log("🔍 [getPost] Trying to find by slug field");
-      try {
-        post = await collection.findOne({ slug: slug }, { maxTimeMS: 5000 });
-        if (post) {
-          console.log(
-            "✅ [getPost] Found post by slug field:",
-            post.title || "No title",
-          );
-        } else {
-          console.log("❌ [getPost] No post found by slug field");
-        }
-      } catch (e) {
-        console.error("❌ [getPost] Error searching by slug:", e);
-      }
-    }
-
-    // Try case-insensitive slug
-    if (!post) {
-      console.log("🔍 [getPost] Trying case-insensitive slug search");
-      try {
-        post = await collection.findOne(
-          { slug: { $regex: new RegExp(`^${slug}$`, "i") } },
-          { maxTimeMS: 5000 }
-        );
-        if (post) {
-          console.log(
-            "✅ [getPost] Found post by case-insensitive slug:",
-            post.title || "No title",
-          );
-        }
-      } catch (e) {
-        console.error("❌ [getPost] Error in case-insensitive search:", e);
-      }
-    }
-
-    // Return post or null
-    if (!post) {
+    if (!article) {
       console.log("❌ [getPost] Post not found for slug:", slug);
       return null;
     }
 
-    console.log("✅ [getPost] Returning post data");
-    return {
-      ...post,
-      _id: post._id.toString(),
-    };
+    console.log("✅ [getPost] Found post:", article.title);
+    return article;
   } catch (error: any) {
     console.error("❌ [getPost] Error fetching post:", error);
-    if (error?.name === "MongoNetworkTimeoutError" || error?.name === "MongoServerSelectionError") {
-      console.error("❌ [getPost] MongoDB timeout error - article may exist but connection is slow");
-      console.error("❌ [getPost] Check MongoDB Atlas dashboard - cluster may be paused or slow");
-    }
-    // Return null on error - will trigger 404
     return null;
   }
 }
@@ -198,9 +94,8 @@ export default async function BlogPostPage({
       console.log("❌ Post not found for slug:", slug);
       console.log("❌ This could be due to:");
       console.log("   1. Article doesn't exist");
-      console.log("   2. MongoDB connection timeout (check MongoDB Atlas dashboard)");
-      console.log("   3. Slug mismatch (slug format may not match database)");
-      console.log("❌ Check server logs above for MongoDB connection errors");
+      console.log("   2. Article is not published (is_published = false)");
+      console.log("   3. Slug mismatch");
       notFound();
     }
 
