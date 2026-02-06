@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import clientPromise from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(
   req: NextRequest,
@@ -11,74 +10,69 @@ export async function POST(
     const body = await req.json();
     const { action } = body; // "like" or "unlike"
     
-    const client = await clientPromise;
-    const db = client.db("ARTICLES");
-    const collection = db.collection("final_articles");
+    // Try to find article by slug first
+    let { data: articlesBySlug, error: slugError } = await supabase
+      .from("final_articles")
+      .select("id, slug, likes")
+      .eq("slug", slug)
+      .limit(1);
 
-    let post: any = null;
+    let article = articlesBySlug && articlesBySlug.length > 0 ? articlesBySlug[0] : null;
 
-    // Try by ObjectId first
-    if (ObjectId.isValid(slug)) {
-      try {
-        const objectId = new ObjectId(slug);
-        post = await collection.findOne({ _id: objectId });
-      } catch (e) {
-        console.error("Error searching by ObjectId:", e);
+    // If not found by slug, try by ID (UUID)
+    if (!article) {
+      const { data: articlesById, error: idError } = await supabase
+        .from("final_articles")
+        .select("id, slug, likes")
+        .eq("id", slug)
+        .limit(1);
+
+      if (idError || !articlesById || articlesById.length === 0) {
+        return NextResponse.json(
+          { success: false, error: "Post not found" },
+          { status: 404 },
+        );
       }
-    }
 
-    // Try by string _id
-    if (!post) {
-      try {
-        post = await collection.findOne({ _id: slug as any });
-      } catch (e) {
-        console.error("Error searching by string _id:", e);
-      }
-    }
-
-    // Try by slug field
-    if (!post) {
-      post = await collection.findOne({ slug: slug });
-    }
-
-    if (!post) {
-      return NextResponse.json(
-        { success: false, error: "Post not found" },
-        { status: 404 },
-      );
+      article = articlesById[0];
     }
 
     // Initialize likes field if it doesn't exist
-    if (post.likes === undefined || post.likes === null) {
-      await collection.updateOne(
-        { _id: post._id },
-        { $set: { likes: 0 } },
-      );
-    }
+    const currentLikes = article.likes ?? 0;
 
-    // Increment or decrement likes atomically
+    // Calculate new like count
     const increment = action === "like" ? 1 : action === "unlike" ? -1 : 0;
-    
-    if (increment !== 0) {
-      const result = await collection.updateOne(
-        { _id: post._id },
-        { $inc: { likes: increment } },
-      );
+    const newLikes = Math.max(0, currentLikes + increment);
 
-      if (result.modifiedCount > 0) {
-        // Fetch updated post to return new like count
-        const updatedPost = await collection.findOne({ _id: post._id });
-        return NextResponse.json({
-          success: true,
-          likes: updatedPost?.likes || (post.likes || 0) + increment,
-          action: action,
-        });
-      }
+    // Update likes atomically using Supabase
+    // Use limit(1) to ensure only one row is returned, then maybeSingle() to handle edge cases
+    const { data: updatedArticles, error: updateError } = await supabase
+      .from("final_articles")
+      .update({ likes: newLikes })
+      .eq("id", article.id)
+      .select("likes")
+      .limit(1);
+
+    if (updateError) {
+      console.error("Error updating likes:", updateError);
+      return NextResponse.json(
+        {
+          success: false,
+          error: updateError.message || "Failed to update likes",
+        },
+        { status: 500 },
+      );
     }
+
+    // Get the updated likes count from the response
+    const updatedLikes = updatedArticles && updatedArticles.length > 0 
+      ? updatedArticles[0].likes ?? newLikes
+      : newLikes;
 
     return NextResponse.json({
       success: true,
-      likes: post.likes || 0,
+      likes: updatedLikes,
+      action: action,
     });
   } catch (error) {
     console.error("Error updating likes:", error);
