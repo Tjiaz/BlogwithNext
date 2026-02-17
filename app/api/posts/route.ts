@@ -131,6 +131,8 @@ export async function POST(req: NextRequest) {
   }
 }
 
+export const revalidate = 60;
+
 export async function GET(req: NextRequest) {
   console.log("🔵 /api/posts hit");
   try {
@@ -141,7 +143,6 @@ export async function GET(req: NextRequest) {
     const topic = searchParams.get("topic");
 
     const { getArticles } = await import("@/lib/supabase-queries");
-    const { extractFirstImageFromContent } = await import("@/lib/utils");
 
     const result = await getArticles({
       page,
@@ -150,28 +151,11 @@ export async function GET(req: NextRequest) {
       topic: topic || undefined,
     });
 
-    // Extract images from content if needed
     const processedPosts = result.data.map((post: any) => {
-      // Ensure slug is a string
       if (!post.slug || typeof post.slug !== "string") {
         post.slug = post.id || post._id || "";
       }
 
-      // Extract first image from content if no img field exists
-      if (
-        (!post.img ||
-          post.img === "" ||
-          post.img === null ||
-          post.img === "[object Object]") &&
-        post.content
-      ) {
-        const extractedImage = extractFirstImageFromContent(post.content);
-        if (extractedImage) {
-          post.img = extractedImage;
-        }
-      }
-
-      // Get best image from available sources
       const filteredImage =
         post.filtered_images &&
         Array.isArray(post.filtered_images) &&
@@ -188,14 +172,11 @@ export async function GET(req: NextRequest) {
         post.imageUrl ||
         null;
 
-      // Use default image if no image found
       if (!post.img || post.img === "" || post.img === null) {
         post.img = "/images/azbyte.jpeg";
       }
 
-      // Remove content from response
-      const { content, ...postWithoutContent } = post;
-      return postWithoutContent;
+      return post;
     });
 
     console.log(

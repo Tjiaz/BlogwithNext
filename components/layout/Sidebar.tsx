@@ -132,6 +132,7 @@ const Sidebar = () => {
               {topPosts && topPosts.length > 0 ? (
                 topPosts.map((post) => {
                   const postSlug = getPostSlug(post);
+                  if (postSlug === "invalid-slug") return null;
                   return (
                     <li key={post.id || post._id}>
                       <Link

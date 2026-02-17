@@ -1,40 +1,26 @@
+const BAD_SLUG = "[object Object]";
+const BAD_SLUG_PREFIX = "[object";
+
+function toSlugString(val: unknown): string | null {
+  if (val == null) return null;
+  if (typeof val === "string") {
+    if (val === BAD_SLUG || val.includes(BAD_SLUG_PREFIX)) return null;
+    return val;
+  }
+  const str = String(val);
+  if (str === BAD_SLUG || str.includes(BAD_SLUG_PREFIX)) return null;
+  return str;
+}
+
 /**
- * Safely extracts a slug string from a post object
- * Handles cases where slug might be an object, undefined, or invalid
+ * Safely extracts a slug string from a post object.
+ * Never returns [object Object] - returns "invalid-slug" for bad data.
  */
 export function getPostSlug(post: any): string {
-  // If slug exists and is a string, validate it's not [object Object]
-  if (post?.slug) {
-    if (typeof post.slug === "string") {
-      // Check if it's the string "[object Object]" or contains "[object"
-      if (post.slug !== "[object Object]" && !post.slug.includes("[object")) {
-        return post.slug;
-      }
-    }
-    // If slug is an object, ignore it and fall through to _id/id
-  }
+  if (!post) return "invalid-slug";
 
-  // Fallback to _id as string
-  if (post?._id) {
-    const idStr = typeof post._id === "string" ? post._id : String(post._id);
-    // Ensure _id is not [object Object] either
-    if (idStr !== "[object Object]" && !idStr.includes("[object")) {
-      return idStr;
-    }
-  }
-
-  // Fallback to id
-  if (post?.id) {
-    const idStr = typeof post.id === "string" ? post.id : String(post.id);
-    if (idStr !== "[object Object]" && !idStr.includes("[object")) {
-      return idStr;
-    }
-  }
-
-  // Last resort: return a safe placeholder that will 404
-  // This prevents [object Object] from appearing in URLs
-  console.warn("No valid slug found for post:", post);
-  return "invalid-slug";
+  const slug = toSlugString(post.slug) ?? toSlugString(post._id) ?? toSlugString(post.id);
+  return slug ?? "invalid-slug";
 }
 
 /**

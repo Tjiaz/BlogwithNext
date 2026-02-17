@@ -44,9 +44,7 @@ export async function getHomepageData() {
       )
       .eq("is_published", true)
       .order("published_at", { ascending: false, nullsFirst: false })
-      .order("date", { ascending: false, nullsFirst: false })
-      .order("created_at", { ascending: false, nullsFirst: false })
-      .limit(22);
+      .limit(12);
 
     const elapsed = Date.now() - startTime;
 
@@ -127,7 +125,6 @@ export async function getHomepageData() {
     });
 
     // Articles are already sorted by published_at DESC from the query
-    // Split into sections
     const heroPosts = transformedArticles.slice(0, 10);
     const recentPosts = transformedArticles.slice(0, 8);
     const popularArticles = transformedArticles.slice(0, 4);
@@ -225,12 +222,10 @@ export async function getTopArticles(page: number = 1, limit: number = 5) {
     const { data: articles, error } = await supabase
       .from("final_articles")
       .select(
-        "id, title, description, author, author_name, date, published_at, topic, category, img, featured_image, image, image_url, hero_image, filtered_images, content"
+        "id, slug, title, description, author, author_name, date, published_at, topic, category, img, featured_image, image, image_url, hero_image, filtered_images"
       )
       .eq("is_published", true)
-      .order("date", { ascending: false, nullsFirst: false })
       .order("published_at", { ascending: false, nullsFirst: false })
-      .order("created_at", { ascending: false, nullsFirst: false })
       .range(skip, skip + limit - 1);
 
     if (error) {
@@ -257,11 +252,6 @@ export async function getTopArticles(page: number = 1, limit: number = 5) {
         article.image_url ||
         null;
 
-      if (!imageUrl && article.content) {
-        // Extract image from content if needed (you can import extractFirstImageFromContent here)
-        // For now, just use default
-      }
-
       if (!imageUrl) {
         imageUrl = "/images/azbyte.jpeg";
       }
@@ -269,6 +259,7 @@ export async function getTopArticles(page: number = 1, limit: number = 5) {
       return {
         id: article.id,
         _id: article.id,
+        slug: article.slug || article.id,
         title: article.title,
         description: article.description,
         author: article.author || article.author_name || "",
@@ -300,7 +291,7 @@ export async function getArticles(params: {
     let query = supabase
       .from("final_articles")
       .select(
-        "id, title, slug, description, excerpt, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images, tags, content",
+        "id, title, slug, description, excerpt, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images, tags",
         { count: "exact" }
       )
       .eq("is_published", true);
@@ -312,20 +303,16 @@ export async function getArticles(params: {
       );
     }
 
-    // Apply search filter
+    // Apply search filter - search title/description/excerpt (content excluded - too slow)
     if (params.search) {
       const searchTerm = params.search.trim();
-      // Use ilike for case-insensitive search
       query = query.or(
-        `title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%,topic.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%,excerpt.ilike.%${searchTerm}%`
+        `title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,excerpt.ilike.%${searchTerm}%,topic.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`
       );
     }
 
-    // Order by date
-    query = query
-      .order("date", { ascending: false, nullsFirst: false })
-      .order("published_at", { ascending: false, nullsFirst: false })
-      .order("created_at", { ascending: false, nullsFirst: false });
+    // Single order - uses index, faster
+    query = query.order("published_at", { ascending: false, nullsFirst: false });
 
     // Apply pagination
     const {
@@ -374,7 +361,6 @@ export async function getArticles(params: {
         featuredImage: article.featured_image || bestImage,
         image: article.image || bestImage,
         tags: article.tags || [],
-        content: article.content || "", // Include content for image extraction
       };
     });
 

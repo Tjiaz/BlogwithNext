@@ -120,6 +120,7 @@ export default function MoreRecentPosts({
       <div className="space-y-2">
         {displayPosts.map((post) => {
           const postSlug = getPostSlug(post);
+          if (postSlug === "invalid-slug") return null;
 
           return (
             <Link

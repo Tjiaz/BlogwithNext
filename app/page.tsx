@@ -1,16 +1,14 @@
-import HeroSection from "../components/home/HeroSection";
 import Sidebar from "../components/layout/Sidebar";
 import MoreRecentPosts from "../components/blog/MoreRecentPosts";
 import MostPopularArticles from "../components/home/MostPopularArticles";
 import DiscoverTopics from "../components/home/DiscoverTopics";
 import EzoicAd from "../components/ads/EzoicAd";
+import HeroSectionClient from "../components/home/HeroSectionClient";
 import { getBestImage } from "@/lib/utils";
 import { getHomepageData } from "@/lib/supabase-queries";
 
-// Force dynamic rendering to always fetch fresh data
-// This prevents ISR cache issues that might show empty data
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const runtime = "edge";
+export const revalidate = 60;
 
 export default async function Home() {
   // Fetch all homepage data from Supabase
@@ -24,12 +22,12 @@ export default async function Home() {
     }));
 
     return (
-      <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="bg-gray-50 dark:bg-gray-900 min-h-screen" suppressHydrationWarning>
         {/* Hero with sidebar - both start at same level */}
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
             <div className="lg:col-span-3">
-              <HeroSection initialPosts={heroPostsWithImages} />
+              <HeroSectionClient initialPosts={heroPostsWithImages} />
             </div>
             <Sidebar />
           </div>

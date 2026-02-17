@@ -53,26 +53,21 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   try {
-    const { slug: rawSlug } = await params;
+    const resolvedParams = await params;
+    const rawSlug = resolvedParams?.slug;
 
-    // Safeguard: ensure slug is a string, not an object
     let slug: string;
     if (typeof rawSlug === "string") {
       slug = decodeURIComponent(rawSlug);
     } else {
-      console.error("❌ Invalid slug parameter (not a string):", rawSlug);
       notFound();
       return;
     }
 
-    // Additional safeguard: reject [object Object] strings
     if (!isValidSlug(slug)) {
-      console.error("❌ Invalid slug detected:", slug);
       notFound();
       return;
     }
-
-    console.log("📄 BlogPostPage with slug:", slug);
 
     // Exclude reserved routes
     const reservedRoutes = [

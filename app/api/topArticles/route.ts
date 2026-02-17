@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getTopArticles } from "@/lib/supabase-queries";
-import { extractFirstImageFromContent } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
+export const runtime = "edge";
+export const revalidate = 60;
 
 export async function GET(req: Request) {
   try {

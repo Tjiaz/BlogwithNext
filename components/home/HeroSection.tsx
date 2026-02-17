@@ -141,23 +141,20 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
       setPosts(initialPosts);
       hasInitialData.current = true;
       initialized.current = true;
-      
-      // Fetch pagination info in the background without blocking render
-      fetch(`/api/posts?page=1&limit=${itemsPerPage}`, { cache: "no-store" })
+      setTotalPages(Math.max(1, Math.ceil(initialPosts.length / itemsPerPage)));
+      // Fetch pagination info in background to get actual total count
+      fetch(`/api/posts?page=1&limit=${itemsPerPage}`)
         .then((res) => res.json())
         .then((json) => {
           if (json?.pagination?.totalPages) {
             setTotalPages(json.pagination.totalPages);
-          } else if (json?.pagination?.total) {
+          } else if (json?.pagination?.total != null) {
             setTotalPages(Math.ceil(json.pagination.total / itemsPerPage));
           }
         })
-        .catch((e) => {
-          console.error("Failed to fetch pagination info:", e);
-          // Keep the initial calculated value
-        });
+        .catch(() => {});
     }
-  }, []); // Empty dependency array - only run once on mount
+  }, []);
 
   // fetch posts from the server API for a specific page
   const loadPosts = async (page: number) => {
@@ -257,9 +254,12 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              {currentPosts.map((post) => (
+              {currentPosts.map((post) => {
+                const slug = getPostSlug(post);
+                if (slug === "invalid-slug") return null;
+                return (
                 <article
-                  key={post.id}
+                  key={post.id || post._id || slug}
                   className="border rounded-lg overflow-hidden flex flex-col bg-white dark:bg-gray-800"
                 >
                   <div className="h-40 md:h-48 w-full overflow-hidden">
@@ -272,7 +272,7 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
 
                   <div className="p-4 flex-1 flex flex-col">
                     <a
-                      href={`/${getPostSlug(post)}`}
+                      href={`/${slug}`}
                       className="text-lg font-semibold text-gray-900 dark:text-white hover:text-[#0a73b0] transition-colors"
                     >
                       {post.title}
@@ -296,7 +296,7 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
 
                     <div className="mt-4 pt-2">
                       <a
-                        href={`/${getPostSlug(post)}`}
+                        href={`/${slug}`}
                         className="text-sm text-[#0a73b0] hover:text-[#2a9bd0] hover:underline transition-colors"
                       >
                         Read more →
@@ -304,7 +304,8 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
                     </div>
                   </div>
                 </article>
-              ))}
+              );
+              })}
             </div>
 
 

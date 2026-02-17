@@ -90,6 +90,7 @@ export default function RelatedArticles({
       <div className="space-y-4">
         {articles.map((article) => {
           const postSlug = getPostSlug(article);
+          if (postSlug === "invalid-slug") return null;
           return (
             <Link
               key={article._id || article.id}

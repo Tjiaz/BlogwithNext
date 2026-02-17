@@ -195,10 +195,10 @@ export default function MostPopularArticles({
       <div className="space-y-4">
         {displayArticles.map((article) => {
           const postSlug = getPostSlug(article);
+          if (postSlug === "invalid-slug") return null;
           const topicColor = getTopicColor(article.topic || "");
           const avatarUrl = getAvatarUrl(article.author, article.topic || "");
           const formattedDate = formatDate(article.date);
-          // Get best image for avatar display
           const articleImage = getBestImage(article);
 
           return (

@@ -95,6 +95,7 @@ export default function ArticleSidebar({ currentPostId }: ArticleSidebarProps) {
             <div className="space-y-3">
               {topPosts.slice(0, 5).map((post) => {
                 const postSlug = getPostSlug(post);
+                if (postSlug === "invalid-slug") return null;
                 const bestImage = getBestImage(post);
                 return (
                   <Link
@@ -160,6 +161,7 @@ export default function ArticleSidebar({ currentPostId }: ArticleSidebarProps) {
             <ol className="space-y-2">
               {latestPosts.slice(0, 5).map((post, index) => {
                 const postSlug = getPostSlug(post);
+                if (postSlug === "invalid-slug") return null;
                 return (
                   <li key={post._id || post.id}>
                     <Link
