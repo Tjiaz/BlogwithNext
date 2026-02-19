@@ -1,13 +1,26 @@
 # Ezoic Ad Integration Guide
 
-This guide will help you set up Ezoic ads on your blog after signing up with Ezoic.
+⚠️ **IMPORTANT**: Your site was rejected by Ezoic on content grounds. You can reapply on **May 2, 2026**.
 
-## Step 1: Sign Up with Ezoic
+**Before reapplying, you need to:**
+
+- Publish 50+ quality articles (1000+ words each)
+- Build consistent traffic (1000+ monthly visitors)
+- Improve user experience and site speed
+- Create essential pages (About, Contact, etc.)
+
+**See `EZOIC_REJECTION_GUIDELINES.md` for a complete action plan.**
+
+---
+
+This guide will help you set up Ezoic ads on your blog **after** your site is approved.
+
+## Step 1: Sign Up with Ezoic (After Improving Your Site)
 
 1. Go to [https://www.ezoic.com](https://www.ezoic.com)
 2. Sign up for an account
 3. Submit your website for approval
-4. Wait for approval (usually 24-48 hours)
+4. Wait for approval (usually 24-48 hours, but may take longer)
 
 ## Step 2: Get Your Ezoic Script
 

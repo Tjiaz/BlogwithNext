@@ -15,11 +15,12 @@ const Sidebar = () => {
   useEffect(() => {
     async function fetchTopPosts() {
       try {
-        const response = await fetch(`/api/topArticles?page=1`);
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setTopPosts(data.slice(0, 9));
-        }
+        const response = await fetch(`/api/posts?page=1&limit=9`);
+        const json = await response.json();
+        const posts =
+          (json?.success && Array.isArray(json?.data) ? json.data : null) ??
+          (Array.isArray(json) ? json : []);
+        setTopPosts(posts.slice(0, 9));
       } catch (error) {
         console.error("Failed to fetch top posts", error);
       } finally {

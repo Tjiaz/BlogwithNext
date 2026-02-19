@@ -1,5 +1,6 @@
 // app/api/posts/route.ts
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag, revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { extractFirstImageFromContent } from "@/lib/utils";
@@ -111,6 +112,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Invalidate caches so new article appears immediately on homepage/lists
+    revalidateTag("articles");
+    revalidatePath("/");
+    revalidatePath("/blog");
+    if (topic) revalidatePath(`/topics/${topic.toLowerCase().replace(/\s+/g, "-")}`);
+
     return NextResponse.json({
       success: true,
       data: {
@@ -131,7 +138,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 export async function GET(req: NextRequest) {
   console.log("🔵 /api/posts hit");
@@ -183,16 +190,23 @@ export async function GET(req: NextRequest) {
       `📤 Returning ${processedPosts.length} posts (page ${page}, limit ${limit}, total ${result.total})`,
     );
 
-    return NextResponse.json({
-      success: true,
-      data: processedPosts,
-      pagination: {
-        total: result.total,
-        page: result.page,
-        limit: result.limit,
-        totalPages: result.totalPages,
+    return NextResponse.json(
+      {
+        success: true,
+        data: processedPosts,
+        pagination: {
+          total: result.total,
+          page: result.page,
+          limit: result.limit,
+          totalPages: result.totalPages,
+        },
       },
-    });
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        },
+      }
+    );
   } catch (error: any) {
     console.error("❌ POSTS API ERROR:", error);
     return NextResponse.json(

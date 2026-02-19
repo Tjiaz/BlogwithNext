@@ -41,7 +41,7 @@ export default function MoreRecentPosts({
     const fetchRecentPosts = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch("/api/posts?limit=8", { cache: "no-store" });
+        const res = await fetch("/api/posts?limit=8");
 
         if (!res.ok) throw new Error("Failed to fetch posts");
 

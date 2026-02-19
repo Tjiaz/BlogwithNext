@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getTopArticles } from "@/lib/supabase-queries";
 
-export const runtime = "edge";
-export const revalidate = 60;
+// Node runtime - Edge does not support unstable_cache used by getTopArticles
+export const revalidate = 300;
 
 export async function GET(req: Request) {
   try {
@@ -28,7 +28,11 @@ export async function GET(req: Request) {
       };
     });
 
-    return NextResponse.json(processedResults);
+    return NextResponse.json(processedResults, {
+      headers: {
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+      },
+    });
   } catch (error: any) {
     console.error("Error fetching top articles:", error);
     return NextResponse.json([], { status: 200 });

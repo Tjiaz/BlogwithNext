@@ -146,11 +146,13 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
       fetch(`/api/posts?page=1&limit=${itemsPerPage}`)
         .then((res) => res.json())
         .then((json) => {
-          if (json?.pagination?.totalPages) {
-            setTotalPages(json.pagination.totalPages);
-          } else if (json?.pagination?.total != null) {
-            setTotalPages(Math.ceil(json.pagination.total / itemsPerPage));
+          let pages = 1;
+          if (json?.pagination?.totalPages && json.pagination.totalPages > 0) {
+            pages = json.pagination.totalPages;
+          } else if (json?.pagination?.total != null && json.pagination.total > 0) {
+            pages = Math.ceil(json.pagination.total / itemsPerPage);
           }
+          setTotalPages(Math.max(1, pages));
         })
         .catch(() => {});
     }
@@ -162,8 +164,7 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
       setIsLoading(true);
 
       const res = await fetch(
-        `/api/posts?page=${page}&limit=${itemsPerPage}`,
-        { cache: "no-store" }, // optional, avoids stale data in dev
+        `/api/posts?page=${page}&limit=${itemsPerPage}`
       );
 
       if (!res.ok) throw new Error("Fetch failed");
@@ -196,13 +197,13 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
         setPosts([]); // no results for this page
       }
 
-      // use API pagination info if available
+      // use API pagination info if available (never show "Page 1 of 0")
       if (json?.pagination) {
-        setTotalPages(json.pagination.totalPages ?? 1);
+        const p = json.pagination.totalPages ?? Math.ceil((json.pagination.total || 0) / itemsPerPage);
+        setTotalPages(Math.max(1, p));
       } else {
-        // fallback: calculate from total count if available
         const totalCount = json?.total || json?.pagination?.total || mapped.length;
-        setTotalPages(Math.ceil(totalCount / itemsPerPage));
+        setTotalPages(Math.max(1, Math.ceil(totalCount / itemsPerPage)));
       }
     } catch (e) {
       console.error("Failed to load posts:", e);

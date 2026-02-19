@@ -1,5 +1,9 @@
 // Supabase query helpers - Converted from MongoDB queries
+import { unstable_cache } from "next/cache";
 import { supabase } from "./supabase";
+
+// Cache TTL: 5 min - reduces Supabase egress significantly
+const CACHE_REVALIDATE = 300;
 
 export interface Article {
   id: string;
@@ -30,8 +34,9 @@ export interface Article {
 
 /**
  * Get homepage data - fetches articles for hero, recent posts, and popular articles
+ * Cached 5 min to reduce Supabase egress
  */
-export async function getHomepageData() {
+async function getHomepageDataUncached() {
   try {
     // Simplified query matching the working topic pages query
     // Remove timeout race - let Supabase handle it naturally
@@ -85,7 +90,6 @@ export async function getHomepageData() {
 
     // Transform articles efficiently (articles already sorted by published_at DESC)
     const transformedArticles = articles.map((article: any) => {
-      // Get best image (prioritize hero_image and filtered_images)
       const bestImage =
         article.hero_image ||
         (Array.isArray(article.filtered_images) &&
@@ -136,10 +140,16 @@ export async function getHomepageData() {
   }
 }
 
+// Bypass unstable_cache - payload exceeds 2MB when articles have large image/content fields.
+// Page-level revalidate (300s) caches the rendered output instead.
+export async function getHomepageData() {
+  return getHomepageDataUncached();
+}
+
 /**
- * Get articles by year
+ * Get articles by year (uncached)
  */
-export async function getArticlesByYear(years: number[], limit: number = 5) {
+async function getArticlesByYearUncached(years: number[], limit: number = 5) {
   try {
     const results: Record<number, any[]> = {};
 
@@ -212,10 +222,18 @@ export async function getArticlesByYear(years: number[], limit: number = 5) {
   }
 }
 
+export async function getArticlesByYear(years: number[], limit: number = 5) {
+  return unstable_cache(
+    () => getArticlesByYearUncached(years, limit),
+    ["articles-by-year", years.join(","), String(limit)],
+    { revalidate: CACHE_REVALIDATE, tags: ["articles"] }
+  )();
+}
+
 /**
- * Get top articles with pagination
+ * Get top articles with pagination (uncached - used by cache wrapper)
  */
-export async function getTopArticles(page: number = 1, limit: number = 5) {
+async function getTopArticlesUncached(page: number = 1, limit: number = 5) {
   try {
     const skip = (page - 1) * limit;
 
@@ -274,10 +292,18 @@ export async function getTopArticles(page: number = 1, limit: number = 5) {
   }
 }
 
+export async function getTopArticles(page: number = 1, limit: number = 5) {
+  return unstable_cache(
+    () => getTopArticlesUncached(page, limit),
+    ["top-articles", String(page), String(limit)],
+    { revalidate: CACHE_REVALIDATE, tags: ["articles"] }
+  )();
+}
+
 /**
- * Get articles with search, pagination, and filtering
+ * Get articles with search, pagination, and filtering (uncached)
  */
-export async function getArticles(params: {
+async function getArticlesUncached(params: {
   page?: number;
   limit?: number;
   search?: string;
@@ -380,10 +406,27 @@ export async function getArticles(params: {
   }
 }
 
+export async function getArticles(params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  topic?: string;
+}) {
+  const page = params.page || 1;
+  const limit = params.limit || 12;
+  const topic = params.topic || "";
+  const search = (params.search || "").trim();
+  return unstable_cache(
+    () => getArticlesUncached(params),
+    ["articles", String(page), String(limit), topic, search],
+    { revalidate: CACHE_REVALIDATE, tags: ["articles"] }
+  )();
+}
+
 /**
- * Get a single article by slug or ID
+ * Get a single article by slug or ID (uncached - article pages need fresh views/likes)
  */
-export async function getArticle(slug: string): Promise<Article | null> {
+async function getArticleUncached(slug: string): Promise<Article | null> {
   try {
     console.log("🔍 [getArticle] Fetching article with slug:", slug);
 
@@ -475,4 +518,22 @@ export async function getArticle(slug: string): Promise<Article | null> {
     console.error("❌ [getArticle] Error fetching article:", error);
     return null;
   }
+}
+
+// Slugs that exceed 2MB cache limit - fetch directly without caching
+const UNCACHED_ARTICLE_SLUGS = new Set([
+  "7-ai-coding-subscription-plans-that-let-you-build-without-worrying-about-api-costs",
+  "buiding-modern-apps-with-tech-stack-vibe-coding",
+]);
+
+/** Get article - cached 2 min, except for known large articles (>2MB) */
+export async function getArticle(slug: string): Promise<Article | null> {
+  if (UNCACHED_ARTICLE_SLUGS.has(slug)) {
+    return getArticleUncached(slug);
+  }
+  return unstable_cache(
+    () => getArticleUncached(slug),
+    ["article", slug],
+    { revalidate: 120, tags: ["articles", `article-${slug}`] }
+  )();
 }

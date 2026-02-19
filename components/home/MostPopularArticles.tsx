@@ -114,9 +114,7 @@ export default function MostPopularArticles({
     const fetchPopularArticles = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch("/api/topArticles?page=1", {
-          cache: "no-store",
-        });
+        const res = await fetch("/api/topArticles?page=1");
 
         if (!res.ok) throw new Error("Failed to fetch popular articles");
 

@@ -115,7 +115,9 @@ export default function WritePage() {
       }
 
       toast.success("Article created successfully!");
-      router.push(`/${data.data._id}`);
+      // Use slug or id for navigation
+      const articleSlug = data.data.slug || data.data.id || data.data._id;
+      router.push(`/${articleSlug}`);
     } catch (error: any) {
       toast.error(error.message || "Failed to create article");
     } finally {

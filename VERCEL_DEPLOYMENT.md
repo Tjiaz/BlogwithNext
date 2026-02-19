@@ -22,9 +22,17 @@ CREATE INDEX IF NOT EXISTS idx_final_articles_published_at_filter
 
 This speeds up homepage and listing queries.
 
+## Supabase Egress / Caching (Applied)
+
+- **unstable_cache** on all Supabase queries: 5 min TTL for lists, 2 min for articles
+- **Cache-Control** headers on /api/posts and /api/topArticles: `s-maxage=300, stale-while-revalidate=600`
+- **Revalidate** increased to 300s on homepage and API routes
+- Removed `cache: "no-store"` from client fetches so browser/CDN can cache
+- Significantly reduces Supabase bandwidth usage
+
 ## Timeout Fixes (Applied)
 
 - **Homepage** uses Edge runtime (30s timeout vs 10s on Node.js)
-- **ISR** caches homepage for 60 seconds
+- **ISR** caches homepage for 300 seconds
 - **Content removed** from list queries (getTopArticles, getArticles) - was causing 8s+ Supabase timeouts
 - **HeroSection** skips /api/posts when server provides initial data
