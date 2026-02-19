@@ -142,16 +142,12 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
       hasInitialData.current = true;
       initialized.current = true;
       setTotalPages(Math.max(1, Math.ceil(initialPosts.length / itemsPerPage)));
-      // Fetch pagination info in background to get actual total count
-      fetch(`/api/posts?page=1&limit=${itemsPerPage}`)
+      // Fetch actual total count from dedicated endpoint (reliable pagination)
+      fetch("/api/posts/count")
         .then((res) => res.json())
         .then((json) => {
-          let pages = 1;
-          if (json?.pagination?.totalPages && json.pagination.totalPages > 0) {
-            pages = json.pagination.totalPages;
-          } else if (json?.pagination?.total != null && json.pagination.total > 0) {
-            pages = Math.ceil(json.pagination.total / itemsPerPage);
-          }
+          const total = json?.total ?? 0;
+          const pages = total > 0 ? Math.ceil(total / itemsPerPage) : 1;
           setTotalPages(Math.max(1, pages));
         })
         .catch(() => {});
