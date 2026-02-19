@@ -11,7 +11,7 @@ interface Article {
   author: string;
   date: string;
   topic: string;
-  img?: string;
+  img?: string | null;
   description?: string;
 }
 

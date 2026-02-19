@@ -14,9 +14,9 @@ interface Post {
   date?: string;
   publishedAt?: string;
   author?: string;
-  img?: string;
-  featuredImage?: string;
-  image?: string;
+  img?: string | null;
+  featuredImage?: string | null;
+  image?: string | null;
 }
 
 interface MoreRecentPostsProps {
