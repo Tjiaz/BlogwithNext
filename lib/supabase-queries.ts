@@ -42,10 +42,11 @@ async function getHomepageDataUncached() {
     // Remove timeout race - let Supabase handle it naturally
     const startTime = Date.now();
 
+    // Exclude image columns - /api/article-image fetches on demand (supports base64, keeps payload small)
     const { data: articles, error } = await supabase
       .from("final_articles")
       .select(
-        "id, title, slug, description, excerpt, summary, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images"
+        "id, title, slug, description, excerpt, summary, topic, category, date, published_at, created_at, author, author_name"
       )
       .eq("is_published", true)
       .order("published_at", { ascending: false, nullsFirst: false })
@@ -88,29 +89,15 @@ async function getHomepageDataUncached() {
       `✅ [getHomepageData] Fetched ${articles.length} articles in ${elapsed}ms`
     );
 
-    // Reject base64/long strings - keeps payload under Vercel 19MB ISR limit while preserving URL images
-    const sanitizeImage = (v: string | null | undefined): string | null => {
-      if (!v || typeof v !== "string") return null;
-      if (v.startsWith("data:") || v.length > 2000) return null;
-      return v;
-    };
     const truncate = (v: string | null | undefined, max = 500): string =>
       typeof v === "string" ? v.slice(0, max) : "";
 
-    // Transform articles efficiently (articles already sorted by published_at DESC)
+    // Image proxy - fetches actual image (URL or base64) on demand; API returns default if none
+    const imageProxyUrl = (articleId: string) => `/api/article-image?id=${articleId}`;
+
+    // Transform articles - proxy URL for all (API resolves image or default)
     const transformedArticles = articles.map((article: any) => {
-      const rawFromFiltered =
-        Array.isArray(article.filtered_images) && article.filtered_images.length > 0
-          ? sanitizeImage(article.filtered_images[0])
-          : null;
-      const bestImage =
-        sanitizeImage(article.hero_image) ||
-        rawFromFiltered ||
-        sanitizeImage(article.img) ||
-        sanitizeImage(article.featured_image) ||
-        sanitizeImage(article.image) ||
-        sanitizeImage(article.image_url) ||
-        null;
+      const imgUrl = imageProxyUrl(article.id);
 
       return {
         _id: article.id,
@@ -129,12 +116,12 @@ async function getHomepageDataUncached() {
           article.created_at || article.published_at || article.date || "",
         author: article.author || article.author_name || "Unknown",
         authorName: article.author_name || article.author || "Unknown",
-        img: bestImage,
-        featuredImage: bestImage,
-        image: bestImage,
-        imageUrl: bestImage,
-        hero_image: bestImage,
-        filtered_images: bestImage ? [bestImage] : [],
+        img: imgUrl,
+        featuredImage: imgUrl,
+        image: imgUrl,
+        imageUrl: imgUrl,
+        hero_image: imgUrl,
+        filtered_images: imgUrl ? [imgUrl] : [],
       };
     });
 
