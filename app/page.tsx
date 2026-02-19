@@ -7,7 +7,7 @@ import EzoicAd from "../components/ads/EzoicAd";
 import { getBestImage } from "@/lib/utils";
 import { getHomepageData } from "@/lib/supabase-queries";
 
-// Node runtime - Edge caused persistent hydration mismatches
+export const dynamic = "force-dynamic"; // Avoid pre-rendering large payload at build (Vercel 19MB limit)
 export const revalidate = 300;
 
 export default async function Home() {

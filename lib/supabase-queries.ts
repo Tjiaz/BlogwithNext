@@ -88,28 +88,38 @@ async function getHomepageDataUncached() {
       `✅ [getHomepageData] Fetched ${articles.length} articles in ${elapsed}ms`
     );
 
+    // Reject base64/long strings - keeps payload under Vercel 19MB ISR limit while preserving URL images
+    const sanitizeImage = (v: string | null | undefined): string | null => {
+      if (!v || typeof v !== "string") return null;
+      if (v.startsWith("data:") || v.length > 2000) return null;
+      return v;
+    };
+    const truncate = (v: string | null | undefined, max = 500): string =>
+      typeof v === "string" ? v.slice(0, max) : "";
+
     // Transform articles efficiently (articles already sorted by published_at DESC)
     const transformedArticles = articles.map((article: any) => {
+      const rawFromFiltered =
+        Array.isArray(article.filtered_images) && article.filtered_images.length > 0
+          ? sanitizeImage(article.filtered_images[0])
+          : null;
       const bestImage =
-        article.hero_image ||
-        (Array.isArray(article.filtered_images) &&
-        article.filtered_images.length > 0
-          ? article.filtered_images[0]
-          : null) ||
-        article.img ||
-        article.featured_image ||
-        article.image ||
-        article.image_url ||
+        sanitizeImage(article.hero_image) ||
+        rawFromFiltered ||
+        sanitizeImage(article.img) ||
+        sanitizeImage(article.featured_image) ||
+        sanitizeImage(article.image) ||
+        sanitizeImage(article.image_url) ||
         null;
 
       return {
         _id: article.id,
         id: article.id,
-        title: article.title || "",
+        title: truncate(article.title, 300),
         slug: article.slug || article.id,
-        description: article.description || article.excerpt || "",
-        excerpt: article.excerpt || article.description || "",
-        summary: article.summary || "",
+        description: truncate(article.description || article.excerpt),
+        excerpt: truncate(article.excerpt || article.description),
+        summary: truncate(article.summary, 200),
         topic: article.topic || article.category || "",
         category: article.category || article.topic || "",
         date: article.date || article.published_at || article.created_at || "",
@@ -120,11 +130,11 @@ async function getHomepageDataUncached() {
         author: article.author || article.author_name || "Unknown",
         authorName: article.author_name || article.author || "Unknown",
         img: bestImage,
-        featuredImage: article.featured_image || bestImage,
-        image: article.image || bestImage,
-        imageUrl: article.image_url || bestImage,
-        hero_image: article.hero_image || bestImage,
-        filtered_images: article.filtered_images || [],
+        featuredImage: bestImage,
+        image: bestImage,
+        imageUrl: bestImage,
+        hero_image: bestImage,
+        filtered_images: bestImage ? [bestImage] : [],
       };
     });
 

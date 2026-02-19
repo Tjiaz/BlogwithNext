@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getTopArticles } from "@/lib/supabase-queries";
 
-// Node runtime - Edge does not support unstable_cache used by getTopArticles
+export const dynamic = "force-dynamic"; // Uses request.url for searchParams
 export const revalidate = 300;
 
 export async function GET(req: Request) {
