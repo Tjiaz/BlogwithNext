@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Invalidate caches so new article appears immediately on homepage/lists
-    revalidateTag("articles");
+    revalidateTag("articles", "max");
     revalidatePath("/");
     revalidatePath("/blog");
     if (topic) revalidatePath(`/topics/${topic.toLowerCase().replace(/\s+/g, "-")}`);
