@@ -138,6 +138,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
+export const dynamic = "force-dynamic"; // Uses request.url for searchParams
 export const revalidate = 300;
 
 export async function GET(req: NextRequest) {

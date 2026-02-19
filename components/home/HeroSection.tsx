@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import { getPostSlug, getBestImage } from "@/lib/utils";
+import { getPostSlug } from "@/lib/utils";
 // import AdSenseRectangle from "@/components/ads/AdSenseRectangle";
 
 const defaultPosts = [
@@ -177,17 +177,19 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
       else if (Array.isArray(json)) fetched = json;
 
       const mapped = fetched.map((p: any) => {
-        // Get best image using utility function (prioritizes hero_image and filtered_images)
-        const imageUrl = getBestImage(p, p.content);
+        const articleId = p._id ?? p.id;
+        // Use image proxy for consistent loading (same as homepage initial)
+        const imageUrl = articleId ? `/api/article-image?id=${articleId}` : "/images/azbyte.jpeg";
 
         return {
-          id: p._id?.toString() ?? p.id ?? p.slug,
+          id: articleId?.toString() ?? p.slug,
+          _id: articleId,
           title: p.title ?? "",
           author: p.author ?? p.authorName ?? "Unknown",
           date: p.publishedAt ?? p.date ?? p.createdAt ?? null,
           excerpt: p.excerpt ?? p.description ?? p.summary ?? "",
           topic: p.topic ?? p.category ?? "",
-          image: imageUrl || "/images/azbyte.jpeg", // Only use default if no image at all
+          image: imageUrl,
         };
       });
 
