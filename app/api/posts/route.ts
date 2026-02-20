@@ -4,6 +4,7 @@ import { revalidateTag, revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { extractFirstImageFromContent } from "@/lib/utils";
+import { notifySubscribersOfNewArticle } from "@/lib/notify-subscribers";
 
 export async function POST(req: NextRequest) {
   try {
@@ -117,6 +118,15 @@ export async function POST(req: NextRequest) {
     revalidatePath("/");
     revalidatePath("/blog");
     if (topic) revalidatePath(`/topics/${topic.toLowerCase().replace(/\s+/g, "-")}`);
+
+    // Notify subscribers of new article (fire-and-forget, don't block response)
+    notifySubscribersOfNewArticle({
+      title: data.title,
+      description: data.description || data.excerpt || "",
+      slug: data.slug,
+      topic: data.topic || data.category || "",
+      author: data.author || data.author_name || "Unknown",
+    }).catch((err) => console.error("Failed to notify subscribers:", err));
 
     return NextResponse.json({
       success: true,
