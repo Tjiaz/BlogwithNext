@@ -311,10 +311,12 @@ async function getArticlesUncached(params: {
     const limit = params.limit || 12;
     const skip = (page - 1) * limit;
 
+    // Exclude image columns - they may contain large base64 data
+    // Images are fetched on-demand via /api/article-image proxy
     let query = supabase
       .from("final_articles")
       .select(
-        "id, title, slug, description, excerpt, topic, category, date, published_at, created_at, author, author_name, img, featured_image, image, image_url, hero_image, filtered_images, tags",
+        "id, title, slug, description, excerpt, topic, category, date, published_at, created_at, author, author_name, tags",
         { count: "exact" }
       )
       .eq("is_published", true);
@@ -353,18 +355,11 @@ async function getArticlesUncached(params: {
       return { data: [], total: count || 0, page, limit, totalPages: 0 };
     }
 
-    // Transform articles
+    // Transform articles - use image proxy URL (fetches image on-demand)
+    const imageProxyUrl = (articleId: string) => `/api/article-image?id=${articleId}`;
+    
     const transformedArticles = articles.map((article: any) => {
-      const bestImage =
-        article.hero_image ||
-        (article.filtered_images && article.filtered_images.length > 0
-          ? article.filtered_images[0]
-          : null) ||
-        article.img ||
-        article.featured_image ||
-        article.image ||
-        article.image_url ||
-        null;
+      const imgUrl = imageProxyUrl(article.id);
 
       return {
         _id: article.id,
@@ -380,9 +375,9 @@ async function getArticlesUncached(params: {
           article.published_at || article.date || article.created_at || "",
         createdAt: article.created_at || "",
         author: article.author || article.author_name || "Unknown",
-        img: bestImage,
-        featuredImage: article.featured_image || bestImage,
-        image: article.image || bestImage,
+        img: imgUrl,
+        featuredImage: imgUrl,
+        image: imgUrl,
         tags: article.tags || [],
       };
     });
@@ -403,21 +398,15 @@ async function getArticlesUncached(params: {
   }
 }
 
+// Bypass unstable_cache - payload exceeds 2MB when articles have large base64 image fields.
+// Page-level revalidate and Cache-Control headers handle caching instead.
 export async function getArticles(params: {
   page?: number;
   limit?: number;
   search?: string;
   topic?: string;
 }) {
-  const page = params.page || 1;
-  const limit = params.limit || 12;
-  const topic = params.topic || "";
-  const search = (params.search || "").trim();
-  return unstable_cache(
-    () => getArticlesUncached(params),
-    ["articles", String(page), String(limit), topic, search],
-    { revalidate: CACHE_REVALIDATE, tags: ["articles"] }
-  )();
+  return getArticlesUncached(params);
 }
 
 /**

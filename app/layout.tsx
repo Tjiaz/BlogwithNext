@@ -17,11 +17,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
   icons: {
     icon: [
-      { url: "/favicon.png", type: "image/png", sizes: "512x512" },
-      { url: "/web-app-manifest-512x512.png", type: "image/png", sizes: "512x512" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
     ],
-    shortcut: "/favicon.png",
-    apple: "/web-app-manifest-512x512.png",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     type: "website",
@@ -42,7 +43,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors`}>
+      <body
+        className={`${inter.className} antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors`}
+      >
         <Script
           id="theme-script"
           strategy="beforeInteractive"
@@ -64,7 +67,7 @@ export default function RootLayout({
         {/* Ezoic Ad Script - Add your Ezoic script here after signing up */}
         {/* You'll receive this script from Ezoic dashboard after approval */}
         {/* Example: <Script src="https://www.ezoic.com/ezoic/ezoic.js" strategy="afterInteractive" /> */}
-        
+
         <ThemeProvider>
           <SessionProvider>
             <div className="min-h-screen flex flex-col">

@@ -193,17 +193,40 @@ export default function RichTextEditor({
     setVideoUrl("");
   }, [editor, videoUrl]);
 
+  const [uploading, setUploading] = useState(false);
+
   const handleImageUpload = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file || !editor) return;
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = reader.result as string;
-        editor.chain().focus().setImage({ src: base64 }).run();
-      };
-      reader.readAsDataURL(file);
+      // Reset input so same file can be selected again
+      e.target.value = "";
+
+      setUploading(true);
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/upload-image", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || "Upload failed");
+        }
+
+        editor.chain().focus().setImage({ src: data.url }).run();
+      } catch (error: any) {
+        console.error("Image upload failed:", error);
+        alert(error.message || "Failed to upload image");
+      } finally {
+        setUploading(false);
+      }
     },
     [editor]
   );
@@ -687,18 +710,23 @@ export default function RichTextEditor({
 
         {/* Media */}
         <div className="flex items-center gap-1">
-          <label className="cursor-pointer">
+          <label className={`cursor-pointer ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
             <input
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
               className="hidden"
+              disabled={uploading}
             />
             <span
-              className={`p-2 rounded hover:bg-gray-200 transition-colors text-gray-700`}
-              title="Upload Image"
+              className={`p-2 rounded hover:bg-gray-200 transition-colors text-gray-700 inline-flex items-center`}
+              title={uploading ? "Uploading..." : "Upload Image"}
             >
-              <ImageIcon className="w-4 h-4" />
+              {uploading ? (
+                <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <ImageIcon className="w-4 h-4" />
+              )}
             </span>
           </label>
           <button
