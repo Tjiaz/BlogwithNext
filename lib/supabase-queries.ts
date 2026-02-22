@@ -55,10 +55,21 @@ async function getHomepageDataUncached() {
     const elapsed = Date.now() - startTime;
 
     if (error) {
+      const isQuotaExceeded = String(error.message || "").includes("exceed_egress_quota");
+      if (isQuotaExceeded) {
+        console.warn(
+          `⚠️ [getHomepageData] Supabase egress quota exceeded. Content will resume when quota resets.`
+        );
+        return {
+          heroPosts: [],
+          recentPosts: [],
+          popularArticles: [],
+          quotaExceeded: true,
+        };
+      }
       console.error(
         `❌ [getHomepageData] Supabase error after ${elapsed}ms:`,
-        error.message || error,
-        JSON.stringify(error, null, 2)
+        error.message || error
       );
       return { heroPosts: [], recentPosts: [], popularArticles: [] };
     }
@@ -132,6 +143,16 @@ async function getHomepageDataUncached() {
 
     return { heroPosts, recentPosts, popularArticles };
   } catch (error: any) {
+    const msg = String(error?.message || error || "");
+    if (msg.includes("exceed_egress_quota")) {
+      console.warn("⚠️ [getHomepageData] Supabase egress quota exceeded.");
+      return {
+        heroPosts: [],
+        recentPosts: [],
+        popularArticles: [],
+        quotaExceeded: true,
+      };
+    }
     console.error("❌ [getHomepageData] Failed to fetch homepage data:", error);
     return { heroPosts: [], recentPosts: [], popularArticles: [] };
   }

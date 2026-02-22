@@ -13,8 +13,27 @@ export const revalidate = 300;
 export default async function Home() {
   // Fetch all homepage data from Supabase
   try {
-    const { heroPosts, recentPosts, popularArticles } = await getHomepageData();
-    
+    const data = await getHomepageData();
+    const { heroPosts, recentPosts, popularArticles, quotaExceeded } = data;
+
+    if (quotaExceeded) {
+      return (
+        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center px-4">
+          <div className="max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 text-center">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              Content temporarily unavailable
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Our database provider has reached its bandwidth limit for this period. Content will be back automatically when the quota resets (typically by the end of the billing cycle).
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">
+              Please try again later or check back in a few days.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     // Transform heroPosts to include image
     const heroPostsWithImages = heroPosts.map((post: any) => ({
       ...post,
