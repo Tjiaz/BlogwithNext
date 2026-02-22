@@ -7,8 +7,8 @@ import EzoicAd from "../components/ads/EzoicAd";
 import { getBestImage } from "@/lib/utils";
 import { getHomepageData } from "@/lib/supabase-queries";
 
-export const dynamic = "force-dynamic"; // Avoid pre-rendering large payload at build (Vercel 19MB limit)
-export const revalidate = 300;
+// Cache 10 min so most visitors get cached response → much less Supabase egress
+export const revalidate = 600;
 
 export default async function Home() {
   // Fetch all homepage data from Supabase

@@ -23,9 +23,8 @@ import ViewTracker from "@/components/blog/ViewTracker";
 import LikeButton from "@/components/blog/LikeButton";
 import EzoicAd from "@/components/ads/EzoicAd";
 
-// Make article pages dynamic to prevent build-time generation
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// Cache 5 min to reduce Supabase egress; new/updated articles appear after revalidate
+export const revalidate = 300;
 
 async function getPost(slug: string): Promise<any | null> {
   try {
