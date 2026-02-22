@@ -20,6 +20,7 @@
     "migrate:images": "tsx scripts/migrate-images-to-storage.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.995.0",
     "@supabase/supabase-js": "^2.93.3",
     "@tiptap/core": "^3.17.1",
     "@tiptap/extension-blockquote": "^3.19.0",
