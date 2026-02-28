@@ -7,8 +7,8 @@ import EzoicAd from "../components/ads/EzoicAd";
 import { getBestImage } from "@/lib/utils";
 import { getHomepageData } from "@/lib/supabase-queries";
 
-// Cache 10 min so most visitors get cached response → much less Supabase egress
-export const revalidate = 600;
+// Cache 1 min temporarily so homepage picks up after quota reset; set back to 600 when stable
+export const revalidate = 60;
 
 export default async function Home() {
   // Fetch all homepage data from Supabase
