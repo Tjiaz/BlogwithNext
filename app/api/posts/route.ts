@@ -18,7 +18,17 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { title, description, content, topic, tags, author } = body;
+    const {
+      title,
+      description,
+      content,
+      topic,
+      tags,
+      author,
+      hero_image,
+      coverImage,
+      cover_image,
+    } = body;
 
     if (!title || !description || !content || !topic) {
       return NextResponse.json(
@@ -54,8 +64,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Extract first image from content to use as cover image
+    const explicitCover =
+      (typeof hero_image === "string" && hero_image.trim()) ||
+      (typeof coverImage === "string" && coverImage.trim()) ||
+      (typeof cover_image === "string" && cover_image.trim()) ||
+      null;
+
     const extractedImage = extractFirstImageFromContent(content);
+    const coverUrl = explicitCover || extractedImage || null;
     const now = new Date().toISOString();
 
     const newPost = {
@@ -72,8 +88,9 @@ export async function POST(req: NextRequest) {
       published_at: now,
       created_at: now,
       updated_at: now,
-      img: extractedImage || null,
-      featured_image: extractedImage || null,
+      hero_image: coverUrl,
+      img: coverUrl,
+      featured_image: coverUrl,
       views: 0,
       likes: 0,
       comments: [],

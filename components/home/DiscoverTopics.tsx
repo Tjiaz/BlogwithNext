@@ -9,7 +9,7 @@ interface Topic {
 }
 
 // Color mapping for topics - matches the screenshot design
-const getTopicColor = (topicName: string): string => {
+export function getTopicColor(topicName: string): string {
   const lower = topicName.toLowerCase();
 
   // Map topics to colors based on the screenshot
@@ -62,7 +62,7 @@ const getTopicColor = (topicName: string): string => {
     hash = topicName.charCodeAt(i) + ((hash << 5) - hash);
   }
   return defaultColors[Math.abs(hash) % defaultColors.length];
-};
+}
 
 // Deterministic shuffle using a seed based on array content
 // This ensures the same topics always produce the same shuffle order (no hydration mismatch)

@@ -214,10 +214,10 @@ export default function Navbar() {
           : "bg-white dark:bg-gray-900"
       } border-b border-gray-200 dark:border-gray-800`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-2 md:gap-3 min-h-16 py-2 md:py-0 md:h-16 min-w-0">
           {/* Logo */}
-          <div className="flex items-center">
+          <div className="flex items-center shrink-0">
             <Link href="/" className="flex items-center space-x-2">
               <div className="h-8 sm:h-10 md:h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center overflow-hidden">
                 <img
@@ -231,13 +231,13 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+          {/* Desktop Navigation — overflow visible so hover dropdowns are not clipped (overflow-x:auto forces y clipping) */}
+          <div className="hidden md:flex items-center min-w-0 flex-1 justify-center lg:justify-start space-x-0.5 lg:space-x-1 mx-1 lg:mx-2 overflow-visible">
             {navItems.map((item) => (
               <div key={item.label} className="relative group">
                 <Link
                   href={item.href}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center ${
+                  className={`px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-200 flex items-center whitespace-nowrap shrink-0 ${
                     pathname === item.href
                       ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
                       : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -248,7 +248,7 @@ export default function Navbar() {
                 </Link>
 
                 {item.submenu && (
-                  <div className="absolute left-0 mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="absolute left-0 z-[60] mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                     {/* If submenu entries are groups (have .submenu) render a multi-column mega menu */}
                     {item.submenu.some((s: any) => s.submenu) ? (
                       <div className="w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 p-4">
@@ -292,8 +292,8 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Search and User Actions */}
-          <div className="hidden md:flex items-center space-x-3">
+          {/* Search and User Actions — shrink-0 keeps buttons aligned to the row */}
+          <div className="hidden md:flex items-center justify-end gap-1.5 lg:gap-2 xl:gap-3 shrink-0 min-w-0">
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleTheme}
@@ -312,25 +312,28 @@ export default function Navbar() {
               )}
             </button>
 
-            <form onSubmit={handleSearch} className="relative">
+            <form
+              onSubmit={handleSearch}
+              className="relative hidden md:block min-w-0 w-[7.5rem] sm:w-36 md:w-32 lg:w-40 xl:w-52 2xl:w-64 shrink"
+            >
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search articles..."
-                className="pl-10 pr-4 py-2 w-64 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none transition-all"
+                placeholder="Search..."
+                className="pl-9 pr-2 py-2 w-full border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-xs md:text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none transition-all"
               />
-              <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400 dark:text-gray-500" />
+              <Search className="absolute left-2.5 top-2.5 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
             </form>
 
             {session ? (
               <div className="relative user-menu-container">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors min-w-[100px]"
+                  className="flex items-center space-x-1.5 xl:space-x-2 px-2 xl:px-3 py-2 rounded-lg text-xs xl:text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors min-w-0 max-w-[9rem] xl:max-w-[10rem] 2xl:max-w-[140px]"
                 >
                   <User className="w-4 h-4 flex-shrink-0" />
-                  <span className="hidden lg:inline truncate max-w-[120px]">
+                  <span className="hidden xl:inline truncate">
                     {session.user?.name || session.user?.email}
                   </span>
                 </button>
@@ -371,14 +374,18 @@ export default function Navbar() {
               <>
                 <Button
                   variant="outline"
-                  className="flex items-center space-x-2 px-3 py-2 text-sm min-w-[80px]"
+                  size="sm"
+                  title="Sign in"
+                  aria-label="Sign in"
+                  className="flex items-center justify-center gap-1.5 px-2 sm:px-2.5 xl:px-3 py-2 text-xs xl:text-sm shrink-0"
                   onClick={() => (window.location.href = "/login")}
                 >
-                  <User className="w-4 h-4 flex-shrink-0" />
-                  <span className="hidden lg:inline">Sign In</span>
-                  <span className="lg:hidden">Sign In</span>
+                  <User className="w-4 h-4 shrink-0" />
+                  <span className="hidden xl:inline">Sign In</span>
                 </Button>
                 <Button
+                  size="sm"
+                  title="Subscribe to newsletter"
                   onClick={() => {
                     const footer = document.querySelector("footer");
                     if (footer) {
@@ -397,9 +404,10 @@ export default function Navbar() {
                       }, 500);
                     }
                   }}
-                  className="bg-gradient-to-r from-[#0a73b0] to-[#2a9bd0] hover:opacity-90 px-3 py-2 text-sm whitespace-nowrap"
+                  className="bg-gradient-to-r from-[#0a73b0] to-[#2a9bd0] hover:opacity-90 px-2 sm:px-2.5 xl:px-3 py-2 text-xs xl:text-sm whitespace-nowrap shrink-0"
                 >
-                  Subscribe
+                  <span className="xl:hidden">Join</span>
+                  <span className="hidden xl:inline">Subscribe</span>
                 </Button>
               </>
             )}

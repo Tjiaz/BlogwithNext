@@ -60,33 +60,32 @@ export function extractFirstImageFromContent(
     return null;
   }
 
-  // More flexible regex that matches img tags with src attribute in any position
-  // Handles: <img src="url">, <img src='url'>, <img src=url>, <img class="..." src="url">
+  function normalizeUrl(raw: string): string | null {
+    let imageUrl = raw.trim().replace(/^["']|["']$/g, "");
+    if (imageUrl.length < 5) return null;
+    if (imageUrl.startsWith("data:image/")) {
+      return imageUrl.length >= 100 ? imageUrl : null;
+    }
+    return imageUrl;
+  }
+
+  // Quoted src first — supports S3/Supabase URLs with & and = in query strings (TipTap output)
+  const doubleQuoted = content.match(/<img\b[^>]*?\bsrc\s*=\s*"([^"]+)"/i);
+  if (doubleQuoted?.[1]) {
+    const u = normalizeUrl(doubleQuoted[1]);
+    if (u) return u;
+  }
+  const singleQuoted = content.match(/<img\b[^>]*?\bsrc\s*=\s*'([^']+)'/i);
+  if (singleQuoted?.[1]) {
+    const u = normalizeUrl(singleQuoted[1]);
+    if (u) return u;
+  }
+
+  // Unquoted / legacy
   const imgRegex = /<img[^>]*?src\s*=\s*["']?([^"'\s>]+)["']?[^>]*>/i;
   const match = content.match(imgRegex);
-
-  if (match && match[1]) {
-    let imageUrl = match[1].trim();
-
-    // Remove any trailing quotes or special characters
-    imageUrl = imageUrl.replace(/^["']|["']$/g, "");
-
-    // Skip empty or very short URLs (likely parsing errors)
-    if (imageUrl.length < 5) {
-      return null;
-    }
-
-    // Allow data URIs (base64) if they're reasonably long (actual images, not icons)
-    if (imageUrl.startsWith("data:image/")) {
-      // Base64 images should be at least 100 chars to be a real image
-      if (imageUrl.length >= 100) {
-        return imageUrl;
-      }
-      return null; // Skip small base64 images (likely icons/sprites)
-    }
-
-    // Return regular URLs (http/https or relative paths)
-    return imageUrl;
+  if (match?.[1]) {
+    return normalizeUrl(match[1]);
   }
 
   return null;
