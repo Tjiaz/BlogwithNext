@@ -1,13 +1,16 @@
 // app/api/posts/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { verifyCreatePostApiKey } from "@/lib/api-key-auth";
 import { createArticle } from "@/lib/create-article";
 
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
+    const hasApiKey = verifyCreatePostApiKey(req);
 
-    if (!session) {
+    // Allow either signed-in session (Write page) or automation API key (n8n)
+    if (!session && !hasApiKey) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 },
@@ -16,12 +19,16 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const defaultAuthor =
-      session.user?.name || session.user?.email || "Anonymous";
+      session?.user?.name ||
+      session?.user?.email ||
+      process.env.N8N_DEFAULT_AUTHOR ||
+      "Olatunji Azeez";
 
     const result = await createArticle(body, { defaultAuthor });
 
     return NextResponse.json({
       success: true,
+      message: "Article published successfully",
       data: {
         ...result,
         _id: result.id,

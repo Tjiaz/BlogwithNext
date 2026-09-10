@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import { getPostSlug } from "@/lib/utils";
+import { getTopicColor } from "@/components/home/DiscoverTopics";
 // import AdSenseRectangle from "@/components/ads/AdSenseRectangle";
 
 const defaultPosts = [
@@ -288,9 +289,13 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
                           ? new Date(post.date).toLocaleDateString()
                           : ""}
                       </span>
-                      <span className="text-xs inline-block ml-2 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
-                        {post.topic || ""}
-                      </span>
+                      {post.topic ? (
+                        <span
+                          className={`${getTopicColor(post.topic)} text-white text-xs font-medium inline-block ml-2 px-2.5 py-1 rounded-md`}
+                        >
+                          {post.topic}
+                        </span>
+                      ) : null}
                     </div>
 
                     <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 line-clamp-3">

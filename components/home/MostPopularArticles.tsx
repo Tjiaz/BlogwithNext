@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { getPostSlug, getBestImage } from "@/lib/utils";
+import { getTopicColor } from "@/components/home/DiscoverTopics";
 
 interface Article {
   _id: string;
@@ -14,57 +15,6 @@ interface Article {
   img?: string | null;
   description?: string;
 }
-
-// Color mapping for topics - reuse from DiscoverTopics
-const getTopicColor = (topicName: string): string => {
-  const lower = topicName.toLowerCase();
-
-  const colorMap: Record<string, string> = {
-    "data science": "bg-green-600",
-    data_science: "bg-green-600",
-    nlp: "bg-teal-500",
-    sql: "bg-orange-500",
-    python: "bg-purple-600",
-    programming: "bg-emerald-600",
-    ai: "bg-gray-800",
-    ml: "bg-blue-500",
-    "machine learning": "bg-blue-500",
-    "machine learning ops": "bg-gray-800",
-    machine_learning_ops: "bg-gray-800",
-    "data engineering": "bg-purple-600",
-    "career advice": "bg-amber-600",
-    career_advice: "bg-amber-600",
-    "language models": "bg-violet-600",
-    language_models: "bg-violet-600",
-  };
-
-  if (colorMap[lower]) {
-    return colorMap[lower];
-  }
-
-  for (const [key, color] of Object.entries(colorMap)) {
-    if (lower.includes(key) || key.includes(lower)) {
-      return color;
-    }
-  }
-
-  const defaultColors = [
-    "bg-blue-500",
-    "bg-green-500",
-    "bg-purple-500",
-    "bg-pink-500",
-    "bg-orange-500",
-    "bg-teal-500",
-    "bg-indigo-500",
-    "bg-cyan-500",
-  ];
-
-  let hash = 0;
-  for (let i = 0; i < topicName.length; i++) {
-    hash = topicName.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return defaultColors[Math.abs(hash) % defaultColors.length];
-};
 
 // Generate avatar from author name or use default
 const getAvatarUrl = (author: string, topic: string): string => {
