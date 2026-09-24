@@ -2,67 +2,15 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { getTopicBadgeStyle } from "@/lib/topic-colors";
 
 interface Topic {
   name: string;
   color: string;
 }
 
-// Color mapping for topics - matches the screenshot design
-export function getTopicColor(topicName: string): string {
-  const lower = topicName.toLowerCase();
-
-  // Map topics to colors based on the screenshot
-  const colorMap: Record<string, string> = {
-    "data science": "bg-green-600",
-    data_science: "bg-green-600",
-    nlp: "bg-teal-500",
-    sql: "bg-orange-500",
-    python: "bg-purple-600",
-    programming: "bg-emerald-600",
-    ai: "bg-pink-500",
-    ml: "bg-blue-500",
-    "machine learning": "bg-blue-500",
-    "machine learning ops": "bg-indigo-600",
-    machine_learning_ops: "bg-indigo-600",
-    "data engineering": "bg-cyan-600",
-    "career advice": "bg-amber-600",
-    career_advice: "bg-amber-600",
-    "language models": "bg-violet-600",
-    language_models: "bg-violet-600",
-  };
-
-  // Check exact match first
-  if (colorMap[lower]) {
-    return colorMap[lower];
-  }
-
-  // Check partial matches
-  for (const [key, color] of Object.entries(colorMap)) {
-    if (lower.includes(key) || key.includes(lower)) {
-      return color;
-    }
-  }
-
-  // Default color for unmapped topics
-  const defaultColors = [
-    "bg-blue-500",
-    "bg-green-500",
-    "bg-purple-500",
-    "bg-pink-500",
-    "bg-orange-500",
-    "bg-teal-500",
-    "bg-indigo-500",
-    "bg-cyan-500",
-  ];
-
-  // Use topic name hash for consistent color assignment
-  let hash = 0;
-  for (let i = 0; i < topicName.length; i++) {
-    hash = topicName.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return defaultColors[Math.abs(hash) % defaultColors.length];
-}
+// Re-export so existing imports from DiscoverTopics keep working
+export { getTopicColor, getTopicHex, getTopicBadgeStyle } from "@/lib/topic-colors";
 
 // Deterministic shuffle using a seed based on array content
 // This ensures the same topics always produce the same shuffle order (no hydration mismatch)
@@ -170,13 +118,13 @@ export default function DiscoverTopics() {
       <div className="flex flex-wrap gap-3">
         {topics.map((topic) => {
           const topicSlug = topic.replace(/\s+/g, "_");
-          const colorClass = getTopicColor(topic);
 
           return (
             <Link
               key={topic}
               href={`/topics/${encodeURIComponent(topicSlug)}`}
-              className={`${colorClass} text-white px-6 py-2.5 rounded-lg font-medium hover:opacity-90 hover:scale-105 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg`}
+              className="text-white px-6 py-2.5 rounded-lg font-medium hover:opacity-90 hover:scale-105 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg"
+              style={getTopicBadgeStyle(topic)}
             >
               {topic}
             </Link>

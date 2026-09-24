@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import { getPostSlug } from "@/lib/utils";
-import { getTopicColor } from "@/components/home/DiscoverTopics";
+import { getTopicBadgeStyle } from "@/lib/topic-colors";
 // import AdSenseRectangle from "@/components/ads/AdSenseRectangle";
 
 const defaultPosts = [
@@ -291,7 +291,8 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
                       </span>
                       {post.topic ? (
                         <span
-                          className={`${getTopicColor(post.topic)} text-white text-xs font-medium inline-block ml-2 px-2.5 py-1 rounded-md`}
+                          className="text-xs font-medium inline-block ml-2 px-2.5 py-1 rounded-md"
+                          style={getTopicBadgeStyle(post.topic)}
                         >
                           {post.topic}
                         </span>

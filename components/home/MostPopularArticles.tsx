@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { getPostSlug, getBestImage } from "@/lib/utils";
-import { getTopicColor } from "@/components/home/DiscoverTopics";
+import { getTopicBadgeStyle } from "@/lib/topic-colors";
 
 interface Article {
   _id: string;
@@ -144,7 +144,6 @@ export default function MostPopularArticles({
         {displayArticles.map((article) => {
           const postSlug = getPostSlug(article);
           if (postSlug === "invalid-slug") return null;
-          const topicColor = getTopicColor(article.topic || "");
           const avatarUrl = getAvatarUrl(article.author, article.topic || "");
           const formattedDate = formatDate(article.date);
           const articleImage = getBestImage(article);
@@ -178,7 +177,8 @@ export default function MostPopularArticles({
                   {article.topic && (
                     <div className="mb-2">
                       <span
-                        className={`${topicColor} text-white text-xs font-medium px-2.5 py-1 rounded-md inline-block`}
+                        className="text-xs font-medium px-2.5 py-1 rounded-md inline-block"
+                        style={getTopicBadgeStyle(article.topic)}
                       >
                         {article.topic}
                       </span>
