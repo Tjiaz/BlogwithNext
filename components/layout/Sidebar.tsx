@@ -63,21 +63,16 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="hidden lg:block">
-      <div className="space-y-6">
-        {/* Ad Space - Top of Homepage Sidebar */}
-        <EzoicAd 
-          placeholderId="ezoic-pub-ad-placeholder-106" 
-          position="homepage-sidebar-top"
-          minHeight="250px"
-          className="mb-6"
-        />
-
-        {/* Newsletter Subscription Section */}
-        <div className="w-72 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
-            Get the FREE ebook 'Az bytegems Artificial Intelligence Pocket
-            Dictionary' along with the leading newsletter to your inbox.
+    <aside className="hidden lg:block w-full min-w-0">
+      <div className="sticky top-24 space-y-5">
+        {/* Newsletter — top-aligned with featured column */}
+        <div className="w-full bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            Stay Updated
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+            Get the FREE ebook &apos;Az bytegems Artificial Intelligence Pocket
+            Dictionary&apos; along with the newsletter.
           </p>
           <form onSubmit={handleSubmit} className="space-y-3">
             <input
@@ -86,7 +81,7 @@ const Sidebar = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#0a73b0] focus:border-transparent text-sm"
             />
             <Button
               type="submit"
@@ -99,46 +94,33 @@ const Sidebar = () => {
           </form>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center">
             By subscribing you accept{" "}
-            <a
-              href="#"
-              className="text-blue-600 hover:underline"
-              onClick={(e) => {
-                e.preventDefault();
-                // Link to privacy policy page when available
-              }}
-            >
+            <Link href="/privacy" className="text-[#0a73b0] dark:text-blue-400 hover:underline">
               Azbytegems Privacy Policy
-            </a>
+            </Link>
           </p>
         </div>
 
-
-        {/* Ad Space - Middle of Homepage Sidebar */}
-        <EzoicAd 
-          placeholderId="ezoic-pub-ad-placeholder-107" 
-          position="homepage-sidebar-middle"
-          minHeight="300px"
-          className="mb-6"
-        />
-
-        {/* Top Posts Section */}
-        <div className="w-72 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+        {/* Top Posts */}
+        <div className="w-full bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4">
             Top Posts
           </h3>
           {loading ? (
             <div className="text-sm text-gray-500">Loading...</div>
           ) : (
-            <ul className="space-y-3">
+            <ol className="space-y-3 list-none">
               {topPosts && topPosts.length > 0 ? (
-                topPosts.map((post) => {
+                topPosts.map((post, index) => {
                   const postSlug = getPostSlug(post);
                   if (postSlug === "invalid-slug") return null;
                   return (
-                    <li key={post.id || post._id}>
+                    <li key={post.id || post._id} className="flex gap-2.5">
+                      <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 w-5 shrink-0 pt-0.5">
+                        {index + 1}.
+                      </span>
                       <Link
                         href={`/${postSlug}`}
-                        className="text-sm text-[#0a73b0] dark:text-[#2a9bd0] hover:underline line-clamp-2 transition-colors"
+                        className="text-sm text-[#0a73b0] dark:text-[#2a9bd0] hover:underline line-clamp-2 transition-colors leading-snug"
                       >
                         {post.title}
                       </Link>
@@ -148,10 +130,23 @@ const Sidebar = () => {
               ) : (
                 <li className="text-sm text-gray-500">No posts available</li>
               )}
-            </ul>
+            </ol>
           )}
         </div>
 
+        {/* Ads below content so tops align with featured */}
+        <EzoicAd
+          placeholderId="ezoic-pub-ad-placeholder-106"
+          position="homepage-sidebar-top"
+          minHeight="250px"
+          className="w-full"
+        />
+        <EzoicAd
+          placeholderId="ezoic-pub-ad-placeholder-107"
+          position="homepage-sidebar-middle"
+          minHeight="300px"
+          className="w-full"
+        />
       </div>
     </aside>
   );

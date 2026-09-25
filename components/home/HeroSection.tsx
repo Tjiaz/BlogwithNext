@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import Link from "next/link";
 import { getPostSlug } from "@/lib/utils";
 import { getTopicBadgeStyle } from "@/lib/topic-colors";
-// import AdSenseRectangle from "@/components/ads/AdSenseRectangle";
 
 const defaultPosts = [
   {
@@ -11,7 +11,6 @@ const defaultPosts = [
     author: "Alice Johnson",
     date: "2024-08-01",
     topic: "Machine Learning",
-    subtopic: "Introduction",
     excerpt:
       "A beginner-friendly walkthrough to build and evaluate your first ML model.",
     image: "/images/posts/post1.jpg",
@@ -22,7 +21,6 @@ const defaultPosts = [
     author: "Bob Smith",
     date: "2024-07-28",
     topic: "Programming",
-    subtopic: "Python",
     excerpt:
       "Tips and patterns to write clean, efficient Python for data work.",
     image: "/images/posts/post2.jpg",
@@ -33,7 +31,6 @@ const defaultPosts = [
     author: "Clara Lee",
     date: "2024-07-15",
     topic: "AI",
-    subtopic: "Neural Networks",
     excerpt:
       "Core concepts behind modern neural architectures explained simply.",
     image: "/images/posts/post3.jpg",
@@ -44,7 +41,6 @@ const defaultPosts = [
     author: "Daniel Kim",
     date: "2024-06-30",
     topic: "Data Engineering",
-    subtopic: "SQL",
     excerpt: "Practical approaches to speed up your queries and reduce costs.",
     image: "/images/posts/post4.jpg",
   },
@@ -54,7 +50,6 @@ const defaultPosts = [
     author: "Eve Martinez",
     date: "2024-06-10",
     topic: "AI",
-    subtopic: "Practical",
     excerpt: "End-to-end guide from dataset to deployment for beginners.",
     image: "/images/posts/post5.jpg",
   },
@@ -64,7 +59,6 @@ const defaultPosts = [
     author: "Frank Nguyen",
     date: "2024-05-22",
     topic: "Data Engineering",
-    subtopic: "Pipelines",
     excerpt: "Key concepts and tools to build reliable data pipelines.",
     image: "/images/posts/post6.jpg",
   },
@@ -74,7 +68,6 @@ const defaultPosts = [
     author: "Grace Park",
     date: "2024-05-05",
     topic: "NLP",
-    subtopic: "Techniques",
     excerpt: "Core NLP tasks, libraries and workflows for real projects.",
     image: "/images/posts/post7.jpg",
   },
@@ -84,7 +77,6 @@ const defaultPosts = [
     author: "Henry Zhao",
     date: "2024-04-15",
     topic: "Computer Vision",
-    subtopic: "Implementation",
     excerpt: "Build image classification and detection systems using Python.",
     image: "/images/posts/post8.jpg",
   },
@@ -94,7 +86,6 @@ const defaultPosts = [
     author: "Isabella Rossi",
     date: "2024-03-30",
     topic: "MLOps",
-    subtopic: "Production",
     excerpt:
       "Strategies to reliably deploy and monitor ML models in production.",
     image: "/images/posts/post9.jpg",
@@ -105,11 +96,23 @@ const defaultPosts = [
     author: "Jack Wilson",
     date: "2024-02-18",
     topic: "Language Models",
-    subtopic: "Overview",
     excerpt: "From classical n-grams to modern transformer-based LMs.",
     image: "/images/posts/post10.jpg",
   },
 ];
+
+function formatPostDate(date: string | Date | null | undefined): string {
+  if (!date) return "";
+  try {
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}
 
 interface HeroSectionProps {
   initialPosts?: any[];
@@ -117,13 +120,14 @@ interface HeroSectionProps {
 
 export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
   const itemsPerPage = 10;
-  
-  // Calculate initial totalPages from initialPosts to avoid hydration mismatch
-  // Use a minimum of 1 to ensure consistent rendering
-  const initialTotalPages = Math.max(1, initialPosts.length > 0 
-    ? Math.ceil(initialPosts.length / itemsPerPage) 
-    : Math.ceil(defaultPosts.length / itemsPerPage));
-  
+
+  const initialTotalPages = Math.max(
+    1,
+    initialPosts.length > 0
+      ? Math.ceil(initialPosts.length / itemsPerPage)
+      : Math.ceil(defaultPosts.length / itemsPerPage),
+  );
+
   const [posts, setPosts] = useState<any[]>(
     initialPosts.length > 0 ? initialPosts : defaultPosts,
   );
@@ -132,25 +136,31 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const hasInitialData = useRef(initialPosts.length > 0);
   const initialized = useRef(false);
-  
-  // Ensure we always have posts to render (prevents hydration mismatch)
-  const currentPosts = posts.length > 0 ? posts : defaultPosts.slice(0, itemsPerPage);
 
-  // Initialize with server-side data if available (only once on mount)
+  const currentPosts =
+    posts.length > 0 ? posts : defaultPosts.slice(0, itemsPerPage);
+
+  // Page 1: first article is featured; rest are list rows
+  const featuredPost = currentPage === 1 ? currentPosts[0] : null;
+  const listPosts =
+    currentPage === 1 ? currentPosts.slice(1) : currentPosts;
+
   useEffect(() => {
     if (!initialized.current && initialPosts.length > 0) {
       setPosts(initialPosts);
       hasInitialData.current = true;
       initialized.current = true;
       setTotalPages(Math.max(1, Math.ceil(initialPosts.length / itemsPerPage)));
-      // Fetch pagination info in background to get actual total count
       fetch(`/api/posts?page=1&limit=${itemsPerPage}`)
         .then((res) => res.json())
         .then((json) => {
           let pages = 1;
           if (json?.pagination?.totalPages && json.pagination.totalPages > 0) {
             pages = json.pagination.totalPages;
-          } else if (json?.pagination?.total != null && json.pagination.total > 0) {
+          } else if (
+            json?.pagination?.total != null &&
+            json.pagination.total > 0
+          ) {
             pages = Math.ceil(json.pagination.total / itemsPerPage);
           }
           setTotalPages(Math.max(1, pages));
@@ -159,15 +169,11 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
     }
   }, []);
 
-  // fetch posts from the server API for a specific page
   const loadPosts = async (page: number) => {
     try {
       setIsLoading(true);
 
-      const res = await fetch(
-        `/api/posts?page=${page}&limit=${itemsPerPage}`
-      );
-
+      const res = await fetch(`/api/posts?page=${page}&limit=${itemsPerPage}`);
       if (!res.ok) throw new Error("Fetch failed");
 
       const json = await res.json();
@@ -179,8 +185,9 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
 
       const mapped = fetched.map((p: any) => {
         const articleId = p._id ?? p.id;
-        // Use image proxy for consistent loading (same as homepage initial)
-        const imageUrl = articleId ? `/api/article-image?id=${articleId}` : "/images/azbyte.jpeg";
+        const imageUrl = articleId
+          ? `/api/article-image?id=${articleId}`
+          : "/images/azbyte.jpeg";
 
         return {
           id: articleId?.toString() ?? p.slug,
@@ -194,30 +201,25 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
         };
       });
 
-      if (mapped.length) {
-        setPosts(mapped);
-      } else {
-        setPosts([]); // no results for this page
-      }
+      setPosts(mapped.length ? mapped : []);
 
-      // use API pagination info if available (never show "Page 1 of 0")
       if (json?.pagination) {
-        const p = json.pagination.totalPages ?? Math.ceil((json.pagination.total || 0) / itemsPerPage);
+        const p =
+          json.pagination.totalPages ??
+          Math.ceil((json.pagination.total || 0) / itemsPerPage);
         setTotalPages(Math.max(1, p));
       } else {
-        const totalCount = json?.total || json?.pagination?.total || mapped.length;
+        const totalCount =
+          json?.total || json?.pagination?.total || mapped.length;
         setTotalPages(Math.max(1, Math.ceil(totalCount / itemsPerPage)));
       }
     } catch (e) {
       console.error("Failed to load posts:", e);
-      // keep existing posts (fallback / previous page)
     } finally {
       setIsLoading(false);
     }
   };
 
-  // initial load + reload when page changes
-  // Skip initial load if we have server-side data
   useEffect(() => {
     if (!hasInitialData.current || currentPage > 1) {
       loadPosts(currentPage);
@@ -225,7 +227,6 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
-  // optional: allow manual refresh triggers
   useEffect(() => {
     const onUpdate = () => loadPosts(currentPage);
     window.addEventListener("postsUpdated", onUpdate);
@@ -236,120 +237,162 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
     };
   }, [currentPage]);
 
-  // Ensure consistent rendering between server and client
-  // Always render the same structure to avoid hydration mismatches
-  // Note: Don't use <main> here since we're already inside a <main> from layout.tsx
-  // Remove wrapper div to match parent's grid column structure
   return (
-    <section className="bg-white dark:bg-gray-900 rounded-lg shadow p-3 sm:p-6 lg:p-8 w-full">
-          {/* ...hero header omitted for brevity... */}
+    <section className="w-full min-w-0">
+      {/* Featured article — page 1 only */}
+      {featuredPost && (() => {
+        const slug = getPostSlug(featuredPost);
+        if (slug === "invalid-slug") return null;
+        return (
+          <article className="mb-8 sm:mb-10">
+            <Link
+              href={`/${slug}`}
+              className="block group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="relative aspect-[16/9] sm:aspect-[2/1] w-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+                <img
+                  src={featuredPost.image || "/images/azbyte.jpeg"}
+                  alt={featuredPost.title}
+                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                />
+                <span className="absolute top-3 right-3 text-[11px] font-semibold tracking-wide uppercase px-2.5 py-1 rounded-md bg-[#0a73b0] text-white">
+                  New
+                </span>
+              </div>
+              <div className="p-4 sm:p-6">
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-[#0a73b0] dark:group-hover:text-blue-400 transition-colors leading-snug">
+                  {featuredPost.title}
+                </h2>
+                {featuredPost.excerpt ? (
+                  <p className="mt-3 text-sm sm:text-base text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed">
+                    {featuredPost.excerpt}
+                  </p>
+                ) : null}
+                <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                  <span>{formatPostDate(featuredPost.date)}</span>
+                  {featuredPost.author ? (
+                    <>
+                      <span aria-hidden="true">·</span>
+                      <span>{featuredPost.author}</span>
+                    </>
+                  ) : null}
+                  {featuredPost.topic ? (
+                    <span
+                      className="text-xs font-medium px-2.5 py-1 rounded-md"
+                      style={getTopicBadgeStyle(featuredPost.topic)}
+                    >
+                      {featuredPost.topic}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            </Link>
+          </article>
+        );
+      })()}
 
-          <div className="mt-8 mb-4 flex items-center justify-between">
-            <h2 className="text-2xl font-semibold">Latest Articles</h2>
-            <div className="text-sm text-gray-500">
-              Page {currentPage} of {totalPages}
-            </div>
-          </div>
+      {/* Section header */}
+      <div className="mb-4 sm:mb-5 flex items-end justify-between gap-3 border-b border-gray-200 dark:border-gray-700 pb-3">
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-gray-100">
+          Latest Articles
+        </h2>
+        <div className="text-sm text-gray-500 dark:text-gray-400 shrink-0">
+          Page {currentPage} of {totalPages}
+        </div>
+      </div>
 
-          {/* Articles grid */}
-          <div className="mt-6">
-            {isLoading && (
-              <div className="mb-4 text-sm text-gray-500">Loading...</div>
-            )}
+      {isLoading && (
+        <div className="mb-4 text-sm text-gray-500">Loading...</div>
+      )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              {currentPosts.map((post) => {
-                const slug = getPostSlug(post);
-                if (slug === "invalid-slug") return null;
-                return (
-                <article
-                  key={post.id || post._id || slug}
-                  className="border rounded-lg overflow-hidden flex flex-col bg-white dark:bg-gray-800"
-                >
-                  <div className="h-40 md:h-48 w-full overflow-hidden">
+      {/* List feed — Real Python–style rows */}
+      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        {listPosts.map((post) => {
+          const slug = getPostSlug(post);
+          if (slug === "invalid-slug") return null;
+          return (
+            <article key={post.id || post._id || slug} className="py-5 first:pt-1">
+              <Link
+                href={`/${slug}`}
+                className="group flex flex-col sm:flex-row gap-4 sm:gap-5"
+              >
+                <div className="sm:w-40 md:w-44 lg:w-48 shrink-0">
+                  <div className="aspect-[16/10] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
                     <img
                       src={post.image || "/images/azbyte.jpeg"}
                       alt={post.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
                     />
                   </div>
-
-                  <div className="p-4 flex-1 flex flex-col">
-                    <a
-                      href={`/${slug}`}
-                      className="text-lg font-semibold text-gray-900 dark:text-white hover:text-[#0a73b0] transition-colors"
-                    >
-                      {post.title}
-                    </a>
-
-                    <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                      <span className="mr-2">{post.author || "Unknown"}</span>•
-                      <span className="mx-2">
-                        {post.date
-                          ? new Date(post.date).toLocaleDateString()
-                          : ""}
-                      </span>
-                      {post.topic ? (
-                        <span
-                          className="text-xs font-medium inline-block ml-2 px-2.5 py-1 rounded-md"
-                          style={getTopicBadgeStyle(post.topic)}
-                        >
-                          {post.topic}
-                        </span>
-                      ) : null}
-                    </div>
-
-                    <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
-                      {post.excerpt || ""}
-                    </p>
-
-                    <div className="mt-4 pt-2">
-                      <a
-                        href={`/${slug}`}
-                        className="text-sm text-[#0a73b0] hover:text-[#2a9bd0] hover:underline transition-colors"
+                </div>
+                <div className="min-w-0 flex-1 flex flex-col">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-[#0a73b0] dark:group-hover:text-blue-400 transition-colors leading-snug">
+                    {post.title}
+                  </h3>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <span>{formatPostDate(post.date)}</span>
+                    {post.author ? (
+                      <>
+                        <span aria-hidden="true">·</span>
+                        <span>{post.author}</span>
+                      </>
+                    ) : null}
+                    {post.topic ? (
+                      <span
+                        className="text-xs font-medium px-2 py-0.5 rounded-md"
+                        style={getTopicBadgeStyle(post.topic)}
                       >
-                        Read more →
-                      </a>
-                    </div>
+                        {post.topic}
+                      </span>
+                    ) : null}
                   </div>
-                </article>
-              );
-              })}
-            </div>
+                  {post.excerpt ? (
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
+                      {post.excerpt}
+                    </p>
+                  ) : null}
+                  <span className="mt-3 text-sm font-medium text-[#0a73b0] dark:text-blue-400 group-hover:underline">
+                    Read more →
+                  </span>
+                </div>
+              </Link>
+            </article>
+          );
+        })}
+      </div>
 
+      {/* Pagination */}
+      <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <button
+          type="button"
+          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          disabled={currentPage === 1 || isLoading}
+          className={`px-4 py-2 rounded-md border text-sm ${
+            currentPage === 1 || isLoading
+              ? "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed border-gray-200 dark:border-gray-700"
+              : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+          }`}
+        >
+          Prev
+        </button>
 
-            <div className="flex items-center justify-between mt-6">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1 || isLoading}
-                className={`px-4 py-2 rounded-md border ${
-                  currentPage === 1 || isLoading
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                Prev
-              </button>
+        <div className="text-sm text-gray-600 dark:text-gray-400">
+          Page {currentPage} of {totalPages}
+        </div>
 
-              <div className="text-sm text-gray-600">
-                Page {currentPage} of {totalPages}
-              </div>
-
-              <button
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
-                disabled={currentPage === totalPages || isLoading}
-                className={`px-4 py-2 rounded-md border ${
-                  currentPage === totalPages || isLoading
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        </section>
+        <button
+          type="button"
+          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+          disabled={currentPage === totalPages || isLoading}
+          className={`px-4 py-2 rounded-md border text-sm ${
+            currentPage === totalPages || isLoading
+              ? "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed border-gray-200 dark:border-gray-700"
+              : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+          }`}
+        >
+          Next
+        </button>
+      </div>
+    </section>
   );
 }
