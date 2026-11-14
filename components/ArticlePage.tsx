@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import TOC from './TOC';
-import { Article } from '../lib/models/article';
+import type { Article, Heading } from '../lib/models/article';
 
 export default function ArticlePage({ params }: { params: { slug: string } }) {
   const [article, setArticle] = useState<Article | null>(null);
