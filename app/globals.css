@@ -507,6 +507,10 @@ body {
   line-height: 1.5;
 }
 
+.article-body :is(h2, h3, h4, p[id]) {
+  scroll-margin-top: 6.5rem;
+}
+
 .prose pre code {
   background-color: transparent;
   color: inherit;

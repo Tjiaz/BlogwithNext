@@ -14,6 +14,8 @@ import SocialShare from "@/components/blog/SocialShare";
 import ArticleSidebar from "@/components/blog/ArticleSidebar";
 import ViewTracker from "@/components/blog/ViewTracker";
 import LikeButton from "@/components/blog/LikeButton";
+import TableOfContents from "@/components/blog/TableOfContents";
+import { processArticleContent } from "@/lib/article-toc";
 
 // Make article pages dynamic to prevent build-time generation
 export const dynamic = 'force-dynamic';
@@ -157,6 +159,8 @@ export default async function BlogPostPage({
     const postContent = postImage
       ? removeFirstImageFromContent(rawContent)
       : rawContent;
+    const { html: articleHtml, headings } = processArticleContent(postContent || "");
+    const showToc = headings.length > 0;
 
     const postTopic = post.topic || post.category || "";
 
@@ -164,9 +168,15 @@ export default async function BlogPostPage({
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <ViewTracker slug={slug} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div
+            className={
+              showToc
+                ? "lg:grid lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:gap-12"
+                : "grid grid-cols-1 lg:grid-cols-4 gap-8"
+            }
+          >
             {/* Main Article Content */}
-            <article className="lg:col-span-3">
+            <article className={showToc ? "min-w-0" : "lg:col-span-3"}>
               {/* Back Button */}
               <Link
                 href="/blog"
@@ -229,12 +239,18 @@ export default async function BlogPostPage({
                 </div>
               )}
 
+              {showToc && (
+                <div className="mb-8 lg:hidden">
+                  <TableOfContents headings={headings} variant="inline" />
+                </div>
+              )}
+
               {/* Content */}
               <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-a:text-[#0a73b0] dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-em:italic prose-ul:list-disc prose-ol:list-decimal">
-                {postContent ? (
+                {articleHtml ? (
                   <div
-                    dangerouslySetInnerHTML={{ __html: postContent }}
-                    className="text-gray-700 dark:text-gray-300 leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: articleHtml }}
+                    className="article-body text-gray-700 dark:text-gray-300 leading-relaxed"
                   />
                 ) : (
                   <p className="text-gray-600 dark:text-gray-400">
@@ -278,8 +294,16 @@ export default async function BlogPostPage({
               <CommentSection postSlug={slug} />
             </article>
 
-            {/* Sidebar */}
-            <ArticleSidebar currentPostId={post._id} />
+            {showToc ? (
+              <aside className="hidden lg:block">
+                <div className="sticky top-24">
+                  <TableOfContents headings={headings} />
+                  <ArticleSidebar currentPostId={post._id} placement="under-toc" />
+                </div>
+              </aside>
+            ) : (
+              <ArticleSidebar currentPostId={post._id} />
+            )}
           </div>
         </div>
       </div>

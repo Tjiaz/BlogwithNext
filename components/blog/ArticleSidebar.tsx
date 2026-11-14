@@ -21,9 +21,14 @@ interface Article {
 
 interface ArticleSidebarProps {
   currentPostId?: string;
+  /** Rail sits beside the article. Below spans the page under the table of contents. */
+  placement?: "rail" | "below" | "under-toc";
 }
 
-export default function ArticleSidebar({ currentPostId }: ArticleSidebarProps) {
+export default function ArticleSidebar({
+  currentPostId,
+  placement = "rail",
+}: ArticleSidebarProps) {
   const [latestPosts, setLatestPosts] = useState<Article[]>([]);
   const [topPosts, setTopPosts] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,16 +73,19 @@ export default function ArticleSidebar({ currentPostId }: ArticleSidebarProps) {
     fetchSidebarData();
   }, [currentPostId]);
 
+  const below = placement === "below";
+  const underToc = placement === "under-toc";
+
   return (
-    <aside className="lg:col-span-1">
-      <div className="space-y-6 sticky top-24">
+    <div className={below ? "mt-12 border-t border-gray-200 pt-12 dark:border-gray-700" : underToc ? "space-y-6" : "lg:col-span-1"}>
+      <div className={below ? "grid grid-cols-1 items-start gap-6 md:grid-cols-2" : underToc ? "space-y-6" : "sticky top-24 space-y-6"}>
         {/* Ad Space - Top of Sidebar */}
-        <EzoicAd 
+        {!underToc && <EzoicAd
           placeholderId="ezoic-pub-ad-placeholder-101" 
           position="sidebar-top"
           minHeight="250px"
           className="mb-6"
-        />
+        />}
 
         {/* Top Posts */}
         {!loading && topPosts.length > 0 && (
@@ -138,12 +146,12 @@ export default function ArticleSidebar({ currentPostId }: ArticleSidebarProps) {
         )}
 
         {/* Ad Space - Middle of Sidebar */}
-        <EzoicAd 
+        {!underToc && <EzoicAd
           placeholderId="ezoic-pub-ad-placeholder-102" 
           position="sidebar-middle"
           minHeight="300px"
           className="mb-6"
-        />
+        />}
 
         {/* Latest Posts */}
         {!loading && latestPosts.length > 0 && (
@@ -184,12 +192,12 @@ export default function ArticleSidebar({ currentPostId }: ArticleSidebarProps) {
 
 
         {/* Ad Space - Bottom of Sidebar */}
-        <EzoicAd 
+        {!underToc && <EzoicAd
           placeholderId="ezoic-pub-ad-placeholder-103" 
           position="sidebar-bottom"
           minHeight="250px"
           className="mb-6"
-        />
+        />}
 
         {/* Newsletter Signup */}
         <div className="bg-gradient-to-r from-[#0a73b0] to-[#2a9bd0] dark:from-blue-600 dark:to-blue-700 rounded-lg shadow p-6 text-white">
@@ -264,6 +272,6 @@ export default function ArticleSidebar({ currentPostId }: ArticleSidebarProps) {
           </div>
         )}
       </div>
-    </aside>
+    </div>
   );
 }
