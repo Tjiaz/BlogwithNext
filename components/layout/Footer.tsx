@@ -113,8 +113,9 @@ export default function Footer() {
             </p>
 
             {/* Newsletter */}
-            <div className="mb-6">
+            <div id="newsletter-signup" className="mb-6 scroll-mt-24">
               <h3 className="text-white font-semibold mb-3">Stay Updated</h3>
+              <p className="mb-3 max-w-md text-sm text-gray-400">Get new Python, data science, and AI tutorials and resources in your inbox.</p>
               <form
                 onSubmit={handleSubscribe}
                 className="flex flex-col sm:flex-row gap-2"

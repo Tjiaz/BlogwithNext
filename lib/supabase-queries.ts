@@ -52,6 +52,16 @@ async function getHomepageDataUncached() {
       .order("published_at", { ascending: false, nullsFirst: false })
       .limit(12);
 
+    const { data: popularRows, error: popularError } = await supabase
+      .from("final_articles")
+      .select(
+        "id, title, slug, description, excerpt, summary, topic, category, date, published_at, created_at, author, author_name, views"
+      )
+      .eq("is_published", true)
+      .order("views", { ascending: false, nullsFirst: false })
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .limit(4);
+
     const elapsed = Date.now() - startTime;
 
     if (error) {
@@ -139,7 +149,32 @@ async function getHomepageDataUncached() {
     // Articles are already sorted by published_at DESC from the query
     const heroPosts = transformedArticles.slice(0, 10);
     const recentPosts = transformedArticles.slice(0, 8);
-    const popularArticles = transformedArticles.slice(0, 4);
+    const popularArticles = !popularError && popularRows?.length
+      ? popularRows.map((article: any) => {
+          const imgUrl = imageProxyUrl(article.id);
+          return {
+            _id: article.id,
+            id: article.id,
+            title: truncate(article.title, 300),
+            slug: article.slug || article.id,
+            description: truncate(article.description || article.excerpt),
+            excerpt: truncate(article.excerpt || article.description),
+            topic: article.topic || article.category || "",
+            category: article.category || article.topic || "",
+            date: article.date || article.published_at || article.created_at || "",
+            publishedAt: article.published_at || article.date || article.created_at || "",
+            createdAt: article.created_at || article.published_at || article.date || "",
+            author: article.author || article.author_name || "Unknown",
+            authorName: article.author_name || article.author || "Unknown",
+            img: imgUrl,
+            featuredImage: imgUrl,
+            image: imgUrl,
+            imageUrl: imgUrl,
+            hero_image: imgUrl,
+            filtered_images: imgUrl ? [imgUrl] : [],
+          };
+        })
+      : transformedArticles.slice(0, 4);
 
     return { heroPosts, recentPosts, popularArticles };
   } catch (error: any) {

@@ -6,6 +6,7 @@ import DiscoverTopics from "../components/home/DiscoverTopics";
 import EzoicAd from "../components/ads/EzoicAd";
 import { getBestImage } from "@/lib/utils";
 import { getHomepageData } from "@/lib/supabase-queries";
+import HomepageIntro from "@/components/home/HomepageIntro";
 
 // Cache 1 min temporarily so homepage picks up after quota reset; set back to 600 when stable
 export const revalidate = 60;
@@ -44,8 +45,9 @@ export default async function Home() {
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
         {/* Featured + feed | Sidebar — shared top edge & gutters */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <HomepageIntro />
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-8 lg:gap-10 items-start">
-            <HeroSection initialPosts={heroPostsWithImages} />
+            <div id="latest-articles"><HeroSection initialPosts={heroPostsWithImages} /></div>
             <Sidebar />
           </div>
         </div>
@@ -95,7 +97,7 @@ export default async function Home() {
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <h1 className="text-2xl font-bold mb-4">Welcome to BlogNext</h1>
+            <h1 className="text-2xl font-bold mb-4">Practical Python, data science, and AI guides</h1>
             <p className="text-gray-600 dark:text-gray-400">
               Loading content... Please refresh the page if this persists.
             </p>

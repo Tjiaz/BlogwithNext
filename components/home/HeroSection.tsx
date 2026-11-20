@@ -296,9 +296,7 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
         <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-gray-100">
           Latest Articles
         </h2>
-        <div className="text-sm text-gray-500 dark:text-gray-400 shrink-0">
-          Page {currentPage} of {totalPages}
-        </div>
+        {totalPages > 1 && <div className="text-sm text-gray-500 dark:text-gray-400 shrink-0">Page {currentPage} of {totalPages}</div>}
       </div>
 
       {isLoading && (
@@ -362,7 +360,7 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+      {totalPages > 1 && <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
         <button
           type="button"
           onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
@@ -392,7 +390,7 @@ export default function HeroSection({ initialPosts = [] }: HeroSectionProps) {
         >
           Next
         </button>
-      </div>
+      </div>}
     </section>
   );
 }

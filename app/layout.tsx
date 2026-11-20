@@ -12,9 +12,13 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "BlogNext - Modern Blog Platform",
-  description: "A modern blog platform built with Next.js 15 and TypeScript",
-  metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
+  title: {
+    default: "AzByteGems | Practical Python, Data Science & AI Guides",
+    template: "%s | AzByteGems",
+  },
+  description:
+    "Explore clear, practical tutorials on Python, data science, machine learning, and AI, plus datasets and developer resources.",
+  metadataBase: new URL("https://www.azbytegems.com"),
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -27,12 +31,11 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://blognext.vercel.app",
-    siteName: "BlogNext",
+    url: "https://www.azbytegems.com",
+    siteName: "AzByteGems",
   },
   twitter: {
     card: "summary_large_image",
-    creator: "@blognext",
   },
 };
 
