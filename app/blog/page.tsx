@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import EzoicAd from "@/components/ads/EzoicAd";
 import { getPostSlug } from "@/lib/utils";
 import toast from "react-hot-toast";
+import NewsletterSignup from "@/components/home/NewsletterSignup";
 
 interface Post {
   id: string;
@@ -26,8 +27,6 @@ export default function BlogPage() {
   const [latestPosts, setLatestPosts] = useState<Post[]>([]);
   const [yearPosts, setYearPosts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [submittingNewsletter, setSubmittingNewsletter] = useState(false);
 
   useEffect(() => {
     async function fetchTopPosts() {
@@ -326,64 +325,8 @@ export default function BlogPage() {
 
               {/* Newsletter Signup */}
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                <form
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-
-                    if (
-                      !newsletterEmail.trim() ||
-                      !newsletterEmail.includes("@")
-                    ) {
-                      toast.error("Please enter a valid email address");
-                      return;
-                    }
-
-                    setSubmittingNewsletter(true);
-                    try {
-                      const response = await fetch(
-                        "/api/newsletter/subscribe",
-                        {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({
-                            email: newsletterEmail.trim(),
-                          }),
-                        },
-                      );
-
-                      const data = await response.json();
-
-                      if (data.success) {
-                        toast.success("Successfully subscribed to newsletter!");
-                        setNewsletterEmail("");
-                      } else {
-                        toast.error(data.error || "Failed to subscribe");
-                      }
-                    } catch (error) {
-                      console.error("Failed to subscribe:", error);
-                      toast.error("Failed to subscribe. Please try again.");
-                    } finally {
-                      setSubmittingNewsletter(false);
-                    }
-                  }}
-                >
-                  <input
-                    type="email"
-                    value={newsletterEmail}
-                    onChange={(e) => setNewsletterEmail(e.target.value)}
-                    placeholder="Your Email"
-                    required
-                    disabled={submittingNewsletter}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-[#0a73b0] dark:focus:ring-blue-400 focus:border-transparent outline-none mb-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                  <Button
-                    type="submit"
-                    disabled={submittingNewsletter}
-                    className="w-full bg-gradient-to-r from-[#0a73b0] to-[#2a9bd0] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {submittingNewsletter ? "Subscribing..." : "Sign Up"}
-                  </Button>
-                </form>
+                <h2 className="mb-2 text-lg font-semibold">Get new guides by email</h2>
+                <NewsletterSignup source="blog-page" buttonLabel="Sign up" />
               </div>
             </div>
           </div>

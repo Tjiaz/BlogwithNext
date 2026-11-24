@@ -86,7 +86,7 @@ const templates = {
 export default function NewsletterAdminPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [stats, setStats] = useState({ total: 0, active: 0 });
+  const [stats, setStats] = useState({ total: 0, active: 0, legacyNeedsReview: 0 });
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [showSubscribers, setShowSubscribers] = useState(false);
@@ -217,6 +217,11 @@ export default function NewsletterAdminPage() {
             Newsletter Management
           </h1>
         </div>
+        {stats.legacyNeedsReview > 0 && (
+          <p className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+            {stats.legacyNeedsReview} older subscriber record(s) lack recorded confirmation. They are excluded from campaigns until consent is verified or the person confirms again.
+          </p>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -292,7 +297,7 @@ export default function NewsletterAdminPage() {
                             : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
                         }`}
                       >
-                        {sub.active ? "Active" : "Inactive"}
+                        {sub.needsConsentReview ? "Review consent" : sub.status === "pending" ? "Pending confirmation" : sub.active ? "Active" : "Inactive"}
                       </span>
                     </div>
                   ))}

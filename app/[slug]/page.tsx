@@ -24,6 +24,52 @@ import LikeButton from "@/components/blog/LikeButton";
 import EzoicAd from "@/components/ads/EzoicAd";
 import TableOfContents from "@/components/blog/TableOfContents";
 import { processArticleContent } from "@/lib/article-toc";
+import type { Metadata } from "next";
+import { topicPath } from "@/lib/content-discovery";
+
+const siteUrl = "https://www.azbytegems.com";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getPost(decodeURIComponent(slug));
+  if (!post) return { title: "Article not found", robots: { index: false, follow: false } };
+
+  const description = (post.description || post.excerpt || post.summary || `${post.title} — a practical guide from AzByteGems.`)
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 160);
+  const canonical = `/${encodeURIComponent(post.slug || slug)}`;
+  const imageCandidate = post.hero_image || post.featuredImage || post.img || post.imageUrl;
+  const image = typeof imageCandidate === "string" && !imageCandidate.startsWith("data:")
+    ? imageCandidate
+    : undefined;
+
+  return {
+    title: post.title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description,
+      url: canonical,
+      publishedTime: post.publishedAt || post.date || undefined,
+      modifiedTime: post.updatedAt || undefined,
+      authors: post.author ? [post.author] : undefined,
+      images: image ? [{ url: image, alt: post.title }] : undefined,
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title: post.title,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
+}
 
 // Cache 5 min to reduce Supabase egress; new/updated articles appear after revalidate
 export const revalidate = 300;
@@ -131,9 +177,57 @@ export default async function BlogPostPage({
     const showToc = headings.length > 0;
 
     const postTopic = post.topic || post.category || "";
+    const publishedAt = post.publishedAt || post.date || post.createdAt;
+    const articleJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: post.title,
+      description: post.description || post.excerpt || post.summary || undefined,
+      image: postImage && !postImage.startsWith("data:")
+        ? [postImage.startsWith("http") ? postImage : `${siteUrl}${postImage}`]
+        : undefined,
+      datePublished: publishedAt || undefined,
+      dateModified: post.updatedAt || publishedAt || undefined,
+      author: {
+        "@type": "Person",
+        name: post.author || post.authorName || "AzByteGems",
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "AzByteGems",
+        url: siteUrl,
+        logo: { "@type": "ImageObject", url: `${siteUrl}/images/AZbytegems2.png` },
+      },
+      mainEntityOfPage: `${siteUrl}/${encodeURIComponent(post.slug || slug)}`,
+    };
+    const articleUrl = `${siteUrl}/${encodeURIComponent(post.slug || slug)}`;
+    const breadcrumbItems = [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+      ...(postTopic
+        ? [{ "@type": "ListItem", position: 2, name: postTopic, item: `${siteUrl}${topicPath(postTopic)}` }]
+        : []),
+      { "@type": "ListItem", position: postTopic ? 3 : 2, name: post.title, item: articleUrl },
+    ];
+    const breadcrumbJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: breadcrumbItems,
+    };
 
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(articleJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
         <ViewTracker slug={slug} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div
@@ -153,6 +247,18 @@ export default async function BlogPostPage({
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Home
               </Link>
+
+              {postTopic && (
+                <nav aria-label="Breadcrumb" className="mb-5 text-sm text-gray-500 dark:text-gray-400">
+                  <ol className="flex flex-wrap items-center gap-2">
+                    <li><Link href="/" className="hover:text-[#0a73b0] hover:underline">Home</Link></li>
+                    <li aria-hidden="true">/</li>
+                    <li><Link href={topicPath(postTopic)} className="hover:text-[#0a73b0] hover:underline">{postTopic}</Link></li>
+                    <li aria-hidden="true">/</li>
+                    <li aria-current="page" className="max-w-full truncate text-gray-700 dark:text-gray-200">{post.title}</li>
+                  </ol>
+                </nav>
+              )}
 
               {/* Header */}
               <header className="mb-8">

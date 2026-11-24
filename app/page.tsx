@@ -7,6 +7,18 @@ import EzoicAd from "../components/ads/EzoicAd";
 import { getBestImage } from "@/lib/utils";
 import { getHomepageData } from "@/lib/supabase-queries";
 import HomepageIntro from "@/components/home/HomepageIntro";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Practical Python, Data Science & AI Guides",
+  description: "Learn Python, data science, machine learning, and AI with clear tutorials, datasets, and practical resources from AzByteGems.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "AzByteGems | Practical Python, Data Science & AI Guides",
+    description: "Clear tutorials, datasets, and practical resources for Python, data science, machine learning, and AI.",
+    url: "/",
+  },
+};
 
 // Cache 1 min temporarily so homepage picks up after quota reset; set back to 600 when stable
 export const revalidate = 60;

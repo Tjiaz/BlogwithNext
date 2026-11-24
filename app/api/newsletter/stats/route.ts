@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import clientPromise from "@/lib/mongodb";
 import { isAdminEmail } from "@/lib/utils";
+import { ELIGIBLE_SUBSCRIBER_FILTER } from "@/lib/newsletter";
 
 export async function GET() {
   try {
@@ -26,13 +27,15 @@ export async function GET() {
     const collection = db.collection("newsletter_subscribers");
 
     const total = await collection.countDocuments({});
-    const active = await collection.countDocuments({ active: true });
+    const active = await collection.countDocuments(ELIGIBLE_SUBSCRIBER_FILTER);
+    const legacyNeedsReview = await collection.countDocuments({ active: true, confirmedAt: { $exists: false }, legacyConsentReviewed: { $ne: true } });
 
     return NextResponse.json({
       success: true,
       stats: {
         total,
         active,
+        legacyNeedsReview,
       },
     });
   } catch (error: any) {

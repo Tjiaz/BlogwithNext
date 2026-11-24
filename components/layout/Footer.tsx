@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Facebook, Linkedin } from "lucide-react";
-import toast from "react-hot-toast";
+import NewsletterSignup from "@/components/home/NewsletterSignup";
 
 // X (Twitter) Icon Component
 const XIcon = ({ className }: { className?: string }) => (
@@ -20,7 +19,7 @@ const XIcon = ({ className }: { className?: string }) => (
 const footerLinks = {
   Content: [
     { label: "Blog", href: "/blog" },
-    { label: "Topics", href: "/blog#topics" },
+    { label: "Topics", href: "/topics" },
     { label: "Search", href: "/search" },
     { label: "About", href: "/blog/about" },
   ],
@@ -55,41 +54,6 @@ const socialLinks = [
 ];
 
 export default function Footer() {
-  const [email, setEmail] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!email.trim() || !email.includes("@")) {
-      toast.error("Please enter a valid email address");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const response = await fetch("/api/newsletter/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim() }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast.success("Successfully subscribed to newsletter!");
-        setEmail("");
-      } else {
-        toast.error(data.error || "Failed to subscribe");
-      }
-    } catch (error) {
-      console.error("Failed to subscribe:", error);
-      toast.error("Failed to subscribe. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <footer className="bg-gray-900 dark:bg-black text-gray-300 dark:text-gray-400 border-t border-gray-800 dark:border-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -116,27 +80,12 @@ export default function Footer() {
             <div id="newsletter-signup" className="mb-6 scroll-mt-24">
               <h3 className="text-white font-semibold mb-3">Stay Updated</h3>
               <p className="mb-3 max-w-md text-sm text-gray-400">Get new Python, data science, and AI tutorials and resources in your inbox.</p>
-              <form
-                onSubmit={handleSubscribe}
-                className="flex flex-col sm:flex-row gap-2"
-              >
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                  disabled={submitting}
-                  className="flex-1 px-4 py-2 bg-gray-800 dark:bg-gray-900 border border-gray-700 dark:border-gray-800 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none text-white dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-6 py-2 bg-gradient-to-r from-[#0a73b0] to-[#2a9bd0] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all whitespace-nowrap"
-                >
-                  {submitting ? "Subscribing..." : "Subscribe"}
-                </button>
-              </form>
+              <NewsletterSignup
+                source="footer"
+                inputClassName="border-gray-700 bg-gray-800 text-white placeholder-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                buttonClassName="text-white"
+                consentClassName="text-gray-300"
+              />
             </div>
           </div>
 
@@ -172,6 +121,13 @@ export default function Footer() {
             <p className="text-gray-500 text-sm">
               Made with ❤️ for the data science community
             </p>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event("cookie-settings-open"))}
+              className="mt-2 text-sm text-gray-400 underline underline-offset-2 hover:text-white"
+            >
+              Cookie preferences
+            </button>
           </div>
 
           {/* Social Links */}

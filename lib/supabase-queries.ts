@@ -21,6 +21,7 @@ export interface Article {
   date?: string;
   publishedAt?: string;
   createdAt?: string;
+  updatedAt?: string;
   img?: string;
   featuredImage?: string;
   image?: string;
@@ -514,6 +515,7 @@ async function getArticleUncached(slug: string): Promise<Article | null> {
       publishedAt:
         article.published_at || article.date || article.created_at || "",
       createdAt: article.created_at || "",
+      updatedAt: article.updated_at || "",
       author: article.author || article.author_name || "Unknown",
       authorName: article.author_name || article.author || "Unknown",
       img:

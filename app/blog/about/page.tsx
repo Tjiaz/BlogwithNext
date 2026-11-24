@@ -103,6 +103,24 @@ export default function AboutPage() {
             </div>
           </div>
 
+          <section className="mb-8 border-t border-gray-200 pt-8 dark:border-gray-700">
+            <div className="mb-4 flex items-center">
+              <Target className="mr-2 h-6 w-6 text-[#0a73b0] dark:text-blue-400" />
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Editorial approach</h2>
+            </div>
+            <p className="mb-4 leading-relaxed text-gray-700 dark:text-gray-300">
+              Our guides are intended to help readers solve practical programming and data problems.
+              We aim to explain who a tutorial is for, show useful examples, and make important
+              limitations clear.
+            </p>
+            <ul className="list-disc space-y-2 pl-6 text-gray-700 dark:text-gray-300">
+              <li>Code examples should be checked against the versions and requirements stated in the guide before publication.</li>
+              <li>Technical claims and recommendations should link to primary documentation or other reliable sources where practical.</li>
+              <li>When a tool, library, or workflow changes, we review the guide and update its date when the changes materially affect the advice.</li>
+              <li>Authors are identified on articles so readers can see who prepared the guide.</li>
+            </ul>
+          </section>
+
           {/* Our Values */}
           <div className="mb-8">
             <div className="flex items-center mb-4">

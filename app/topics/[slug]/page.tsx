@@ -2,10 +2,28 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 import EzoicAd from "@/components/ads/EzoicAd";
 import { supabase } from "@/lib/supabase";
 import { getPostSlug, getBestImage } from "@/lib/utils";
+import type { Metadata } from "next";
+import NewsletterSignup from "@/components/home/NewsletterSignup";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const topic = decodeURIComponent(slug).replace(/_/g, " ").trim();
+  const title = `${topic} tutorials and resources`;
+  const description = `Browse AzByteGems ${topic} guides, tutorials, and practical resources.`;
+  return {
+    title,
+    description,
+    alternates: { canonical: `/topics/${encodeURIComponent(slug)}` },
+    openGraph: { title, description, url: `/topics/${encodeURIComponent(slug)}` },
+  };
+}
 
 async function getTopicPosts(slug: string) {
   try {
@@ -256,9 +274,10 @@ export default async function TopicPage({
 
               {/* Search */}
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                <form className="relative">
+                <form className="relative" action="/search" method="get">
                   <input
                     type="text"
+                    name="q"
                     placeholder="Search AzByteGems..."
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-[#0a73b0] dark:focus:ring-blue-400 focus:border-transparent outline-none"
                   />
@@ -277,14 +296,8 @@ export default async function TopicPage({
 
               {/* Newsletter Signup */}
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                <input
-                  type="text"
-                  placeholder="Your Email"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-[#0a73b0] dark:focus:ring-blue-400 focus:border-transparent outline-none mb-3"
-                />
-                <Button className="w-full bg-gradient-to-r from-[#0a73b0] to-[#2a9bd0] hover:opacity-90">
-                  Sign Up
-                </Button>
+                <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">Get new guides by email</h2>
+                <NewsletterSignup source="topic-page" buttonLabel="Sign up" />
               </div>
             </div>
           </div>

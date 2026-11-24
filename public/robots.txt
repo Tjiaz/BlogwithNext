@@ -5,5 +5,4 @@ Allow: /
 User-agent: Mediapartners-Google
 Allow: /
 
-# Sitemap (update with your actual sitemap URL when available)
-# Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://www.azbytegems.com/sitemap.xml

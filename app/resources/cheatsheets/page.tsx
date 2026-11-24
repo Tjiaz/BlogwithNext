@@ -1,6 +1,13 @@
 import React from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen, Download, Eye } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Python, SQL, Git & Docker Cheat Sheets",
+  description: "Download quick-reference cheat sheets for Python, SQL, Git, Docker, and common developer workflows.",
+  alternates: { canonical: "/resources/cheatsheets" },
+};
 
 const cheatsheets = [
   {

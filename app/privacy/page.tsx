@@ -1,4 +1,7 @@
 import React from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Privacy Policy", robots: { index: false, follow: true } };
 
 export default function PrivacyPolicyPage() {
   return (
@@ -33,14 +36,28 @@ export default function PrivacyPolicyPage() {
                   website, including pages visited, articles read, and time spent on the site.
                 </li>
                 <li>
-                  <strong>Cookies:</strong> We use cookies and similar tracking technologies to
-                  enhance your experience and analyze site traffic.
+                  <strong>Cookies and analytics:</strong> We use essential browser storage for site
+                  features and store your cookie choice. Google Analytics is loaded only after you
+                  accept optional cookies. You can change your choice using Cookie preferences in
+                  the footer.
                 </li>
                 <li>
                   <strong>Newsletter Subscriptions:</strong> If you subscribe to our newsletter, we
-                  collect your email address.
+                  collect your email address, your signup source and time, and whether you confirmed
+                  your address and subscription. We use these details to manage consent, deliver
+                  requested email updates, and process unsubscribes.
                 </li>
               </ul>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-4">Newsletter choices</h2>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                Newsletter signups require an affirmative choice and an email confirmation. You can
+                unsubscribe using the link in any newsletter. We keep the minimum subscription and
+                suppression information needed to respect that choice and prevent further marketing
+                emails. We use service providers to store subscriber records and deliver email.
+              </p>
             </section>
 
             <section className="mb-8">

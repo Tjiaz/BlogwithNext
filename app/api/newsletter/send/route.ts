@@ -2,119 +2,60 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import clientPromise from "@/lib/mongodb";
 import { isAdminEmail } from "@/lib/utils";
-import nodemailer from "nodemailer";
+import {
+  ensureUnsubscribeToken,
+  ELIGIBLE_SUBSCRIBER_FILTER,
+  getNewsletterCollection,
+  sendNewsletterMessage,
+} from "@/lib/newsletter";
 
 export async function POST(req: Request) {
   try {
     const session = await auth();
-
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 },
-      );
-    }
-
-    if (!isAdminEmail(session.user.email)) {
-      return NextResponse.json(
-        { success: false, error: "Forbidden - Admin only" },
-        { status: 403 },
-      );
-    }
+    if (!session?.user?.email) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    if (!isAdminEmail(session.user.email)) return NextResponse.json({ success: false, error: "Forbidden - Admin only" }, { status: 403 });
 
     const { subject, content } = await req.json();
-
-    if (!subject || !content) {
-      return NextResponse.json(
-        { success: false, error: "Subject and content are required" },
-        { status: 400 },
-      );
+    if (typeof subject !== "string" || !subject.trim() || typeof content !== "string" || !content.trim()) {
+      return NextResponse.json({ success: false, error: "Subject and content are required" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db("ARTICLES");
-    const collection = db.collection("newsletter_subscribers");
-
-    // Get all active subscribers
-    const subscribers = await collection.find({ active: true }).toArray();
-
-    if (subscribers.length === 0) {
-      return NextResponse.json(
-        { success: false, error: "No active subscribers found" },
-        { status: 400 },
-      );
-    }
-
-    // Configure email transporter
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT || "465"),
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-
-    // Replace unsubscribe links in content
-    const processedContent = content.replace(
-      /\[unsubscribe_link\]/g,
-      () => {
-        // In a real implementation, you'd generate unique unsubscribe links
-        return `${process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BASE_URL}/unsubscribe?email=[email]`;
-      },
-    );
+    const collection = await getNewsletterCollection();
+    const subscribers = await collection.find(ELIGIBLE_SUBSCRIBER_FILTER).toArray();
+    if (!subscribers.length) return NextResponse.json({ success: false, error: "No active subscribers found" }, { status: 400 });
 
     let sentCount = 0;
-    const errors: string[] = [];
-
-    // Send emails to all subscribers
+    const failedEmails: string[] = [];
     for (const subscriber of subscribers) {
       try {
-        // Replace [email] placeholder with actual email for unsubscribe link
-        const emailContent = processedContent.replace(
-          /\[email\]/g,
-          encodeURIComponent(subscriber.email),
-        );
-
-        await transporter.sendMail({
-          from:
-            process.env.EMAIL_FROM ||
-            "AzByteGems Newsletter <azbytegems@gmail.com>",
+        const unsubscribeToken = await ensureUnsubscribeToken(collection, subscriber);
+        await sendNewsletterMessage({
           to: subscriber.email,
-          subject: subject,
-          html: emailContent,
+          subject: subject.trim(),
+          html: content,
+          unsubscribeToken,
         });
-
         sentCount++;
-      } catch (error: any) {
-        console.error(`Failed to send email to ${subscriber.email}:`, error);
-        errors.push(subscriber.email);
+      } catch (error) {
+        console.error("Failed to send newsletter to a subscriber:", error);
+        failedEmails.push(subscriber.email);
       }
     }
 
-    // Log newsletter send
-    await db.collection("newsletter_logs").insertOne({
+    const client = await clientPromise;
+    await client.db("ARTICLES").collection("newsletter_logs").insertOne({
       sentBy: session.user.email,
-      subject,
+      subject: subject.trim(),
       sentAt: new Date(),
       totalSubscribers: subscribers.length,
       sentCount,
-      failedCount: errors.length,
-      failedEmails: errors,
+      failedCount: failedEmails.length,
+      failedEmails,
     });
 
-    return NextResponse.json({
-      success: true,
-      sent: sentCount,
-      failed: errors.length,
-      errors: errors.length > 0 ? errors : undefined,
-    });
-  } catch (error: any) {
+    return NextResponse.json({ success: true, sent: sentCount, failed: failedEmails.length });
+  } catch (error) {
     console.error("Failed to send newsletter:", error);
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 },
-    );
+    return NextResponse.json({ success: false, error: "Failed to send newsletter." }, { status: 500 });
   }
 }

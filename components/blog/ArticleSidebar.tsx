@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { TrendingUp, Clock, ArrowRight } from "lucide-react";
+import { TrendingUp, Clock } from "lucide-react";
 import { getPostSlug, getBestImage } from "@/lib/utils";
-import toast from "react-hot-toast";
 import EzoicAd from "../ads/EzoicAd";
+import NewsletterSignup from "@/components/home/NewsletterSignup";
 
 interface Article {
   _id: string;
@@ -32,8 +32,6 @@ export default function ArticleSidebar({
   const [latestPosts, setLatestPosts] = useState<Article[]>([]);
   const [topPosts, setTopPosts] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchSidebarData = async () => {
@@ -200,63 +198,12 @@ export default function ArticleSidebar({
         />}
 
         {/* Newsletter Signup */}
-        <div className="bg-gradient-to-r from-[#0a73b0] to-[#2a9bd0] dark:from-blue-600 dark:to-blue-700 rounded-lg shadow p-6 text-white">
-          <h3 className="text-lg font-semibold mb-2">Stay Updated</h3>
-          <p className="text-sm text-blue-100 mb-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow dark:border-gray-700 dark:bg-gray-800">
+          <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">Stay Updated</h3>
+          <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
             Get the latest articles delivered to your inbox
           </p>
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-
-              if (!email.trim() || !email.includes("@")) {
-                toast.error("Please enter a valid email address");
-                return;
-              }
-
-              setSubmitting(true);
-              try {
-                const response = await fetch("/api/newsletter/subscribe", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ email: email.trim() }),
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                  toast.success("Successfully subscribed to newsletter!");
-                  setEmail("");
-                } else {
-                  toast.error(data.error || "Failed to subscribe");
-                }
-              } catch (error) {
-                console.error("Failed to subscribe:", error);
-                toast.error("Failed to subscribe. Please try again.");
-              } finally {
-                setSubmitting(false);
-              }
-            }}
-            className="space-y-2"
-          >
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email"
-              required
-              disabled={submitting}
-              className="w-full px-4 py-2 rounded-lg bg-white/90 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-white focus:outline-none text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-white text-[#0a73b0] dark:text-blue-600 py-2 rounded-lg font-medium hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm flex items-center justify-center gap-2"
-            >
-              {submitting ? "Subscribing..." : "Subscribe"}
-              {!submitting && <ArrowRight className="w-4 h-4" />}
-            </button>
-          </form>
+          <NewsletterSignup source="article-sidebar" />
         </div>
 
         {/* Loading State */}

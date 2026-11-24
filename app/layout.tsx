@@ -8,6 +8,7 @@ import CookieConsent from "@/components/layout/CookieConsent";
 import { Toaster } from "react-hot-toast";
 import SessionProvider from "@/components/providers/SessionProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,11 +32,12 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://www.azbytegems.com",
     siteName: "AzByteGems",
+    images: [{ url: "/images/AZbytegems2.png", alt: "AzByteGems" }],
   },
   twitter: {
     card: "summary_large_image",
+    images: ["/images/AZbytegems2.png"],
   },
 };
 
@@ -77,6 +79,7 @@ export default function RootLayout({
               <Navbar />
               <main className="flex-grow">{children}</main>
               <Footer />
+              <GoogleAnalytics />
             </div>
             <Toaster
               position="top-right"

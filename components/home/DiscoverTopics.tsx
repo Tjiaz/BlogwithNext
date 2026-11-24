@@ -1,136 +1,27 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import Link from "next/link";
+import { getPublishedTopics, topicPath } from "@/lib/content-discovery";
 import { getTopicBadgeStyle } from "@/lib/topic-colors";
 
-interface Topic {
-  name: string;
-  color: string;
-}
-
-// Re-export so existing imports from DiscoverTopics keep working
-export { getTopicColor, getTopicHex, getTopicBadgeStyle } from "@/lib/topic-colors";
-
-// Deterministic shuffle using a seed based on array content
-// This ensures the same topics always produce the same shuffle order (no hydration mismatch)
-const deterministicShuffle = <T,>(array: T[]): T[] => {
-  const shuffled = [...array];
-  // Create a seed from the array content
-  let seed = 0;
-  for (let i = 0; i < array.length; i++) {
-    const str = String(array[i]);
-    for (let j = 0; j < str.length; j++) {
-      seed = ((seed << 5) - seed) + str.charCodeAt(j);
-      seed = seed & seed; // Convert to 32-bit integer
-    }
-  }
-  
-  // Simple pseudo-random generator using seed
-  let random = seed;
-  const nextRandom = () => {
-    random = (random * 9301 + 49297) % 233280;
-    return random / 233280;
-  };
-  
-  // Fisher-Yates shuffle with deterministic random
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(nextRandom() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-};
-
-// Get first 6 topics from deterministically shuffled array
-const getRandomTopics = (allTopics: string[], count: number = 6): string[] => {
-  if (allTopics.length <= count) {
-    return allTopics;
-  }
-  const shuffled = deterministicShuffle(allTopics);
-  return shuffled.slice(0, count);
-};
-
-export default function DiscoverTopics() {
-  const [topics, setTopics] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // Ensure this only runs on client side
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
-    async function fetchTopics() {
-      try {
-        const res = await fetch("/api/topics");
-        const data = await res.json();
-
-        if (data.success && Array.isArray(data.topics)) {
-          // Randomly select 6 topics from all available topics
-          const randomTopics = getRandomTopics(data.topics, 6);
-          setTopics(randomTopics);
-        }
-      } catch (error) {
-        console.error("Failed to fetch topics:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchTopics();
-  }, [mounted]);
-
-  // Don't render anything until mounted on client to avoid hydration mismatch
-  if (!mounted || loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-48 mb-6"></div>
-          <div className="flex flex-wrap gap-3">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-24"
-              ></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (topics.length === 0) {
-    return null;
-  }
+export default async function DiscoverTopics() {
+  const topics = (await getPublishedTopics()).slice(0, 12);
+  if (!topics.length) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-6">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 relative inline-block">
-          Discover by topics
-          <span className="absolute bottom-0 left-0 w-20 h-0.5 bg-[#0a73b0] dark:bg-blue-400"></span>
-        </h2>
+    <section aria-labelledby="discover-topics-heading" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 id="discover-topics-heading" className="text-2xl font-bold text-gray-900 dark:text-gray-100 md:text-3xl">Explore practical guides by topic</h2>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">Find tutorials, explainers, and resources in your area of interest.</p>
+        </div>
+        <Link href="/topics" className="font-semibold text-[#0a73b0] hover:underline dark:text-sky-300">Browse all topics →</Link>
       </div>
-
       <div className="flex flex-wrap gap-3">
-        {topics.map((topic) => {
-          const topicSlug = topic.replace(/\s+/g, "_");
-
-          return (
-            <Link
-              key={topic}
-              href={`/topics/${encodeURIComponent(topicSlug)}`}
-              className="text-white px-6 py-2.5 rounded-lg font-medium hover:opacity-90 hover:scale-105 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg"
-              style={getTopicBadgeStyle(topic)}
-            >
-              {topic}
-            </Link>
-          );
-        })}
+        {topics.map((topic) => (
+          <Link key={topic} href={topicPath(topic)} className="rounded-lg px-5 py-2.5 font-medium shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0a73b0]" style={getTopicBadgeStyle(topic)}>
+            {topic}
+          </Link>
+        ))}
       </div>
-    </div>
+    </section>
   );
 }

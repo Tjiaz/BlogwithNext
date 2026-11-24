@@ -1,16 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Button } from "../ui/Button";
 import { getPostSlug } from "@/lib/utils";
-import toast from "react-hot-toast";
 import EzoicAd from "../ads/EzoicAd";
+import NewsletterSignup from "@/components/home/NewsletterSignup";
 
 const Sidebar = () => {
-  const [email, setEmail] = useState("");
   const [topPosts, setTopPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     async function fetchTopPosts() {
@@ -30,38 +27,6 @@ const Sidebar = () => {
     fetchTopPosts();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!email.trim() || !email.includes("@")) {
-      toast.error("Please enter a valid email address");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const response = await fetch("/api/newsletter/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim() }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast.success("Successfully subscribed to newsletter!");
-        setEmail("");
-      } else {
-        toast.error(data.error || "Failed to subscribe");
-      }
-    } catch (error) {
-      console.error("Failed to subscribe:", error);
-      toast.error("Failed to subscribe. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <aside className="hidden lg:block w-full min-w-0">
       <div className="sticky top-24 space-y-5">
@@ -71,33 +36,9 @@ const Sidebar = () => {
             Stay Updated
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-            Get the FREE ebook &apos;Az bytegems Artificial Intelligence Pocket
-            Dictionary&apos; along with the newsletter.
+            Get practical Python, data science, and AI tutorials and resources in your inbox.
           </p>
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-              className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#0a73b0] focus:border-transparent text-sm"
-            />
-            <Button
-              type="submit"
-              fullWidth
-              disabled={submitting}
-              className="bg-gradient-to-r from-[#0a73b0] to-[#2a9bd0] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting ? "Subscribing..." : "Sign Up"}
-            </Button>
-          </form>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center">
-            By subscribing you accept{" "}
-            <Link href="/privacy" className="text-[#0a73b0] dark:text-blue-400 hover:underline">
-              Azbytegems Privacy Policy
-            </Link>
-          </p>
+          <NewsletterSignup source="homepage-sidebar" buttonLabel="Sign up" />
         </div>
 
         {/* Top Posts */}

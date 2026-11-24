@@ -1,6 +1,13 @@
 import React from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen, FileText, Briefcase } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Python, Data Science & AI Resources",
+  description: "Browse AzByteGems developer resources, practical cheat sheets, technical briefs, and tool recommendations.",
+  alternates: { canonical: "/resources" },
+};
 
 const resources = [
   {

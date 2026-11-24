@@ -35,7 +35,11 @@ export async function GET() {
       subscribers: subscribers.map((sub) => ({
         _id: sub._id.toString(),
         email: sub.email,
-        active: sub.active ?? true,
+        active: sub.active === true && (!!sub.confirmedAt || sub.legacyConsentReviewed === true),
+        needsConsentReview: sub.active === true && !sub.confirmedAt && sub.legacyConsentReviewed !== true,
+        status: sub.status || (sub.active ? "legacy" : "inactive"),
+        consentAt: sub.consentAt,
+        consentSource: sub.consentSource,
         subscribedAt: sub.subscribedAt,
       })),
     });

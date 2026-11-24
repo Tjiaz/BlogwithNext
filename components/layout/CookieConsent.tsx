@@ -23,16 +23,24 @@ export default function CookieConsent() {
     }
   }, []);
 
+  useEffect(() => {
+    const openPreferences = () => setShowModal(true);
+    window.addEventListener("cookie-settings-open", openPreferences);
+    return () => window.removeEventListener("cookie-settings-open", openPreferences);
+  }, []);
+
   const handleAccept = () => {
     localStorage.setItem("cookieConsent", "accepted");
     localStorage.setItem("cookieConsentDate", new Date().toISOString());
     setShowModal(false);
+    window.dispatchEvent(new CustomEvent("cookie-consent-change", { detail: "accepted" }));
   };
 
   const handleDecline = () => {
     localStorage.setItem("cookieConsent", "declined");
     localStorage.setItem("cookieConsentDate", new Date().toISOString());
     setShowModal(false);
+    window.dispatchEvent(new CustomEvent("cookie-consent-change", { detail: "declined" }));
   };
 
   // Don't render until mounted to prevent hydration mismatch
@@ -72,8 +80,9 @@ export default function CookieConsent() {
                 </button>
               </div>
               <p className="text-sm sm:text-base text-gray-600 mb-4">
-                We use cookies to enhance your browsing experience, analyze site traffic, and
-                personalize content. By clicking "Accept All", you consent to our use of cookies.
+                We use essential storage for site features and optional analytics to understand
+                traffic. Google Analytics loads only if you accept. You can change your choice
+                using Cookie preferences in the footer.
                 You can learn more about how we use cookies in our{" "}
                 <Link
                   href="/privacy"

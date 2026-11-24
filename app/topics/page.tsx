@@ -1,89 +1,39 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { getTopicColor } from "@/components/home/DiscoverTopics";
+import { getPublishedTopics, topicPath } from "@/lib/content-discovery";
+import { getTopicBadgeStyle } from "@/lib/topic-colors";
 
-export default function TopicsIndexPage() {
-  const [topics, setTopics] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export const metadata: Metadata = {
+  title: "Browse Python, Data Science & AI Topics",
+  description: "Explore AzByteGems tutorials and practical resources by topic, including Python, AI, machine learning, and data science.",
+  alternates: { canonical: "/topics" },
+};
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch("/api/topics");
-        const data = await res.json();
-        if (cancelled) return;
-        if (data.success && Array.isArray(data.topics)) {
-          const sorted = [...data.topics].sort((a: string, b: string) =>
-            a.localeCompare(b, undefined, { sensitivity: "base" }),
-          );
-          setTopics(sorted);
-        } else {
-          setError("Could not load topics.");
-        }
-      } catch {
-        if (!cancelled) setError("Could not load topics.");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
+export default async function TopicsIndexPage() {
+  const topics = await getPublishedTopics();
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-            Topics
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl">
-            Browse articles by topic. Choose a topic below to see related posts.
-          </p>
-        </div>
-
-        {loading && (
-          <div className="animate-pulse flex flex-wrap gap-3">
-            {[...Array(12)].map((_, i) => (
-              <div
-                key={i}
-                className="h-11 w-28 bg-gray-200 dark:bg-gray-700 rounded-lg"
-              />
-            ))}
-          </div>
-        )}
-
-        {error && !loading && (
-          <p className="text-red-600 dark:text-red-400">{error}</p>
-        )}
-
-        {!loading && !error && topics.length === 0 && (
-          <p className="text-gray-600 dark:text-gray-400">No topics yet.</p>
-        )}
-
-        {!loading && topics.length > 0 && (
-          <div className="flex flex-wrap gap-3">
-            {topics.map((topic) => {
-              const topicSlug = topic.replace(/\s+/g, "_");
-              const colorClass = getTopicColor(topic);
-              return (
-                <Link
-                  key={topic}
-                  href={`/topics/${encodeURIComponent(topicSlug)}`}
-                  className={`${colorClass} text-white px-5 py-2.5 rounded-lg font-medium hover:opacity-90 hover:scale-105 active:scale-95 transition-all shadow-md hover:shadow-lg`}
-                >
-                  {topic}
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <header className="mb-10 max-w-3xl">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-[#0a73b0] dark:text-sky-300">Explore AzByteGems</p>
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Browse tutorials by topic</h1>
+          <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">Choose a subject to find practical guides, explainers, and resources for your next project.</p>
+        </header>
+        {topics.length ? (
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {topics.map((topic) => (
+              <li key={topic}>
+                <Link href={topicPath(topic)} className="group flex h-full items-center justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-sky-700">
+                  <span className="font-semibold text-gray-900 group-hover:text-[#0a73b0] dark:text-gray-100 dark:group-hover:text-sky-300">{topic}</span>
+                  <span className="rounded-full px-3 py-1 text-sm font-medium" style={getTopicBadgeStyle(topic)}>Explore</span>
                 </Link>
-              );
-            })}
-          </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="rounded-xl border border-gray-200 bg-white p-6 text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">Topics are temporarily unavailable. Please check back soon.</p>
         )}
       </div>
-    </div>
+    </main>
   );
 }
