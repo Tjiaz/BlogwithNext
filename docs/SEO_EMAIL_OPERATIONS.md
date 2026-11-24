@@ -9,6 +9,8 @@
 - The topic directory and homepage topic links render on the server for crawlers and visitors without JavaScript.
 - Newsletter forms share one component, require affirmative consent, record consent wording/version/time/source, and request email confirmation.
 - Confirmed signups receive a welcome email. Campaign email sends include a visible unsubscribe link and RFC 8058 one-click unsubscribe headers.
+- The newsletter admin composer can send a rendered test to the signed-in administrator, preview rendered templates, and target either all confirmed active subscribers or selected eligible subscribers.
+- Newsletter template fields are HTML-escaped. `{{name}}` falls back to “Reader” until signup collects a name. `{{#articles}}...{{/articles}}` renders the latest three published articles; article fields include `title`, `url`, `author`, `publication`, `description`, `readTime`, `views`, and `claps` (the site's likes count).
 - Historical active subscriber records without a confirmation record are excluded from sends. The admin page surfaces these records for review; they can rejoin by submitting the signup form and confirming again.
 - Google Analytics 4 is optional and loads only after the visitor accepts optional cookies. It records page views and `newsletter_signup` events when a Measurement ID is configured.
 

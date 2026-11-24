@@ -52,7 +52,7 @@ const templates = {
   
   {{#articles}}
   <div style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #e0e0e0;">
-    <h3 style="color: #0B73B1; font-size: 20px; margin-bottom: 10px; line-height: 1.4;">{{title}}</h3>
+    <h3 style="font-size: 20px; margin-bottom: 10px; line-height: 1.4;"><a href="{{url}}" style="color: #0B73B1; text-decoration: none;">{{title}}</a></h3>
     <p style="font-size: 14px; color: #666; margin-bottom: 10px;">By <strong>{{author}}</strong> in <strong>{{publication}}</strong></p>
     <p style="font-size: 15px; line-height: 1.6; color: #333; margin-bottom: 10px;">{{description}}</p>
     <div style="font-size: 13px; color: #888; margin-top: 10px;">
@@ -91,11 +91,16 @@ export default function NewsletterAdminPage() {
   const [sending, setSending] = useState(false);
   const [showSubscribers, setShowSubscribers] = useState(false);
   const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [audienceMode, setAudienceMode] = useState<"all" | "selected">("all");
+  const [selectedSubscriberIds, setSelectedSubscriberIds] = useState<string[]>([]);
   const [selectedTemplate, setSelectedTemplate] =
     useState<keyof typeof templates>("custom");
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState("");
+  const [previewSubject, setPreviewSubject] = useState("");
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   // Check admin access
   useEffect(() => {
@@ -160,10 +165,14 @@ export default function NewsletterAdminPage() {
     }
   };
 
-  const handleSend = async () => {
+  const sendRequest = async (mode: "campaign" | "test") => {
     if (!subject.trim() || !content.trim()) {
       toast.error("Please fill in both subject and content");
-      return;
+      return false;
+    }
+    if (mode === "campaign" && audienceMode === "selected" && selectedSubscriberIds.length === 0) {
+      toast.error("Choose at least one active subscriber, or switch to all active subscribers.");
+      return false;
     }
 
     setSending(true);
@@ -171,25 +180,62 @@ export default function NewsletterAdminPage() {
       const res = await fetch("/api/newsletter/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject, content }),
+        body: JSON.stringify(mode === "test"
+          ? { subject, content, mode: "test" }
+          : { subject, content, ...(audienceMode === "selected" ? { subscriberIds: selectedSubscriberIds } : {}) }),
       });
 
       const data = await res.json();
       if (data.success) {
-        toast.success(
-          `Newsletter sent successfully to ${data.sent} subscribers!`,
-        );
-        setSubject("");
-        setContent("");
-        setSelectedTemplate("custom");
+        toast.success(mode === "test"
+          ? `Rendered test email sent to ${session?.user?.email}.`
+          : `Newsletter sent successfully to ${data.sent} subscriber${data.sent === 1 ? "" : "s"}!`);
+        if (mode === "campaign") {
+          setSubject("");
+          setContent("");
+          setSelectedTemplate("custom");
+          setPreviewHtml("");
+          setShowPreview(false);
+        }
+        return true;
       } else {
         toast.error(data.error || "Failed to send newsletter");
+        return false;
       }
     } catch (error) {
       console.error("Failed to send newsletter:", error);
       toast.error("Failed to send newsletter");
+      return false;
     } finally {
       setSending(false);
+    }
+  };
+
+  const handlePreview = async () => {
+    if (!subject.trim() || !content.trim()) {
+      toast.error("Add a subject and email content to preview");
+      return;
+    }
+    setPreviewLoading(true);
+    try {
+      const res = await fetch("/api/newsletter/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject, content, mode: "preview" }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        toast.error(data.error || "Could not render this newsletter preview");
+        return;
+      }
+      setPreviewSubject(data.preview.subject);
+      setPreviewHtml(data.preview.content);
+      setShowPreview(true);
+    } catch (error) {
+      console.error("Failed to render newsletter preview:", error);
+      toast.error("Could not render this newsletter preview");
+    } finally {
+      setPreviewLoading(false);
     }
   };
 
@@ -198,6 +244,8 @@ export default function NewsletterAdminPage() {
     setContent("");
     setSelectedTemplate("custom");
     setShowPreview(false);
+    setPreviewHtml("");
+    setPreviewSubject("");
   };
 
   if (status === "loading" || loading) {
@@ -254,16 +302,33 @@ export default function NewsletterAdminPage() {
           </div>
         </div>
 
-        {/* Show Subscriber List Button */}
-        <div className="mb-6">
-          <button
-            onClick={fetchSubscribers}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2"
-          >
-            <Users className="w-4 h-4" />
-            Show Subscriber List
-          </button>
-        </div>
+        {/* Campaign audience */}
+        <section className="mb-6 rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+          <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">Campaign audience</h2>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <input type="radio" name="newsletter-audience" checked={audienceMode === "all"} onChange={() => setAudienceMode("all")} />
+              All confirmed active subscribers ({stats.active})
+            </label>
+            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <input type="radio" name="newsletter-audience" checked={audienceMode === "selected"} onChange={() => setAudienceMode("selected")} />
+              Selected subscribers
+            </label>
+            <button
+              type="button"
+              onClick={() => { setAudienceMode("selected"); fetchSubscribers(); }}
+              className="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-gray-700"
+            >
+              <Users className="h-4 w-4" />
+              Choose recipients
+            </button>
+          </div>
+          {audienceMode === "selected" && (
+            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+              {selectedSubscriberIds.length} active subscriber{selectedSubscriberIds.length === 1 ? "" : "s"} selected.
+            </p>
+          )}
+        </section>
 
         {/* Subscribers List Modal */}
         {showSubscribers && (
@@ -272,7 +337,7 @@ export default function NewsletterAdminPage() {
               <div className="p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                    Subscribers ({subscribers.length})
+                    Choose recipients ({subscribers.filter((sub) => sub.active).length} active)
                   </h2>
                   <button
                     onClick={() => setShowSubscribers(false)}
@@ -281,15 +346,28 @@ export default function NewsletterAdminPage() {
                     ✕
                   </button>
                 </div>
+                <div className="mb-3 flex gap-3">
+                  <button type="button" onClick={() => setSelectedSubscriberIds(subscribers.filter((sub) => sub.active).map((sub) => sub._id))} className="text-sm font-medium text-blue-700 hover:underline dark:text-blue-300">Select all active</button>
+                  <button type="button" onClick={() => setSelectedSubscriberIds([])} className="text-sm font-medium text-gray-600 hover:underline dark:text-gray-300">Clear selection</button>
+                </div>
                 <div className="space-y-2">
                   {subscribers.map((sub) => (
                     <div
                       key={sub._id}
                       className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg flex justify-between items-center"
                     >
-                      <span className="text-gray-900 dark:text-gray-100">
-                        {sub.email}
-                      </span>
+                      <label className={`mr-3 flex min-w-0 items-center gap-3 ${sub.active ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}>
+                        <input
+                          type="checkbox"
+                          aria-label={`Select ${sub.email}`}
+                          disabled={!sub.active}
+                          checked={sub.active && selectedSubscriberIds.includes(sub._id)}
+                          onChange={(event) => setSelectedSubscriberIds((current) => event.target.checked
+                            ? [...new Set([...current, sub._id])]
+                            : current.filter((id) => id !== sub._id))}
+                        />
+                        <span className="truncate text-gray-900 dark:text-gray-100">{sub.email}</span>
+                      </label>
                       <span
                         className={`text-xs px-2 py-1 rounded ${
                           sub.active
@@ -373,18 +451,20 @@ export default function NewsletterAdminPage() {
                 Email Content (HTML supported)
               </label>
               <button
-                onClick={() => setShowPreview(!showPreview)}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                type="button"
+                onClick={() => showPreview ? setShowPreview(false) : handlePreview()}
+                disabled={previewLoading}
+                className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 disabled:opacity-50"
               >
                 <Eye className="w-4 h-4" />
-                {showPreview ? "Hide" : "Show"} Preview
+                {previewLoading ? "Rendering…" : showPreview ? "Hide Preview" : "Render Preview"}
               </button>
             </div>
             {showPreview ? (
-              <div
-                className="w-full min-h-[400px] p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 overflow-y-auto"
-                dangerouslySetInnerHTML={{ __html: content }}
-              />
+              <div className="w-full min-h-[400px] overflow-y-auto rounded-lg border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-700">
+                <p className="mb-3 border-b border-gray-200 pb-3 text-sm text-gray-600 dark:border-gray-600 dark:text-gray-300"><strong>Subject:</strong> {previewSubject}</p>
+                <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+              </div>
             ) : (
               <textarea
                 value={content}
@@ -394,17 +474,28 @@ export default function NewsletterAdminPage() {
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none font-mono text-sm"
               />
             )}
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              Supported tags: <code>{"{{name}}"}</code>, <code>{"{{email}}"}</code>. For digests, wrap article HTML in <code>{"{{#articles}}...{{/articles}}"}</code> and use <code>{"{{title}}"}</code>, <code>{"{{url}}"}</code>, <code>{"{{author}}"}</code>, <code>{"{{publication}}"}</code>, <code>{"{{description}}"}</code>, <code>{"{{readTime}}"}</code>, <code>{"{{views}}"}</code>, or <code>{"{{claps}}"}</code> inside the block.
+            </p>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
-              onClick={handleSend}
+              onClick={() => sendRequest("test")}
+              disabled={sending || !subject.trim() || !content.trim()}
+              className="flex items-center gap-2 rounded-lg border border-blue-600 px-5 py-2 text-blue-700 transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-blue-300 dark:hover:bg-gray-700"
+            >
+              <Eye className="h-4 w-4" />
+              {sending ? "Sending..." : "Send Test to Me"}
+            </button>
+            <button
+              onClick={() => sendRequest("campaign")}
               disabled={sending || !subject.trim() || !content.trim()}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center gap-2"
             >
               <Send className="w-4 h-4" />
-              {sending ? "Sending..." : "Send Newsletter"}
+              {sending ? "Sending..." : audienceMode === "all" ? `Send to All Active (${stats.active})` : `Send to Selected (${selectedSubscriberIds.length})`}
             </button>
             <button
               onClick={handleReset}
