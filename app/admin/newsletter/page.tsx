@@ -461,7 +461,7 @@ export default function NewsletterAdminPage() {
               </button>
             </div>
             {showPreview ? (
-              <div className="w-full min-h-[400px] overflow-y-auto rounded-lg border border-gray-300 bg-white p-4 dark:border-gray-600 dark:bg-gray-700">
+              <div className="newsletter-preview w-full min-h-[400px] overflow-y-auto rounded-lg border border-gray-300 bg-white p-4 text-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100">
                 <p className="mb-3 border-b border-gray-200 pb-3 text-sm text-gray-600 dark:border-gray-600 dark:text-gray-300"><strong>Subject:</strong> {previewSubject}</p>
                 <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
               </div>

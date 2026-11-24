@@ -100,45 +100,6 @@ export async function sendNewsletterMessage({
       ? html.split("[unsubscribe_link]").join(visibleUnsubscribeUrl)
       : `${html}${footer}`
     : `${html.replaceAll("[unsubscribe_link]", "")}${footer}`;
-  const emailHtml = `
-    <style type="text/css">
-      :root { color-scheme: light dark; supported-color-schemes: light dark; }
-      @media (prefers-color-scheme: dark) {
-        .azbytegems-email { background-color: #111827 !important; color: #e5e7eb !important; }
-        .azbytegems-email p, .azbytegems-email div, .azbytegems-email span,
-        .azbytegems-email strong, .azbytegems-email li {
-          color: #e5e7eb !important;
-        }
-        .azbytegems-email h1, .azbytegems-email h2, .azbytegems-email h3 {
-          color: #7dd3fc !important;
-        }
-        .azbytegems-email a { color: #7dd3fc !important; }
-        .azbytegems-email a[style*="background"] {
-          background-color: #075985 !important;
-          color: #ffffff !important;
-        }
-        .azbytegems-email [style*="#f5f5f5"] { background-color: #1f2937 !important; }
-        .azbytegems-email [style*="#e0e0e0"] { border-color: #4b5563 !important; }
-      }
-      [data-ogsc] .azbytegems-email { background-color: #111827 !important; color: #e5e7eb !important; }
-      [data-ogsc] .azbytegems-email p, [data-ogsc] .azbytegems-email div,
-      [data-ogsc] .azbytegems-email span, [data-ogsc] .azbytegems-email strong,
-      [data-ogsc] .azbytegems-email li { color: #e5e7eb !important; }
-      [data-ogsc] .azbytegems-email h1, [data-ogsc] .azbytegems-email h2,
-      [data-ogsc] .azbytegems-email h3, [data-ogsc] .azbytegems-email a {
-        color: #7dd3fc !important;
-      }
-      [data-ogsc] .azbytegems-email a[style*="background"] {
-        background-color: #075985 !important;
-        color: #ffffff !important;
-      }
-      [data-ogsc] .azbytegems-email [style*="#f5f5f5"] { background-color: #1f2937 !important; }
-      [data-ogsc] .azbytegems-email [style*="#e0e0e0"] { border-color: #4b5563 !important; }
-    </style>
-    <div class="azbytegems-email" style="background-color:#ffffff;color:#1f2937;">
-      ${safeHtml}
-    </div>
-  `;
   const plainText = text || html
     .replace(/<\s*br\s*\/?>/gi, "\n")
     .replace(/<\/(p|div|h[1-6]|li)>/gi, "\n")
@@ -154,7 +115,7 @@ export async function sendNewsletterMessage({
     from: sender(),
     to,
     subject,
-    html: emailHtml,
+    html: safeHtml,
     text: [plainText, visibleUnsubscribeUrl ? `Unsubscribe: ${visibleUnsubscribeUrl}` : "", testMessage ? "Test email sent to the administrator." : ""]
       .filter(Boolean)
       .join("\n\n"),
